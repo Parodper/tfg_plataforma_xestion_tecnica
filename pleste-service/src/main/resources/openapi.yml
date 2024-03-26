@@ -1,0 +1,76 @@
+openapi: "3.1.0"
+info:
+  title: "API"
+  version: "1.0"
+paths:
+  /devices:
+    post:
+      summary: "Create new device"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewDevice"
+      responses:
+        "201":
+          description: "Created device, returning ID"
+          content:
+            application/json:
+              schema:
+                type: int
+        "400":
+          description: "Device already exists"
+  /devices/{deviceId}:
+    parameters:
+      - $ref: "#/components/parameters/deviceId"
+    get:
+      summary: "Returns the Device selected by the given ID"
+      responses:
+        "200":
+          description: "Device selected"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        "404":
+          description: "Device not found"
+    post:
+      summary: "Edits the selected Device"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Device"
+      responses:
+        "204":
+          description: "Device was modified"
+        "404":
+          description: "Device not found"
+    delete:
+      summary: "Removes the selected Device"
+      responses:
+        "204":
+          description: "Device successfully deleted"
+        "404":
+          description: "Device not found. Might have been deleted on a cached request"
+components:
+  parameters:
+    deviceId:
+      in: path
+      description: "ID of the device"
+      name: deviceId
+      required: true
+      schema:
+        type: integer
+  schemas:
+    NewDevice:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+    Device:
+      $ref: "Device"
