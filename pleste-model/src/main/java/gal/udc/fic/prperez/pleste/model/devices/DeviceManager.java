@@ -15,8 +15,8 @@ public class DeviceManager {
 		deviceDatabase = new SQLDeviceDaoImpl();
 	}
 
-	public void addDevice(Device d) throws DeviceAlreadyExistsException {
-		deviceDatabase.create(connection, d);
+	public Long addDevice(Device d) throws DeviceAlreadyExistsException {
+		return deviceDatabase.create(connection, d).getId();
 	}
 
 	public void removeDevice(Long id) throws DeviceNotFoundException {

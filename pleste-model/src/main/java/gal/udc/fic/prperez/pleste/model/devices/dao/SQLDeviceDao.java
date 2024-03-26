@@ -8,9 +8,9 @@ import java.sql.Connection;
 import java.util.List;
 
 public interface SQLDeviceDao {
-	public void create(Connection connection, Device device) throws DeviceAlreadyExistsException;
+	public Device create(Connection connection, Device device) throws DeviceAlreadyExistsException;
 	public void delete(Connection connection, long id) throws DeviceNotFoundException;
-	public void update(Connection connection, long id, Device device) throws DeviceNotFoundException;
+	public Device update(Connection connection, long id, Device device) throws DeviceNotFoundException;
 	public Device getById(long id) throws DeviceNotFoundException;
 	public List<Device> getAllDevices();
 }

@@ -11,7 +11,7 @@ public class SQLDeviceDaoImpl implements SQLDeviceDao {
 	List<Device> deviceList = new ArrayList<>();
 
 	@Override
-	public void create(Connection connection, Device device) {
+	public Device create(Connection connection, Device device) {
 		/* Create "queryString". */
 //		String queryString = "INSERT INTO Eventos"
 //				+ " (nombre, descripcion, fecha, fecha_alta, duracion, cancelada, asisten, no_asisten)"
@@ -53,6 +53,7 @@ public class SQLDeviceDaoImpl implements SQLDeviceDao {
 
 		device.setId((long) deviceList.size());
 		deviceList.add(device);
+		return device;
 	}
 
 	@Override
@@ -65,9 +66,10 @@ public class SQLDeviceDaoImpl implements SQLDeviceDao {
 	}
 
 	@Override
-	public void update(Connection connection, long id, Device device) throws DeviceNotFoundException {
+	public Device update(Connection connection, long id, Device device) throws DeviceNotFoundException {
 		if(deviceList.contains(new Device(id))) {
 			deviceList.replaceAll( (x) -> x.equals(new Device(id)) ? device : x);
+			return getById(id);
 		} else {
 			throw new DeviceNotFoundException(id, device.getName());
 		}

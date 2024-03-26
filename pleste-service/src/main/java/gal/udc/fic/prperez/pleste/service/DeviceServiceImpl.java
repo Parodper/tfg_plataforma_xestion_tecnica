@@ -19,11 +19,6 @@ public class DeviceServiceImpl implements DevicesApi {
 
 	public DeviceServiceImpl() {
 		deviceManager = DeviceManagerFactory.getService();
-		try {
-			deviceManager.addDevice(new Device(-1L, "A", "B", "C", "D", new ArrayList<>()));
-		} catch (DeviceAlreadyExistsException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	@Override
