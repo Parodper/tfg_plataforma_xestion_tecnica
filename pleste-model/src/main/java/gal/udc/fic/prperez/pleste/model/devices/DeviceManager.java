@@ -1,6 +1,6 @@
 package gal.udc.fic.prperez.pleste.model.devices;
 
-import gal.udc.fic.prperez.pleste.model.dao.SQLDeviceDaoImpl;
+import gal.udc.fic.prperez.pleste.model.devices.dao.SQLDeviceDaoImpl;
 import gal.udc.fic.prperez.pleste.model.devices.exceptions.DeviceAlreadyExistsException;
 import gal.udc.fic.prperez.pleste.model.devices.exceptions.DeviceNotFoundException;
 

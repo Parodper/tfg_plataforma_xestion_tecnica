@@ -2,6 +2,7 @@ package gal.udc.fic.prperez.pleste.service;
 
 import gal.udc.fic.prperez.pleste.model.devices.Device;
 import gal.udc.fic.prperez.pleste.model.devices.DeviceManager;
+import gal.udc.fic.prperez.pleste.model.devices.DeviceManagerFactory;
 import gal.udc.fic.prperez.pleste.model.devices.exceptions.DeviceAlreadyExistsException;
 import gal.udc.fic.prperez.pleste.model.devices.exceptions.DeviceNotFoundException;
 import gal.udc.fic.prperez.pleste.service.api.DevicesApi;
@@ -17,7 +18,7 @@ public class DeviceServiceImpl implements DevicesApi {
 	DeviceManager deviceManager;
 
 	public DeviceServiceImpl() {
-		deviceManager = new DeviceManager();
+		deviceManager = DeviceManagerFactory.getService();
 		try {
 			deviceManager.addDevice(new Device(-1L, "A", "B", "C", "D", new ArrayList<>()));
 		} catch (DeviceAlreadyExistsException e) {

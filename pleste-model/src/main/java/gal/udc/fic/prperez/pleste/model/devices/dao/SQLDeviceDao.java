@@ -1,4 +1,4 @@
-package gal.udc.fic.prperez.pleste.model.dao;
+package gal.udc.fic.prperez.pleste.model.devices.dao;
 
 import gal.udc.fic.prperez.pleste.model.devices.Device;
 import gal.udc.fic.prperez.pleste.model.devices.exceptions.DeviceAlreadyExistsException;
