@@ -7,7 +7,7 @@ public class DeviceManagerFactory {
 
 	private static DeviceManager getInstance(){
 		try {
-			return (DeviceManager) DeviceManager.class.getDeclaredConstructor().newInstance();
+			return new DeviceManager();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

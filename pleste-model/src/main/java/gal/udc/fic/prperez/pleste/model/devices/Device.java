@@ -1,25 +1,33 @@
 package gal.udc.fic.prperez.pleste.model.devices;
 
-import java.util.List;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+
 import java.util.Objects;
 
+@Entity
 public class Device {
 	public static Long INVALID_ID = -1L;
 
+	@Id
+	@GeneratedValue
 	private Long id;
-	private String config;
-	private String name;
-	private String location;
-	private String owner;
-	private List<String> users;
 
-	public Device(Long id, String config, String name, String location, String owner, List<String> users) {
+	private String config;
+
+	private String name;
+
+	private String location;
+
+	private String owner;
+
+	public Device(Long id, String config, String name, String location, String owner) {
 		this.id = id;
 		this.config = config;
 		this.name = name;
 		this.location = location;
 		this.owner = owner;
-		this.users = users;
 	}
 
 	public Device(Long id) {
@@ -28,7 +36,10 @@ public class Device {
 		this.name = null;
 		this.location = null;
 		this.owner = null;
-		this.users = null;
+	}
+
+	public Device() {
+
 	}
 
 	@Override
@@ -84,11 +95,4 @@ public class Device {
 		this.owner = owner;
 	}
 
-	public List<String> getUsers() {
-		return users;
-	}
-
-	public void setUsers(List<String> users) {
-		this.users = users;
-	}
 }

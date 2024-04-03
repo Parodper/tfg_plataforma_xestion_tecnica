@@ -55,6 +55,34 @@ paths:
           description: "Device successfully deleted"
         "404":
           description: "Device not found. Might have been deleted on a cached request"
+  /devices/{deviceId}/config:
+    parameters:
+      - $ref: "#/components/parameters/deviceId"
+    get:
+      description: "Returns the configuration associated with the given device"
+      responses:
+        "200":
+          description: "Returns the configuration"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Configuration"
+        "404":
+          description: "No configuration found"
+    put:
+      description: "Creates or modifies the configuration of the device"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Configuration"
+      responses:
+        "200":
+          description: "Updated configuration"
+
+
+
 components:
   parameters:
     deviceId:
@@ -74,3 +102,12 @@ components:
           type: string
     Device:
       $ref: "Device"
+    Configuration:
+      type: object
+      properties:
+        creationDate:
+          type: string
+        lastModified:
+          type: string
+        text:
+          type: string

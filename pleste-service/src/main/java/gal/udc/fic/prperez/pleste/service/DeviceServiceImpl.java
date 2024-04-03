@@ -7,18 +7,17 @@ import gal.udc.fic.prperez.pleste.model.devices.exceptions.DeviceAlreadyExistsEx
 import gal.udc.fic.prperez.pleste.model.devices.exceptions.DeviceNotFoundException;
 import gal.udc.fic.prperez.pleste.service.api.DevicesApi;
 import gal.udc.fic.prperez.pleste.service.model.NewDevice;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-
 @RestController
 public class DeviceServiceImpl implements DevicesApi {
-	DeviceManager deviceManager;
+	@Autowired
+	private DeviceManager deviceManager;
 
 	public DeviceServiceImpl() {
-		deviceManager = DeviceManagerFactory.getService();
 	}
 
 	@Override
@@ -47,8 +46,12 @@ public class DeviceServiceImpl implements DevicesApi {
 	@Override
 	public ResponseEntity<Void> devicesDeviceIdPost(Object deviceId, Device device) {
 		try {
-			deviceManager.modifyDevice(Long.parseLong((String) deviceId), device);
-			return ResponseEntity.noContent().build();
+			if(deviceId.equals(device.getId())) {
+				deviceManager.modifyDevice(device);
+				return ResponseEntity.noContent().build();
+			} else {
+				throw new DeviceNotFoundException((Long) deviceId, device.getName());
+			}
 		} catch (DeviceNotFoundException e) {
 			return ResponseEntity.notFound().build();
 		} catch (Exception e) {
@@ -59,7 +62,7 @@ public class DeviceServiceImpl implements DevicesApi {
 	@Override
 	public ResponseEntity<Integer> devicesPost(NewDevice newDevice) {
 		try {
-			deviceManager.addDevice(new Device(Device.INVALID_ID, "", newDevice.getName(), newDevice.getLocation(), "", new ArrayList<>()));
+			deviceManager.addDevice(new Device(Device.INVALID_ID, "", newDevice.getName(), newDevice.getLocation(), ""));
 			return ResponseEntity.noContent().build();
 		} catch (DeviceAlreadyExistsException e) {
 			return ResponseEntity.badRequest().build();
