@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Transactional
 @Service
@@ -29,7 +31,11 @@ public class DeviceManager {
 	}
 
 	public void removeDevice(Long id) throws DeviceNotFoundException {
-		deviceDatabase.delete(new Device(id));
+		if(deviceDatabase.existsById(id)) {
+			deviceDatabase.delete(new Device(id));
+		} else {
+			throw new DeviceNotFoundException(id, "none");
+		}
 	}
 
 	public List<Device> getDevicesByName(String name) {
@@ -37,7 +43,17 @@ public class DeviceManager {
 	}
 
 	public Device getDevice(Long id) throws DeviceNotFoundException {
-		return deviceDatabase.findById(id).get();
+		Optional<Device> d;
+		try {
+			d = deviceDatabase.findById(id);
+			if(d.isPresent()) {
+				return d.get();
+			} else {
+				throw new DeviceNotFoundException(id, "none");
+			}
+		} catch (NoSuchElementException e) {
+			throw new DeviceNotFoundException(id, "none");
+		}
 	}
 
 	public void modifyDevice(Device device) throws DeviceNotFoundException {

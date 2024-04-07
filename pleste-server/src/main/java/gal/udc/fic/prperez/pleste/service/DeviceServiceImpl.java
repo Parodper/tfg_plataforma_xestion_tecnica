@@ -61,8 +61,8 @@ public class DeviceServiceImpl implements DevicesApi {
 	@Override
 	public ResponseEntity<Integer> devicesPost(NewDevice newDevice) {
 		try {
-			deviceManager.addDevice(newDevice.getName(), newDevice.getLocation());
-			return ResponseEntity.noContent().build();
+			Integer id = Math.toIntExact(deviceManager.addDevice(newDevice.getName(), newDevice.getLocation()));
+			return ResponseEntity.ok(id);
 		} catch (DeviceAlreadyExistsException e) {
 			return ResponseEntity.badRequest().build();
 		} catch (Exception e) {
