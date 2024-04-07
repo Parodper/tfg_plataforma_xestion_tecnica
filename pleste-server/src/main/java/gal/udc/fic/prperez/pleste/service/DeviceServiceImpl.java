@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class DeviceServiceImpl implements DevicesApi {
-	@Autowired
-	private DeviceManager deviceManager;
+	private final DeviceManager deviceManager;
 
-	public DeviceServiceImpl() {
+	public @Autowired DeviceServiceImpl(DeviceManager deviceManager) {
+		this.deviceManager = deviceManager;
 	}
 
 	@Override
