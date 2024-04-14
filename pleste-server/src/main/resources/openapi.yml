@@ -3,111 +3,188 @@ info:
   title: "API"
   version: "1.0"
 paths:
-  /devices:
+  /template:
     post:
-      summary: "Create new device"
+      summary: "Create a new template"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/NewDevice"
+              $ref: "#/components/schemas/NewTemplate"
       responses:
         "201":
-          description: "Created device, returning ID"
+          description: "Created template, returning ID"
           content:
             application/json:
               schema:
                 type: int
         "400":
-          description: "Device already exists"
-  /devices/{deviceId}:
-    parameters:
-      - $ref: "#/components/parameters/deviceId"
+          description: "Bad template format"
+        "422":
+          description: "Another template with the same name already exists"
+        "403":
+          description: "User not allowed to create templates"
     get:
-      summary: "Returns the Device selected by the given ID"
+      summary: "Gets a list of template ID"
       responses:
         "200":
-          description: "Device selected"
+          description: "Returns a list of ID"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Device"
+                type: array
+                item:
+                  type: int
+  /template/{templateId}:
+    parameters:
+      - $ref: "#/components/parameters/templateId"
+    get:
+      summary: "Returns the Template selected by the given ID"
+      responses:
+        "200":
+          description: "Template selected"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewTemplate"
         "404":
-          description: "Device not found"
+          description: "Template not found"
     post:
-      summary: "Edits the selected Device"
+      summary: "Updates the Template"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Device"
+              $ref: "#/components/schemas/NewTemplate"
       responses:
         "204":
-          description: "Device was modified"
+          description: "Template updated"
+        "422":
+          description: "User not allowed to modify templates"
         "404":
-          description: "Device not found"
-    delete:
-      summary: "Removes the selected Device"
-      responses:
-        "204":
-          description: "Device successfully deleted"
-        "404":
-          description: "Device not found. Might have been deleted on a cached request"
-  /devices/{deviceId}/config:
+          description: "Template not found"
+  /template/{templateId}/fields:
     parameters:
-      - $ref: "#/components/parameters/deviceId"
+      - $ref: "#/components/parameters/templateId"
     get:
-      description: "Returns the configuration associated with the given device"
+      summary: "Returns the fields of the Template"
       responses:
         "200":
-          description: "Returns the configuration"
+          description: "List of fields"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Configuration"
+                type: array
+                items:
+                  $ref: "#/components/schemas/FieldTemplate"
         "404":
-          description: "No configuration found"
-    put:
-      description: "Creates or modifies the configuration of the device"
+          description: "Template not found"
+  /template/{templateId}/fields/{fieldId}:
+    parameters:
+      - in: path
+        description: "ID of the field"
+        name: fieldId
+        required: true
+        schema:
+          type: integer
+      - $ref: "#/components/parameters/templateId"
+    get:
+      summary: "Returns the selected field template"
+      responses:
+        "200":
+          description: "Returning field"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FieldTemplate"
+    post:
+      summary: "Modifies the selected field"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Configuration"
+              $ref: "#/components/schemas/FieldTemplate"
+      responses:
+        "204":
+          description: "Successfully updated. If the field type is updated, those fields in Components will be deleted"
+  /template/{templateId}/components:
+    parameters:
+      - $ref: "#/components/parameters/templateId"
+    get:
+      summary: "Returns a list of all components who derive from this template"
       responses:
         "200":
-          description: "Updated configuration"
-
-
-
+          description: "Returns a list of all components"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  schema:
+                    $ref: "#/components/schemas/NewComponent"
 components:
   parameters:
-    deviceId:
+    templateId:
       in: path
-      description: "ID of the device"
-      name: deviceId
+      description: "ID of the template"
+      name: templateId
       required: true
       schema:
         type: integer
   schemas:
-    NewDevice:
+    Exception:
+      type: object
+      properties:
+        exceptionName:
+          type: string
+        exceptionMessage:
+          type: string
+    NewTemplate:
       type: object
       properties:
         name:
           type: string
-        location:
+        description:
           type: string
-    Device:
-      $ref: "Device"
-    Configuration:
+        fields:
+          type: array
+          items:
+            $ref: "#/components/schemas/FieldTemplate"
+    FieldTemplate:
       type: object
       properties:
-        creationDate:
+        name:
           type: string
-        lastModified:
+        description:
           type: string
-        text:
+        fieldType:
+          type: string
+        mandatory:
+          type: boolean
+        multivalued:
+          type: boolean
+    NewComponent:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        template:
+          type: integer
+        fields:
+          type: array
+          items:
+            $ref: "#/components/schemas/Field"
+    Field:
+      type: object
+      properties:
+        fieldName:
+          type: string
+        fieldValue:
           type: string

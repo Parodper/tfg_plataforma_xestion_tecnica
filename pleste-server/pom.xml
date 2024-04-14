@@ -43,7 +43,6 @@
                                 <useJakartaEe>true</useJakartaEe>
                                 <interfaceOnly>true</interfaceOnly>
                             </configOptions>
-                            <schemaMappings>Device=gal.udc.fic.prperez.pleste.service.devices.dao.Device</schemaMappings>
                         </configuration>
                     </execution>
                 </executions>
