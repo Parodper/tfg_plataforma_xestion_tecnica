@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>pleste-server</module>
+        <module>pleste-client</module>
     </modules>
 
     <properties>
