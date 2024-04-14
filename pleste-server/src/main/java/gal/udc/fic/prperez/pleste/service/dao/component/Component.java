@@ -15,4 +15,36 @@ public class Component {
 	private Template template;
 	@OneToMany( fetch = FetchType.EAGER, cascade = CascadeType.ALL )
 	private List<Field> fields;
+
+	public Component(Long id, Template template, List<Field> fields) {
+		this.id = id;
+		this.template = template;
+		this.fields = fields;
+	}
+
+	public Component() {}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Template getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(Template template) {
+		this.template = template;
+	}
+
+	public List<Field> getFields() {
+		return fields;
+	}
+
+	public void setFields(List<Field> fields) {
+		this.fields = fields;
+	}
 }
