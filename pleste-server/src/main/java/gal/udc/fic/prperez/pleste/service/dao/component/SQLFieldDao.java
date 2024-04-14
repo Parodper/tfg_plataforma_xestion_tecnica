@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface SQLFieldDao extends JpaRepository<Field, Long> {
-	public List<Field> findByTemplateField(TemplateField templateField);
+	List<Field> findByTemplateField(TemplateField templateField);
 }
