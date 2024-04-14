@@ -1,5 +1,6 @@
-package gal.udc.fic.prperez.pleste.service.devices.dao;
+package gal.udc.fic.prperez.pleste.service.dao.component;
 
+import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
 import jakarta.persistence.*;
 
 @Entity

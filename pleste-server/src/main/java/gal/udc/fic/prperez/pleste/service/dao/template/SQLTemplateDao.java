@@ -1,4 +1,4 @@
-package gal.udc.fic.prperez.pleste.service.devices.dao;
+package gal.udc.fic.prperez.pleste.service.dao.template;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

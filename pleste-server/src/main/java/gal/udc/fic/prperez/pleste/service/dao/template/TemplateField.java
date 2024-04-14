@@ -1,4 +1,4 @@
-package gal.udc.fic.prperez.pleste.service.devices.dao;
+package gal.udc.fic.prperez.pleste.service.dao.template;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
