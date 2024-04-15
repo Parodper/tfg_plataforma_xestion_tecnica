@@ -12,7 +12,7 @@ public class Template {
 	private Long id;
 	private String name;
 	private String description;
-	@OneToMany
+	@OneToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<TemplateField> fields;
 
 	public Template(Long id, String name, String description, List<TemplateField> fields) {

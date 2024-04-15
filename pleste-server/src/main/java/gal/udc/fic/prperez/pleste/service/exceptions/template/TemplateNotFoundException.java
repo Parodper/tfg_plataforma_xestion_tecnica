@@ -1,7 +1,9 @@
 package gal.udc.fic.prperez.pleste.service.exceptions.template;
 
+import jakarta.ws.rs.core.Response;
+
 public class TemplateNotFoundException extends TemplateExceptionTemplate {
 	public TemplateNotFoundException(String id, String name) {
-		super(id, name, "not found");
+		super(Response.Status.NOT_FOUND, id, name, "not found");
 	}
 }

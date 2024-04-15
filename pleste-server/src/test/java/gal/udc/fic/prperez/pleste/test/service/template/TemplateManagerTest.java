@@ -5,6 +5,7 @@ import gal.udc.fic.prperez.pleste.service.TemplateResource;
 import gal.udc.fic.prperez.pleste.service.dao.template.Template;
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateAlreadyExistsException;
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateNotFoundException;
+import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateStillInUseException;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,7 +34,7 @@ public class TemplateManagerTest {
 	}
 
 	@Test
-	public void createTemplateTest() throws TemplateAlreadyExistsException, TemplateNotFoundException {
+	public void createTemplateTest() throws TemplateAlreadyExistsException, TemplateNotFoundException, TemplateStillInUseException {
 		Long id;
 
 		id = templateResource.addTemplate(createTestTemplate());
@@ -43,7 +44,7 @@ public class TemplateManagerTest {
 	}
 
 	@Test
-	public void deleteTemplateTest() {
+	public void deleteTemplateTest() throws TemplateAlreadyExistsException, TemplateNotFoundException, TemplateStillInUseException {
 		Long id = templateResource.addTemplate(createTestTemplate());
 		assertEquals("name", templateResource.getTemplate(id.toString()).getName());
 		templateResource.removeTemplate(id.toString());
@@ -51,7 +52,7 @@ public class TemplateManagerTest {
 	}
 
 	@Test
-	public void modifyTemplateTest() {
+	public void modifyTemplateTest() throws TemplateAlreadyExistsException, TemplateNotFoundException, TemplateStillInUseException {
 		Long idA, idB;
 		Template newTemplate;
 

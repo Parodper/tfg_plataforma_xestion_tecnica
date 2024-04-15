@@ -14,6 +14,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 @Path("/templates")
 @Service
+@Transactional
 public class TemplateResource {
 	private final SQLTemplateDao templateDatabase;
 	private final SQLDaoFactoryUtil databaseFactory;
@@ -31,7 +33,7 @@ public class TemplateResource {
 		return template;
 	}
 
-	private Template getTemplateUtil(Long id) {
+	private Template getTemplateUtil(Long id) throws TemplateNotFoundException {
 		Optional<Template> template;
 		try {
 			template = templateDatabase.findById(id);
@@ -130,7 +132,7 @@ public class TemplateResource {
 	@Path("/{templateId : \\d}/fields/{fieldId : \\d}")
 	@POST
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public void modifyFieldTemplate(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath, TemplateField templateField) throws TemplateNotFoundException {
+	public void modifyFieldTemplate(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath, TemplateField templateField) throws TemplateFieldNotFoundException {
 		Long fieldId = Long.parseLong(fieldIdPath);
 		if(databaseFactory.getSqlTemplateFieldDao().existsById(fieldId)) {
 			templateField.setId(fieldId);
@@ -143,7 +145,7 @@ public class TemplateResource {
 	@Path("/{templateId : \\d}/fields/{fieldId : \\d}")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public TemplateField getFieldTemplate(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath) throws TemplateNotFoundException {
+	public TemplateField getFieldTemplate(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath) throws TemplateFieldNotFoundException {
 		Long fieldId = Long.parseLong(fieldIdPath);
 		if(databaseFactory.getSqlTemplateFieldDao().existsById(fieldId)) {
 			return databaseFactory.getSqlTemplateFieldDao().getReferenceById(fieldId);
@@ -154,7 +156,7 @@ public class TemplateResource {
 
 	@Path("/{templateId : \\d}/fields/{fieldId : \\d}")
 	@DELETE
-	public void removeTemplateField(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath) throws TemplateNotFoundException {
+	public void removeTemplateField(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath) throws TemplateFieldNotFoundException {
 		Long fieldId = Long.parseLong(fieldIdPath);
 		if(databaseFactory.getSqlTemplateFieldDao().existsById(fieldId)) {
 			TemplateField f = new TemplateField();
