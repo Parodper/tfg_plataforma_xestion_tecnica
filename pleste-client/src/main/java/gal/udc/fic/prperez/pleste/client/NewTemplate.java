@@ -16,7 +16,8 @@ import java.util.HashMap;
 @Controller
 public class NewTemplate {
 	@GetMapping("/newtemplate")
-	public String newTemplate(Model model) {
+	public String newTemplate() {
+		//TODO: Autocompletar campos
 		return "newtemplate.html";
 	}
 
