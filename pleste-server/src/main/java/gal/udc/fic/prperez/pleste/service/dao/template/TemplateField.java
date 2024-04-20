@@ -13,16 +13,14 @@ public class TemplateField {
 	private String name;
 	private boolean mandatory;
 	private FieldTypes type;
-	private boolean multivalued;
 	@ManyToOne
 	private Template template;
 
-	public TemplateField(Long id, String name, boolean mandatory, FieldTypes type, boolean multivalued, Template template) {
+	public TemplateField(Long id, String name, boolean mandatory, FieldTypes type, Template template) {
 		this.id = id;
 		this.name = name;
 		this.mandatory = mandatory;
 		this.type = type;
-		this.multivalued = multivalued;
 		this.template = template;
 	}
 
@@ -60,14 +58,6 @@ public class TemplateField {
 
 	public void setType(FieldTypes type) {
 		this.type = type;
-	}
-
-	public boolean isMultivalued() {
-		return multivalued;
-	}
-
-	public void setMultivalued(boolean multivalued) {
-		this.multivalued = multivalued;
 	}
 
 	public Template getTemplate() {

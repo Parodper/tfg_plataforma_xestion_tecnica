@@ -1,27 +1,29 @@
 <!DOCTYPE html>
-<html lang="gl">
+<html lang="gl" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>pleste: Novo modelo</title>
     <script src="js/newtemplate.js"></script>
 </head>
 <body>
-    <div>
-        <label>Nome <input id="template_name" /></label>
-        <label>Descripción <input id="template_description"></label>
+    <form method="POST">
+        <label>Nome <input name="template_name" /></label>
+        <label>Descripción <input name="template_description" /></label>
         <div id="fields">
-            <button onclick="appendField()">Crear novo campo</button>
+            <button type="button" onclick="appendField()">Crear novo campo</button>
             <div id="field_000">
-                <label>Nome <input id="field_000_name" /></label>
-                <label>Tipo <select id="field_000_type">
+                <label>Nome <input name="field_000_name" /></label>
+                <label>Tipo <select name="field_000_type">
                         <option>Ligazón</option>
                         <option>Data</option>
                         <option>Texto libre</option>
                     </select>
                 </label>
-                <button onclick="removeField(this)">Borrar campo</button>
+                <label>Obrigatorio? <input type="checkbox" /></label>
+                <button type="button" onclick="removeField(this)">Borrar campo</button>
             </div>
         </div>
-    </div>
+        <input type="submit" />
+    </form>
 </body>
 </html>
