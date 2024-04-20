@@ -15,7 +15,6 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>3.2.4</spring.version>
     </properties>
 
     <dependencies>
@@ -23,7 +22,7 @@
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
-            <version>3.1.6</version>
+            <version>4.0.0-M1</version>
         </dependency>
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
@@ -44,23 +43,23 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring.version}</version>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>${spring.version}</version>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-            <version>${spring.version}</version>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jersey</artifactId>
-            <version>${spring.version}</version>
+            <version>${spring.boot.version}</version>
         </dependency>
         <!-- Database -->
         <dependency>
@@ -87,7 +86,68 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring.boot.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>schemagen</id>
+                        <goals>
+                            <goal>schemagen</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <createJavaDocAnnotations>false</createJavaDocAnnotations>
+                    <sources>
+                        <source>src/main/java/gal/udc/fic/prperez/pleste/service/dao/template</source>
+                    </sources>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>jakarta.xml.bind</groupId>
+                        <artifactId>jakarta.xml.bind-api</artifactId>
+                        <version>${jakarta.jaxb.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>jakarta.jws</groupId>
+                        <artifactId>jakarta.jws-api</artifactId>
+                        <version>3.0.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>jakarta.jws</groupId>
+                        <artifactId>jakarta.jws-api</artifactId>
+                        <version>3.0.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                        <version>${jaxb.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-core</artifactId>
+                        <version>${jaxb.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-jxc</artifactId>
+                        <version>${jaxb.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-xjc</artifactId>
+                        <version>${jaxb.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>jakarta.activation</groupId>
+                        <artifactId>jakarta.activation-api</artifactId>
+                        <version>${jakarta.activation.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
