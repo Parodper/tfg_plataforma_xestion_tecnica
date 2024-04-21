@@ -65,47 +65,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.boot.version}</version>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>schemagen</id>
-                        <goals>
-                            <goal>schemagen</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <createJavaDocAnnotations>false</createJavaDocAnnotations>
-                    <sources>
-                        <source>src/main/java/gal/udc/fic/prperez/pleste/service/dao/template</source>
-                    </sources>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-core</artifactId>
-                        <version>${jaxb.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-jxc</artifactId>
-                        <version>${jaxb.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-xjc</artifactId>
-                        <version>${jaxb.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>jakarta.activation</groupId>
-                        <artifactId>jakarta.activation-api</artifactId>
-                        <version>${jakarta.activation.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
         </plugins>
     </build>
 
