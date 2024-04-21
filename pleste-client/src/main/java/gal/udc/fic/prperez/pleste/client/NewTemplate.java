@@ -1,11 +1,12 @@
 package gal.udc.fic.prperez.pleste.client;
 
-import gal.udc.fic.prperez.pleste.client.service.dto.FieldTypes;
-import gal.udc.fic.prperez.pleste.client.service.dto.Template;
-import gal.udc.fic.prperez.pleste.client.service.dto.TemplateField;
+import org.openapitools.client.ApiException;
+import org.openapitools.client.api.DefaultApi;
+import org.openapitools.client.model.Template;
+import org.openapitools.client.model.TemplateField;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -15,6 +16,12 @@ import java.util.HashMap;
 
 @Controller
 public class NewTemplate {
+	private DefaultApi defaultApi;
+
+	public @Autowired NewTemplate(DefaultApi defaultApi) {
+		this.defaultApi = defaultApi;
+	}
+
 	@GetMapping("/newtemplate")
 	public String newTemplate() {
 		//TODO: Autocompletar campos
@@ -41,9 +48,19 @@ public class NewTemplate {
 
 				field.setName(parameters.get("field_" + id + "_name"));
 				field.setMandatory(Boolean.parseBoolean(parameters.get("field_" + id + "_mandatory")));
-				field.setType(FieldTypes.valueOf(parameters.get("field_" + id + "_type")));
+				field.setType(TemplateField.TypeEnum.valueOf(parameters.get("field_" + id + "_type")));
 
 				template.getFields().add(field);
+			}
+		}
+
+		try {
+			defaultApi.addTemplate(template);
+		} catch (ApiException e) {
+			if(e.getCode() == 409) {
+				return ResponseEntity.ok().body("Template already exists");
+			} else {
+				throw new RuntimeException(e);
 			}
 		}
 

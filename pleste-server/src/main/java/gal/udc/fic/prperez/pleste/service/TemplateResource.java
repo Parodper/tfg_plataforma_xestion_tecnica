@@ -10,6 +10,9 @@ import gal.udc.fic.prperez.pleste.service.exceptions.TemplateFieldNotFoundExcept
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateAlreadyExistsException;
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateNotFoundException;
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateStillInUseException;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.servers.Server;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +23,17 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-@Path("/templates")
+@Path( "/templates")
 @Service
 @Transactional
+@OpenAPIDefinition(
+		info = @Info(
+				title = "pleste-service-templates",
+				version = "0.1.0"),
+		servers = {
+				@Server(
+						url = "http://localhost:8080/api/v0")
+		})
 public class TemplateResource {
 	private final SQLTemplateDao templateDatabase;
 	private final SQLDaoFactoryUtil databaseFactory;
