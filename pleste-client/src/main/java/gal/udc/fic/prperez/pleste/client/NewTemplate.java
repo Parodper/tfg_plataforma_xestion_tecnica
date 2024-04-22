@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 @Controller
 public class NewTemplate {
-	private DefaultApi defaultApi;
+	private final DefaultApi defaultApi;
 
 	public @Autowired NewTemplate(DefaultApi defaultApi) {
 		this.defaultApi = defaultApi;
@@ -33,6 +33,7 @@ public class NewTemplate {
 		//Parse POST into a Template
 		Template template = new Template();
 		Map<String, String> parameters = new HashMap<>();
+		Long newId;
 
 		for(String parameter : name.split("&")) {
 			parameters.put(parameter.split("=")[0], parameter.split("=")[1]);
@@ -55,7 +56,7 @@ public class NewTemplate {
 		}
 
 		try {
-			defaultApi.addTemplate(template);
+			newId = defaultApi.addTemplate(template);
 		} catch (ApiException e) {
 			if(e.getCode() == 409) {
 				return ResponseEntity.ok().body("Template already exists");
@@ -64,6 +65,8 @@ public class NewTemplate {
 			}
 		}
 
-		return ResponseEntity.created(new URI("/newtemplate")).body("Created template 0");
+		return ResponseEntity
+				.created(new URI("/template?id=" + newId))
+				.body("Created template " + newId);
 	}
 }

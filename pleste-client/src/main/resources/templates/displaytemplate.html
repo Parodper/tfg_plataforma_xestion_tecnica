@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="gl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|Modelo ${template.name} (${template.id})|"></title>
+</head>
+<body>
+    <main>
+        <h1 th:text="|Modelo ${template.name} (${template.id})|"></h1>
+        <h2 th:text="|${template.description}|"></h2>
+        <p>Os campos obrigatorios atópanse en negriña</p>
+        <ul th:each="field: ${template.fields}">
+            <li th:if="${field.mandatory}"><strong th:text="|${field.name}: ${field.type}|"></strong></li>
+            <li th:unless="${field.mandatory}" th:text="|${field.name}: ${field.type}|"></li>
+        </ul>
+    </main>
+</body>
+</html>

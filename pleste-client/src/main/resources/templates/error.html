@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="gl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Petición fallida</title>
+</head>
+<body>
+    <h1 th:text="|Ocorreu un fallo e o servidor devolveu ${code}|">
+        Algo fallou.
+    </h1>
+    <br>
+    <p th:text="|${message}|" />
+</body>
+</html>
