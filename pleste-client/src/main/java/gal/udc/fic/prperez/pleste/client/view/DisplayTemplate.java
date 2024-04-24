@@ -1,5 +1,6 @@
-package gal.udc.fic.prperez.pleste.client;
+package gal.udc.fic.prperez.pleste.client.view;
 
+import gal.udc.fic.prperez.pleste.client.exceptions.ObjectNotFoundException;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
 import org.springframework.beans.factory.annotation.Autowired;

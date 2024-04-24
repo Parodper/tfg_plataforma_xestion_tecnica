@@ -1,4 +1,4 @@
-package gal.udc.fic.prperez.pleste.client;
+package gal.udc.fic.prperez.pleste.client.exceptions;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;

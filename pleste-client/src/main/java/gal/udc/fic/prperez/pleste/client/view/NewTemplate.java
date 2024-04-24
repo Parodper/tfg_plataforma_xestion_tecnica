@@ -1,16 +1,15 @@
-package gal.udc.fic.prperez.pleste.client;
+package gal.udc.fic.prperez.pleste.client.view;
 
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
 import org.openapitools.client.model.Template;
 import org.openapitools.client.model.TemplateField;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -29,27 +28,42 @@ public class NewTemplate {
 	}
 
 	@PostMapping(value = "/newtemplate")
-	public ResponseEntity<String> createNewTemplate(@RequestBody String name) throws URISyntaxException {
+	public ResponseEntity<String> createNewTemplate(@RequestBody String name) {
 		//Parse POST into a Template
 		Template template = new Template();
 		Map<String, String> parameters = new HashMap<>();
 		Long newId;
 
 		for(String parameter : name.split("&")) {
-			parameters.put(parameter.split("=")[0], parameter.split("=")[1]);
+			String[] keyValue = parameter.split("=");
+			if(keyValue.length == 2) {
+				parameters.put(keyValue[0], keyValue[1]);
+			}
 		}
 
 		template.setName(parameters.get("template_name"));
 		template.setDescription(parameters.get("template_description"));
 
 		for(String key : parameters.keySet()) {
-			if(key.matches("^field_[0-9]{3}") && !parameters.get(key).isEmpty()) {
-				String id = key.substring(6, 6 + 4);
+			if(key.matches("^field_[0-9]{3}_name") && !parameters.get(key).isEmpty()) {
+				String id = key.substring("field_".length(), "field_".length() + 3);
 				TemplateField field = new TemplateField();
 
 				field.setName(parameters.get("field_" + id + "_name"));
 				field.setMandatory(Boolean.parseBoolean(parameters.get("field_" + id + "_mandatory")));
-				field.setType(TemplateField.TypeEnum.valueOf(parameters.get("field_" + id + "_type")));
+				switch (parameters.get("field_" + id + "_type")) {
+					case "Ligaz%C3%B3n":
+						field.setType(TemplateField.TypeEnum.LINK);
+						break;
+					case "Data":
+						field.setType(TemplateField.TypeEnum.DATETIME);
+						break;
+					case "Texto libre":
+						field.setType(TemplateField.TypeEnum.TEXT);
+						break;
+					default:
+						field.setType(TemplateField.TypeEnum.TEXT);
+				}
 
 				template.getFields().add(field);
 			}
@@ -66,7 +80,8 @@ public class NewTemplate {
 		}
 
 		return ResponseEntity
-				.created(new URI("/template?id=" + newId))
-				.body("Created template " + newId);
+				.status(HttpStatus.SEE_OTHER)
+				.header("Location","/template?id=" + newId)
+				.body("Created template #" + newId);
 	}
 }
