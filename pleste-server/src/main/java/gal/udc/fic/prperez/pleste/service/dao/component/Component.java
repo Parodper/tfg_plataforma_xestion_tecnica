@@ -11,13 +11,17 @@ public class Component {
 	@Id
 	@GeneratedValue
 	private Long id;
+	private String name;
+	private String description;
 	@OneToOne
 	private Template template;
 	@OneToMany( fetch = FetchType.EAGER, cascade = CascadeType.ALL )
 	private List<Field> fields;
 
-	public Component(Long id, Template template, List<Field> fields) {
+	public Component(Long id, String name, String description, Template template, List<Field> fields) {
 		this.id = id;
+		this.name = name;
+		this.description = description;
 		this.template = template;
 		this.fields = fields;
 	}
@@ -46,5 +50,21 @@ public class Component {
 
 	public void setFields(List<Field> fields) {
 		this.fields = fields;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

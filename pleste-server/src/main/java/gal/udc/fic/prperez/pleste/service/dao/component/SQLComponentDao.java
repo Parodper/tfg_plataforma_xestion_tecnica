@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface SQLComponentDao extends JpaRepository<Component, Long> {
 	List<Component> findByTemplate(Template template);
+	List<Component> findByName(String name);
 }
