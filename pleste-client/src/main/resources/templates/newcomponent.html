@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="gl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>pleste: Novo compoñente</title>
+    <script src="js/newcomponent.js"></script>
+</head>
+<body>
+    <main>
+        <label>
+            Modelo a usar:
+            <select id="template_select" >
+                <option th:each="template: ${templates}" th:selected="${selected_template} == ${template.id}" selected th:text="|${template.id} - ${template.name}|" th:value="${template.id}"></option>
+            </select>
+            <button onclick="cambiar_modelo()">Cambiar</button>
+        </label>
+        <form method="POST">
+            <label>
+                Nome do compoñente
+                <input required id="component_name" name="component_name" th:value="${component_name}">
+            </label>
+            <label>
+                Descripción do compoñente
+                <input id="component_description" name="component_description" th:value="${component_description}">
+            </label>
+            <h2>Campos</h2>
+            <p><i>Os campos obrigatorios atópanse en negriña</i></p>
+            <p>Para os campos de ligazóns, engadir o número do compoñente</p>
+            <table>
+                <tr>
+                    <th>Nome</th><th>Tipo</th><th>Valor</th>
+                </tr>
+                <tr th:each="field: ${fields}">
+                    <td th:if="${field.mandatory}"><strong th:text="|${field.name}|"></strong></td>
+                    <td th:unless="${field.mandatory}" th:text="|${field.name}|"></td>
+                    <td th:text="|${field.type}|"></td>
+                    <td th:switch="${#strings.toString(field.type)}">
+                        <input th:case="'LINK'" th:name="|field_${field.name}|" type="number">
+                        <input th:case="'DATETIME'" th:name="|field_${field.name}|" type="datetime-local">
+                        <input th:case="'TEXT'" th:name="|field_${field.name}|" type="text">
+                    </td>
+                </tr>
+            </table>
+
+            <input type="submit" />
+        </form>
+
+        <div th:if="${error_message != ''}" id="error_message">
+            <p th:text="${error_message}"></p>
+        </div>
+    </main>
+</body>
+</html>

@@ -19,10 +19,8 @@ public class DisplayTemplate {
 
 	@GetMapping("/template")
 	public String displayTemplate(@RequestParam(name = "id") String idPath, Model model) {
-		long id = Long.parseLong(idPath);
-
 		try {
-			model.addAttribute("template", defaultApi.getTemplate(Long.toString(id)));
+			model.addAttribute("template", defaultApi.getTemplate(idPath));
 		} catch (ApiException e) {
 			if(e.getCode() == 404) {
 				throw new ObjectNotFoundException("Template not found");

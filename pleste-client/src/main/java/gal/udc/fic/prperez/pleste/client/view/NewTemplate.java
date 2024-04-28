@@ -6,12 +6,12 @@ import org.openapitools.client.model.Template;
 import org.openapitools.client.model.TemplateField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.HashMap;
 
 @Controller
 public class NewTemplate {
@@ -23,23 +23,13 @@ public class NewTemplate {
 
 	@GetMapping("/newtemplate")
 	public String newTemplate() {
-		//TODO: Autocompletar campos
 		return "newtemplate.html";
 	}
 
-	@PostMapping(value = "/newtemplate")
-	public ResponseEntity<String> createNewTemplate(@RequestBody String name) {
-		//Parse POST into a Template
+	@PostMapping(value = "/newtemplate", consumes = "application/x-www-form-urlencoded;charset=UTF-8")
+	public ResponseEntity<String> createNewTemplate(@RequestParam Map<String, String> parameters) {
 		Template template = new Template();
-		Map<String, String> parameters = new HashMap<>();
 		Long newId;
-
-		for(String parameter : name.split("&")) {
-			String[] keyValue = parameter.split("=");
-			if(keyValue.length == 2) {
-				parameters.put(keyValue[0], keyValue[1]);
-			}
-		}
 
 		template.setName(parameters.get("template_name"));
 		template.setDescription(parameters.get("template_description"));
@@ -52,7 +42,7 @@ public class NewTemplate {
 				field.setName(parameters.get("field_" + id + "_name"));
 				field.setMandatory(Boolean.parseBoolean(parameters.get("field_" + id + "_mandatory")));
 				switch (parameters.get("field_" + id + "_type")) {
-					case "Ligaz%C3%B3n":
+					case "Ligazón":
 						field.setType(TemplateField.TypeEnum.LINK);
 						break;
 					case "Data":
