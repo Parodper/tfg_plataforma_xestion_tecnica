@@ -9,7 +9,7 @@ public class Field {
 	@GeneratedValue
 	private Long id;
 	private String content;
-	@OneToOne
+	@OneToOne(optional = false)
 	private TemplateField templateField;
 	@ManyToOne
 	private Component link;
@@ -21,9 +21,11 @@ public class Field {
 		this.link = link;
 	}
 
-	public Field() {
-
+	public Field(Long id) {
+		this.id = id;
 	}
+
+	public Field() {}
 
 	public Long getId() {
 		return id;

@@ -9,6 +9,7 @@ import gal.udc.fic.prperez.pleste.service.exceptions.ComponentFieldNotFoundExcep
 import gal.udc.fic.prperez.pleste.service.exceptions.ComponentIsMandatoryException;
 import gal.udc.fic.prperez.pleste.service.exceptions.TemplateFieldNotFoundException;
 import gal.udc.fic.prperez.pleste.service.exceptions.component.ComponentNotFoundException;
+import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateNotFoundException;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.servers.Server;
@@ -60,7 +61,7 @@ public class ComponentResource {
 	@POST
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public Long addComponent(Component component) throws ComponentNotFoundException {
+	public Long addComponent(Component component) throws TemplateNotFoundException {
 		return componentDatabase.save(component).getId();
 	}
 
@@ -81,7 +82,9 @@ public class ComponentResource {
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public Component getComponent(@PathParam("id") String idPath) throws ComponentNotFoundException {
 		Long id = Long.parseLong(idPath);
-		return getComponentUtil(id);
+		Component component = getComponentUtil(id);
+		component.setTemplate(new Template(component.getTemplate().getId()));
+		return component;
 	}
 
 	@Path("/{id : \\d}")

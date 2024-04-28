@@ -22,6 +22,10 @@ public class Template {
 		this.fields = fields;
 	}
 
+	public Template(Long id) {
+		this.id = id;
+	}
+
 	public Template() {}
 
 	public Long getId() {

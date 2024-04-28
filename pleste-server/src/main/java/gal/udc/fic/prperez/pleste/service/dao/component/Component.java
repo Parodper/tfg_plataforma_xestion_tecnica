@@ -11,9 +11,10 @@ public class Component {
 	@Id
 	@GeneratedValue
 	private Long id;
+
 	private String name;
 	private String description;
-	@OneToOne
+	@ManyToOne( fetch = FetchType.LAZY, optional = false)
 	private Template template;
 	@OneToMany( fetch = FetchType.EAGER, cascade = CascadeType.ALL )
 	private List<Field> fields;
@@ -24,6 +25,10 @@ public class Component {
 		this.description = description;
 		this.template = template;
 		this.fields = fields;
+	}
+
+	public Component(Long id) {
+		this.id = id;
 	}
 
 	public Component() {}

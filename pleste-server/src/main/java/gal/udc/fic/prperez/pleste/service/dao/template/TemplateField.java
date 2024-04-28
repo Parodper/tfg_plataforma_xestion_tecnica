@@ -1,9 +1,6 @@
 package gal.udc.fic.prperez.pleste.service.dao.template;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 @Entity
 public class TemplateField {
@@ -13,7 +10,7 @@ public class TemplateField {
 	private String name;
 	private boolean mandatory;
 	private FieldTypes type;
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	private Template template;
 
 	public TemplateField(Long id, String name, boolean mandatory, FieldTypes type, Template template) {
@@ -24,9 +21,11 @@ public class TemplateField {
 		this.template = template;
 	}
 
-	public TemplateField() {
-
+	public TemplateField(Long id) {
+		this.id = id;
 	}
+
+	public TemplateField() {}
 
 	public Long getId() {
 		return id;
