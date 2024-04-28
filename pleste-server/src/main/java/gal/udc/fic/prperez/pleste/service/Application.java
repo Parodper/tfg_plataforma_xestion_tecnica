@@ -26,7 +26,7 @@ public class Application extends SpringBootServletInitializer {
 	public ServletRegistrationBean mainServlet(){
 		ServletRegistrationBean registrationBean = new ServletRegistrationBean(new ServletContainer(), BASE_URL + "/*");
 
-		Map<String,String> params = new HashMap<String,String>();
+		Map<String,String> params = new HashMap<>();
 		params.put("jersey.config.server.provider.packages", "gal.udc.fic.prperez.pleste.service");
 		registrationBean.setInitParameters(params);
 		registrationBean.setOrder(1);

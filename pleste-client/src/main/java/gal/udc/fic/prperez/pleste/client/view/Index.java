@@ -1,4 +1,4 @@
-package gal.udc.fic.prperez.pleste.client;
+package gal.udc.fic.prperez.pleste.client.view;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
