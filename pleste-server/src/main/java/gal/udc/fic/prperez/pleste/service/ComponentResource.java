@@ -4,11 +4,11 @@ import gal.udc.fic.prperez.pleste.service.dao.SQLDaoFactoryUtil;
 import gal.udc.fic.prperez.pleste.service.dao.component.Component;
 import gal.udc.fic.prperez.pleste.service.dao.component.Field;
 import gal.udc.fic.prperez.pleste.service.dao.component.SQLComponentDao;
+import gal.udc.fic.prperez.pleste.service.dao.template.FieldTypes;
 import gal.udc.fic.prperez.pleste.service.dao.template.Template;
-import gal.udc.fic.prperez.pleste.service.exceptions.ComponentFieldNotFoundException;
-import gal.udc.fic.prperez.pleste.service.exceptions.ComponentIsMandatoryException;
+import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
+import gal.udc.fic.prperez.pleste.service.exceptions.component.*;
 import gal.udc.fic.prperez.pleste.service.exceptions.TemplateFieldNotFoundException;
-import gal.udc.fic.prperez.pleste.service.exceptions.component.ComponentNotFoundException;
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateNotFoundException;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -20,9 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Path( "/components")
 @Service
@@ -53,6 +51,17 @@ public class ComponentResource {
 		}
 	}
 
+	private boolean isFieldMissing(Field field) {
+		boolean mandatory = field.getTemplateField().isMandatory();
+		boolean linkEmpty = field.getLink() == null;
+		boolean contentEmpty = field.getContent() == null || field.getContent().isEmpty();
+		boolean isLink = field.getTemplateField().getType().equals(FieldTypes.LINK);
+		boolean isDatetime = field.getTemplateField().getType().equals(FieldTypes.DATETIME);
+		boolean isText = field.getTemplateField().getType().equals(FieldTypes.TEXT);
+
+		return mandatory && ( (isLink && linkEmpty) || ((isText || isDatetime) && contentEmpty) );
+	}
+
 	public @Autowired ComponentResource(SQLComponentDao componentDatabase, SQLDaoFactoryUtil databaseFactory) {
 		this.componentDatabase = componentDatabase;
 		this.databaseFactory = databaseFactory;
@@ -61,7 +70,33 @@ public class ComponentResource {
 	@POST
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public Long addComponent(Component component) throws TemplateNotFoundException {
+	public Long addComponent(Component component) throws TemplateNotFoundException, ComponentFieldIsMandatoryException, ComponentMissingFieldException {
+		if(component.getTemplate() == null || !databaseFactory.getSqlTemplateDao().existsById(component.getTemplate().getId())) {
+			throw new TemplateNotFoundException(component.getTemplate() == null ? "" : component.getTemplate().getId().toString(), component.getTemplate().getName());
+		}
+
+		//Check if fields are consistent between Template and Component
+		List<Field> fields = component.getFields();
+		List<TemplateField> templateFields = component.getTemplate().getFields();
+		List<String> missingFields = new ArrayList<>();
+
+		for (TemplateField field : templateFields) {
+			if (fields.stream().noneMatch(f -> f.getName().equals(field.getName()))) {
+				missingFields.add(field.getName());
+			}
+		}
+		if(!missingFields.isEmpty()) {
+			throw new ComponentMissingFieldException(component.getName(),
+					Arrays.toString(missingFields.toArray()));
+		}
+
+		if(component.getFields().stream().anyMatch(this::isFieldMissing)) {
+			throw new ComponentFieldIsMandatoryException(
+					component.getFields().stream().map(
+							(field) -> isFieldMissing(field) ? field.getTemplateField().getName() + ", " : ""
+					).reduce("", String::concat));
+		}
+
 		return componentDatabase.save(component).getId();
 	}
 
@@ -90,13 +125,16 @@ public class ComponentResource {
 	@Path("/{id : \\d}")
 	@POST
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public void modifyComponent(@PathParam("id") String idPath, Component component) throws ComponentNotFoundException {
+	public void modifyComponent(@PathParam("id") String idPath, Component newComponent) throws ComponentNotFoundException {
+		Component component;
 		Long id = Long.parseLong(idPath);
 		if(componentDatabase.existsById(id)) {
-			component.setId(id);
+			component = componentDatabase.getReferenceById(id);
+			component.setName(newComponent.getName());
+			component.setDescription(newComponent.getDescription());
 			componentDatabase.save(component);
 		} else {
-			throw new ComponentNotFoundException(idPath, component.getName());
+			throw new ComponentNotFoundException(idPath, newComponent.getName());
 		}
 	}
 
@@ -129,47 +167,60 @@ public class ComponentResource {
 		return getComponentUtil(id).getFields();
 	}
 
-	@Path("/{componentId : \\d}/fields/{fieldId : \\d}")
-	@POST
+	@Path("/{componentId : \\d}/fields/{fieldName : \\S}")
+	@PUT
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public void modifyFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldId") String fieldIdPath, Field componentField) throws ComponentFieldNotFoundException {
-		Long fieldId = Long.parseLong(fieldIdPath);
-		if(databaseFactory.getSqlFieldDao().existsById(fieldId)) {
-			componentField.setId(fieldId);
-			databaseFactory.getSqlFieldDao().save(componentField);
+	public void modifyFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName, String value) throws ComponentFieldNotFoundException, ComponentFieldIsMandatoryException {
+		Field componentField;
+
+		if(databaseFactory.getSqlFieldDao().existsByName(fieldName)) {
+			componentField = databaseFactory.getSqlFieldDao().getByName(fieldName);
+			if(isFieldMissing(componentField) || value == null || value.isEmpty()) {
+				throw new ComponentFieldIsMandatoryException(componentField.getTemplateField().getName());
+			} else {
+				if(componentField.getTemplateField().getType() == FieldTypes.LINK) {
+					if(componentDatabase.existsById(Long.parseLong(value))) {
+						try {
+							componentField.setLink(new Component(Long.parseLong(value)));
+						} catch (NumberFormatException e) {
+							throw new ComponentFieldInvalidValueException(fieldName, value, componentField.getTemplateField().getType().toString());
+						}
+					} else {
+						throw new ComponentNotFoundException(value, "");
+					}
+				}
+				databaseFactory.getSqlFieldDao().save(componentField);
+			}
 		} else {
-			throw new ComponentFieldNotFoundException(idPath, fieldIdPath);
+			throw new ComponentFieldNotFoundException(idPath, fieldName);
 		}
 	}
 
-	@Path("/{componentId : \\d}/fields/{fieldId : \\d}")
+	@Path("/{componentId : \\d}/fields/{fieldName : \\S}")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public Field getFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldId") String fieldIdPath) throws ComponentFieldNotFoundException {
-		Long fieldId = Long.parseLong(fieldIdPath);
-		if(databaseFactory.getSqlFieldDao().existsById(fieldId)) {
-			return databaseFactory.getSqlFieldDao().getReferenceById(fieldId);
+	public Field getFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName) throws ComponentFieldNotFoundException {
+		if(databaseFactory.getSqlFieldDao().existsByName(fieldName)) {
+			return databaseFactory.getSqlFieldDao().getByName(fieldName);
 		} else {
-			throw new ComponentFieldNotFoundException(idPath, fieldIdPath);
+			throw new ComponentFieldNotFoundException(idPath, fieldName);
 		}
 	}
 
-	@Path("/{componentId : \\d}/fields/{fieldId : \\d}")
+	@Path("/{componentId : \\d}/fields/{fieldName : \\S}")
 	@DELETE
-	public void removeComponentField(@PathParam("componentId") String idPath, @PathParam("fieldId") String fieldIdPath) throws TemplateFieldNotFoundException {
-		Long fieldId = Long.parseLong(fieldIdPath);
-
+	public void removeComponentField(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName) throws TemplateFieldNotFoundException {
 		try {
-			Field field = databaseFactory.getSqlFieldDao().getReferenceById(fieldId);
+			Field field = databaseFactory.getSqlFieldDao().getByName(fieldName);
 
 			if(field.getTemplateField().isMandatory()) {
-				throw new ComponentIsMandatoryException(idPath);
+				throw new ComponentFieldIsMandatoryException(idPath);
 			} else {
 				field.setContent(null);
 				databaseFactory.getSqlFieldDao().save(field);
 			}
 		} catch (EntityNotFoundException e) {
-			throw new TemplateFieldNotFoundException(idPath, fieldIdPath);
+			throw new TemplateFieldNotFoundException(idPath, fieldName);
 		}
 	}
 }

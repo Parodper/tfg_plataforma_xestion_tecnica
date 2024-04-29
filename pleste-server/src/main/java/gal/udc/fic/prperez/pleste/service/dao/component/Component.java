@@ -16,7 +16,7 @@ public class Component {
 	private String description;
 	@ManyToOne( fetch = FetchType.LAZY, optional = false)
 	private Template template;
-	@OneToMany( fetch = FetchType.EAGER, cascade = CascadeType.ALL )
+	@OneToMany( fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.REMOVE } )
 	private List<Field> fields;
 
 	public Component(Long id, String name, String description, Template template, List<Field> fields) {
