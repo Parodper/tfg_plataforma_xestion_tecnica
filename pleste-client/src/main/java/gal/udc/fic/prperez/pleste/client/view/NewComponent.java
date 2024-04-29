@@ -71,7 +71,7 @@ public class NewComponent {
 	}
 
 	@PostMapping(value = "/newcomponent")
-	public ResponseEntity<String> createNewTemplate(
+	public ResponseEntity<String> createNewComponent(
 			@RequestParam(name = "template") String templateIdParam,
 			@RequestParam(name = "component_name") String nameParam,
 			@RequestParam(name = "component_description", required = false) String descriptionParam,
@@ -111,7 +111,7 @@ public class NewComponent {
 
 					if (templateField.getType().equals(TemplateField.TypeEnum.LINK)) {
 						if(fieldMap.get(templateField.getName()).isEmpty()) {
-
+							tmpField.setLink(null);
 						} else {
 							tmpField.setLink(
 									new Component().id(
