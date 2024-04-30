@@ -141,8 +141,8 @@ public class TemplateResource {
 						.anyMatch(f -> f.getId().equals(fieldId));
 	}
 
-	private boolean templateContainsField(String templateId, String fieldId) {
-		return templateContainsField(Long.parseLong(templateId), Long.parseLong(fieldId));
+	private boolean templateDoesntContainsField(String templateId, String fieldId) {
+		return !templateContainsField(Long.parseLong(templateId), Long.parseLong(fieldId));
 	}
 
 	@Path("/{id : \\d+}/fields")
@@ -185,7 +185,7 @@ public class TemplateResource {
 	public void modifyFieldTemplate(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath, TemplateField templateField) throws TemplateFieldNotFoundException, TemplateStillInUseException {
 		Long fieldId = Long.parseLong(fieldIdPath);
 		if(templateFieldDatabase.existsById(fieldId)) {
-			if(!templateContainsField(idPath, fieldIdPath)) {
+			if(templateDoesntContainsField(idPath, fieldIdPath)) {
 				throw new TemplateFieldNotFoundException(idPath, fieldIdPath);
 			}
 
@@ -205,7 +205,7 @@ public class TemplateResource {
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public TemplateField getFieldTemplate(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath) throws TemplateFieldNotFoundException {
 		Long fieldId = Long.parseLong(fieldIdPath);
-		if(!templateContainsField(idPath, fieldIdPath)) {
+		if(templateDoesntContainsField(idPath, fieldIdPath)) {
 			return templateFieldDatabase.getReferenceById(fieldId);
 		} else {
 			throw new TemplateFieldNotFoundException(idPath, fieldIdPath);
@@ -217,7 +217,7 @@ public class TemplateResource {
 	public void removeTemplateField(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath) throws TemplateFieldNotFoundException {
 		Long fieldId = Long.parseLong(fieldIdPath);
 		if(templateFieldDatabase.existsById(fieldId)) {
-			if(!templateContainsField(idPath, fieldIdPath)) {
+			if(templateDoesntContainsField(idPath, fieldIdPath)) {
 				throw new TemplateFieldNotFoundException(idPath, fieldIdPath);
 			}
 
