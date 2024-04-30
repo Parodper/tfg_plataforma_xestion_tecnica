@@ -138,6 +138,6 @@ public class NewComponent {
 		return ResponseEntity
 				.status(HttpStatus.SEE_OTHER)
 				.header("Location","/component?id=" + newId)
-				.body("Created template #" + newId);
+				.body("Created component #" + newId);
 	}
 }

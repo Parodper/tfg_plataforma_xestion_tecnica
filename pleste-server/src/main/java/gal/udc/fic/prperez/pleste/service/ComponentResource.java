@@ -188,6 +188,8 @@ public class ComponentResource {
 					} else {
 						throw new ComponentNotFoundException(value, "");
 					}
+				} else {
+					componentField.setContent(value);
 				}
 				databaseFactory.getSqlFieldDao().save(componentField);
 			}

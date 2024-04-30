@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="gl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|pleste: Modificar ${component_name} (nº ${component_id})|"></title>
+</head>
+<body>
+    <main>
+        <form method="POST">
+            <label>
+                Nome do compoñente
+                <input required id="component_name" name="component_name" th:value="${component_name}">
+            </label>
+            <label>
+                Descripción do compoñente
+                <input id="component_description" name="component_description" th:value="${component_description}">
+            </label>
+            <h2>Campos</h2>
+            <p><i>Os campos obrigatorios atópanse en negriña.</i></p>
+            <p>Para os campos de ligazóns, engadir o número do compoñente.</p>
+            <table>
+                <tr>
+                    <th>Nome</th><th>Tipo</th><th>Valor</th>
+                </tr>
+                <tr th:each="field: ${fields}">
+                    <td th:if="${field.templateField.mandatory}"><strong th:text="|${field.templateField.name}|"></strong></td>
+                    <td th:unless="${field.templateField.mandatory}" th:text="|${field.templateField.name}|"></td>
+                    <td th:text="|${field.templateField.type}|"></td>
+                    <td th:switch="${#strings.toString(field.templateField.type)}">
+                        <input th:case="'LINK'" th:name="|field_${field.templateField.name}|" th:value="${field.link}" type="number">
+                        <input th:case="'DATETIME'" th:name="|field_${field.templateField.name}|" th:value="${field.content}" type="datetime-local">
+                        <input th:case="'TEXT'" th:name="|field_${field.templateField.name}|" th:value="${field.content}" type="text">
+                    </td>
+                </tr>
+            </table>
+
+            <input type="submit" />
+        </form>
+    </main>
+</body>
+</html>

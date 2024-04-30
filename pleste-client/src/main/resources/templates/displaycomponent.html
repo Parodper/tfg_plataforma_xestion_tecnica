@@ -9,6 +9,7 @@
         <h1 th:text="|Compoñente ${component.name} (nº ${component.id})|"></h1>
         <p th:text="|${component.description}|"></p>
         <p><strong>Baseado en:</strong> <a th:href="|/template?id=${template.id}|" th:text="|${template.name} (nº ${template.id})|"></a></p>
+        <a th:href="|/editcomponent?id=${component.id}|">Modificar</a>
         <h2>Campos</h2>
         <p><i>Os campos obrigatorios atópanse en negriña</i></p>
         <table>
