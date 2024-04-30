@@ -11,8 +11,8 @@
     <main>
         <a href="/newtemplate">Crear un novo modelo</a>
         <h2>Modelos xa creados</h2>
-        <ul>
-
+        <ul th:each="template: ${templates}">
+            <li><a th:href="|/template?id=${template.id}|" th:text="|Modelo ${template.name} (nº ${template.id})|"></a></li>
         </ul>
     </main>
 </body>

@@ -21,6 +21,7 @@ public class DisplayTemplate {
 	public String displayTemplate(@RequestParam(name = "id") String idPath, Model model) {
 		try {
 			model.addAttribute("template", defaultApi.getTemplate(idPath));
+			model.addAttribute("components", defaultApi.getTemplateComponents(idPath));
 		} catch (ApiException e) {
 			if(e.getCode() == 404) {
 				throw new ObjectNotFoundException("Template not found");

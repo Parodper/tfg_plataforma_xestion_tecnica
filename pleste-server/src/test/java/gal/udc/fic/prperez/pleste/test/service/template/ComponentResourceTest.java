@@ -75,9 +75,9 @@ public class ComponentResourceTest {
 		testTemplate = templateResource.getTemplate(id);
 
 		testTemplate.setFields(new ArrayList<>());
-		testTemplate.getFields().add(new TemplateField(null, "X", true, FieldTypes.TEXT, template));
-		testTemplate.getFields().add(new TemplateField(null, "Y", false, FieldTypes.DATETIME, template));
-		testTemplate.getFields().add(new TemplateField(null, "Z", false, FieldTypes.LINK, template));
+		testTemplate.getFields().add(new TemplateField(null, "X", true, FieldTypes.TEXT));
+		testTemplate.getFields().add(new TemplateField(null, "Y", false, FieldTypes.DATETIME));
+		testTemplate.getFields().add(new TemplateField(null, "Z", false, FieldTypes.LINK));
 		templateResource.modifyTemplate(id, testTemplate);
 		testTemplate = templateResource.getTemplate(id);
 	}

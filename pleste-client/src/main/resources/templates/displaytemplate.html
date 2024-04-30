@@ -8,10 +8,16 @@
     <main>
         <h1 th:text="|Modelo ${template.name} (nº ${template.id})|"></h1>
         <p th:text="|${template.description}|"></p>
+        <a th:href="|/edittemplate?id=${template.id}|">Modificar</a>
         <p><i>Os campos obrigatorios atópanse en negriña</i></p>
         <ul th:each="field: ${template.fields}">
             <li th:if="${field.mandatory}"><strong th:text="|${field.name}: ${field.type}|"></strong></li>
             <li th:unless="${field.mandatory}" th:text="|${field.name}: ${field.type}|"></li>
+        </ul>
+        <h2>Compoñentes baseados neste modelo</h2>
+        <a th:href="|/newcomponent?template=${template.id}|">Engadir un compoñente</a>
+        <ul th:each="component: ${components}">
+            <li><a th:href="|/component?id=${component.id}|" th:text="|${component.name} (nº ${component.id})|"></a></li>
         </ul>
     </main>
 </body>

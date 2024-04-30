@@ -1,6 +1,6 @@
 last_id = 0;
 
-function appendField() {
+function appendField(start_disabled) {
     form = document.getElementById("fields");
     last_id++;
     this_id = "field_" + (last_id.toString().padStart(3, '0'));
@@ -10,12 +10,14 @@ function appendField() {
 
     label_name = document.createElement("label");
     label_name_input = document.createElement("input");
-    label_name_input.name = this_id + "_name"
+    label_name_input.name = this_id + "_name";
+    label_name_input.disabled = start_disabled;
     label_name.append("Nome: ", label_name_input);
 
     label_type = document.createElement("label");
     field_types = document.createElement("select");
     field_types.name = this_id + "_type";
+    field_types.disabled = start_disabled;
     option = document.createElement("option");
     option.text = "Texto libre"
     field_types.add(option);
@@ -31,6 +33,7 @@ function appendField() {
     input_mandatory = document.createElement("input");
     input_mandatory.name = this_id + "_mandatory";
     input_mandatory.type = "checkbox";
+    input_mandatory.disabled = start_disabled;
     label_mandatory.append("Obrigatorio? ", input_mandatory)
 
     delete_button = document.createElement("button");

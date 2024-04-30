@@ -10,7 +10,7 @@
         <label>Nome <input name="template_name" /></label>
         <label>Descripción <input name="template_description" /></label>
         <div id="fields">
-            <button type="button" onclick="appendField()">Crear novo campo</button>
+            <button type="button" onclick="appendField(false)">Crear novo campo</button>
             <div id="field_000">
                 <label>Nome <input name="field_000_name" /></label>
                 <label>Tipo <select name="field_000_type">
@@ -23,7 +23,7 @@
                 <button type="button" onclick="removeField(this)">Borrar campo</button>
             </div>
         </div>
-        <input type="submit" />
+        <input type="submit" value="Gardar" />
     </form>
 </body>
 </html>

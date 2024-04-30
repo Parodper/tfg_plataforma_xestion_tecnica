@@ -112,7 +112,7 @@ public class ComponentResource {
 		return componentDatabase.findByName(name);
 	}
 
-	@Path("/{id : \\d}")
+	@Path("/{id : \\d+}")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public Component getComponent(@PathParam("id") String idPath) throws ComponentNotFoundException {
@@ -122,7 +122,7 @@ public class ComponentResource {
 		return component;
 	}
 
-	@Path("/{id : \\d}")
+	@Path("/{id : \\d+}")
 	@POST
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public void modifyComponent(@PathParam("id") String idPath, Component newComponent) throws ComponentNotFoundException {
@@ -138,7 +138,7 @@ public class ComponentResource {
 		}
 	}
 
-	@Path("/{id : \\d}")
+	@Path("/{id : \\d+}")
 	@DELETE
 	public void removeComponent(@PathParam("id") String idPath) throws ComponentNotFoundException {
 		Long id = Long.parseLong(idPath);
@@ -149,7 +149,7 @@ public class ComponentResource {
 		}
 	}
 
-	@Path("/{id : \\d}/template")
+	@Path("/{id : \\d+}/template")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public Template getParentTemplate(@PathParam("id") String idPath) throws ComponentNotFoundException {
@@ -159,7 +159,7 @@ public class ComponentResource {
 
 	/// Fields
 
-	@Path("/{id : \\d}/fields")
+	@Path("/{id : \\d+}/fields")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public List<Field> getFieldsComponent(@PathParam("id") String idPath) throws ComponentNotFoundException {
@@ -167,7 +167,7 @@ public class ComponentResource {
 		return getComponentUtil(id).getFields();
 	}
 
-	@Path("/{componentId : \\d}/fields/{fieldName : \\S}")
+	@Path("/{componentId : \\d+}/fields/{fieldName : \\S+}")
 	@PUT
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public void modifyFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName, String value) throws ComponentFieldNotFoundException, ComponentFieldIsMandatoryException {
@@ -196,7 +196,7 @@ public class ComponentResource {
 		}
 	}
 
-	@Path("/{componentId : \\d}/fields/{fieldName : \\S}")
+	@Path("/{componentId : \\d+}/fields/{fieldName : \\S+}")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public Field getFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName) throws ComponentFieldNotFoundException {
@@ -207,7 +207,7 @@ public class ComponentResource {
 		}
 	}
 
-	@Path("/{componentId : \\d}/fields/{fieldName : \\S}")
+	@Path("/{componentId : \\d+}/fields/{fieldName : \\S+}")
 	@DELETE
 	public void removeComponentField(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName) throws TemplateFieldNotFoundException {
 		try {

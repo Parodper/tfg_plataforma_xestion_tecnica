@@ -4,8 +4,10 @@ import gal.udc.fic.prperez.pleste.service.dao.SQLDaoFactoryUtil;
 import gal.udc.fic.prperez.pleste.service.dao.component.Component;
 import gal.udc.fic.prperez.pleste.service.dao.component.Field;
 import gal.udc.fic.prperez.pleste.service.dao.template.SQLTemplateDao;
+import gal.udc.fic.prperez.pleste.service.dao.template.SQLTemplateFieldDao;
 import gal.udc.fic.prperez.pleste.service.dao.template.Template;
 import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
+import gal.udc.fic.prperez.pleste.service.exceptions.TemplateFieldAlreadyExistsException;
 import gal.udc.fic.prperez.pleste.service.exceptions.TemplateFieldNotFoundException;
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateAlreadyExistsException;
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateNotFoundException;
@@ -19,9 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Path( "/templates")
 @Service
@@ -36,6 +36,7 @@ import java.util.Optional;
 		})
 public class TemplateResource {
 	private final SQLTemplateDao templateDatabase;
+	private final SQLTemplateFieldDao templateFieldDatabase;
 	private final SQLDaoFactoryUtil databaseFactory;
 
 	private Template createBasicTemplate(Long id) {
@@ -58,9 +59,10 @@ public class TemplateResource {
 		}
 	}
 
-	public @Autowired TemplateResource(SQLTemplateDao templateDatabase, SQLDaoFactoryUtil databaseFactory) {
+	public @Autowired TemplateResource(SQLTemplateDao templateDatabase, SQLDaoFactoryUtil databaseFactory, SQLTemplateFieldDao templateFieldDatabase) {
 		this.templateDatabase = templateDatabase;
 		this.databaseFactory = databaseFactory;
+		this.templateFieldDatabase = templateFieldDatabase;
 	}
 
 	@POST
@@ -86,7 +88,7 @@ public class TemplateResource {
 		return templateDatabase.findByName(name);
 	}
 
-	@Path("/{id : \\d}")
+	@Path("/{id : \\d+}")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public Template getTemplate(@PathParam("id") String idPath) throws TemplateNotFoundException {
@@ -94,7 +96,7 @@ public class TemplateResource {
 		return getTemplateUtil(id);
 	}
 
-	@Path("/{id : \\d}")
+	@Path("/{id : \\d+}")
 	@POST
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public void modifyTemplate(@PathParam("id") String idPath, Template template) throws TemplateNotFoundException {
@@ -107,7 +109,7 @@ public class TemplateResource {
 		}
 	}
 
-	@Path("/{id : \\d}")
+	@Path("/{id : \\d+}")
 	@DELETE
 	public void removeTemplate(@PathParam("id") String idPath) throws TemplateNotFoundException, TemplateStillInUseException {
 		Long id = Long.parseLong(idPath);
@@ -115,14 +117,14 @@ public class TemplateResource {
 			if(databaseFactory.getSqlComponentDao().findByTemplate(createBasicTemplate(id)).isEmpty()) {
 				templateDatabase.deleteById(id);
 			} else {
-				throw new TemplateStillInUseException(id, "");
+				throw new TemplateStillInUseException(idPath, "");
 			}
 		} else {
 			throw new TemplateNotFoundException(idPath, "");
 		}
 	}
 
-	@Path("/{id : \\d}/components")
+	@Path("/{id : \\d+}/components")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public List<Component> getTemplateComponents(@PathParam("id") String idPath) throws TemplateNotFoundException {
@@ -132,7 +134,18 @@ public class TemplateResource {
 
 	/// Fields
 
-	@Path("/{id : \\d}/fields")
+	private boolean templateContainsField(Long templateId, Long fieldId) {
+		return templateDatabase.existsById(templateId) &&
+				templateFieldDatabase.existsById(fieldId) &&
+				templateDatabase.getReferenceById(templateId).getFields().stream()
+						.anyMatch(f -> f.getId().equals(fieldId));
+	}
+
+	private boolean templateContainsField(String templateId, String fieldId) {
+		return templateContainsField(Long.parseLong(templateId), Long.parseLong(fieldId));
+	}
+
+	@Path("/{id : \\d+}/fields")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public List<TemplateField> getFieldsTemplate(@PathParam("id") String idPath) throws TemplateNotFoundException {
@@ -140,42 +153,84 @@ public class TemplateResource {
 		return getTemplateUtil(id).getFields();
 	}
 
-	@Path("/{templateId : \\d}/fields/{fieldId : \\d}")
+	@Path("/{id : \\d+}/fields")
+	@POST
+	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	public Long addFieldTemplate(@PathParam("id") String idPath, TemplateField templateField) throws TemplateNotFoundException, TemplateStillInUseException, TemplateFieldAlreadyExistsException {
+		Long id = Long.parseLong(idPath);
+
+		if(!templateDatabase.existsById(id)) {
+			throw new TemplateNotFoundException(idPath, "");
+		}
+		if(templateFieldDatabase.existsByName(templateField.getName()) &&
+				templateFieldDatabase.findByTemplateFieldName(templateField.getName()).contains(id)) {
+			throw new TemplateFieldAlreadyExistsException(idPath, templateField.getName());
+		}
+
+		if(!databaseFactory.getSqlComponentDao().findByTemplate(new Template(id)).isEmpty()) {
+			throw new TemplateStillInUseException(idPath, templateField.getName());
+		}
+
+		Template t = templateDatabase.getReferenceById(id);
+		t.getFields().add(templateField);
+		templateDatabase.save(t);
+
+		return templateFieldDatabase.save(templateField).getId();
+	}
+
+	@Path("/{templateId : \\d+}/fields/{fieldId : \\d+}")
 	@POST
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public void modifyFieldTemplate(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath, TemplateField templateField) throws TemplateFieldNotFoundException {
+	public void modifyFieldTemplate(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath, TemplateField templateField) throws TemplateFieldNotFoundException, TemplateStillInUseException {
 		Long fieldId = Long.parseLong(fieldIdPath);
-		if(databaseFactory.getSqlTemplateFieldDao().existsById(fieldId)) {
-			templateField.setId(fieldId);
-			databaseFactory.getSqlTemplateFieldDao().save(templateField);
+		if(templateFieldDatabase.existsById(fieldId)) {
+			if(!templateContainsField(idPath, fieldIdPath)) {
+				throw new TemplateFieldNotFoundException(idPath, fieldIdPath);
+			}
+
+			if(databaseFactory.getSqlComponentDao().findByTemplate(new Template(Long.parseLong(idPath))).isEmpty()) {
+				templateField.setId(fieldId);
+				templateFieldDatabase.save(templateField);
+			} else {
+				throw new TemplateStillInUseException(idPath, "");
+			}
 		} else {
 			throw new TemplateFieldNotFoundException(idPath, fieldIdPath);
 		}
 	}
 
-	@Path("/{templateId : \\d}/fields/{fieldId : \\d}")
+	@Path("/{templateId : \\d+}/fields/{fieldId : \\d+}")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public TemplateField getFieldTemplate(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath) throws TemplateFieldNotFoundException {
 		Long fieldId = Long.parseLong(fieldIdPath);
-		if(databaseFactory.getSqlTemplateFieldDao().existsById(fieldId)) {
-			return databaseFactory.getSqlTemplateFieldDao().getReferenceById(fieldId);
+		if(!templateContainsField(idPath, fieldIdPath)) {
+			return templateFieldDatabase.getReferenceById(fieldId);
 		} else {
 			throw new TemplateFieldNotFoundException(idPath, fieldIdPath);
 		}
 	}
 
-	@Path("/{templateId : \\d}/fields/{fieldId : \\d}")
+	@Path("/{templateId : \\d+}/fields/{fieldId : \\d+}")
 	@DELETE
 	public void removeTemplateField(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath) throws TemplateFieldNotFoundException {
 		Long fieldId = Long.parseLong(fieldIdPath);
-		if(databaseFactory.getSqlTemplateFieldDao().existsById(fieldId)) {
+		if(templateFieldDatabase.existsById(fieldId)) {
+			if(!templateContainsField(idPath, fieldIdPath)) {
+				throw new TemplateFieldNotFoundException(idPath, fieldIdPath);
+			}
+
 			TemplateField f = new TemplateField();
 			f.setId(fieldId);
 			for(Field field : databaseFactory.getSqlFieldDao().findByTemplateField(f)) {
 				databaseFactory.getSqlFieldDao().delete(field);
 			}
-			databaseFactory.getSqlTemplateFieldDao().deleteById(fieldId);
+
+			Template t = templateDatabase.getReferenceById(Long.parseLong(idPath));
+			t.getFields().removeIf(templateField -> templateField.getId().equals(fieldId));
+			templateDatabase.save(t);
+			templateFieldDatabase.deleteById(fieldId);
 		} else {
 			throw new TemplateFieldNotFoundException(idPath, fieldIdPath);
 		}
