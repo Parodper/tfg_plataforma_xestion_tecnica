@@ -9,6 +9,7 @@
         <h1 th:text="|Modelo ${template.name} (nº ${template.id})|"></h1>
         <p th:text="|${template.description}|"></p>
         <a th:href="|/edittemplate?id=${template.id}|">Modificar</a>
+        <a th:href="|/deleteelement?type=template&id=${template.id}">Eliminar</a>
         <p><i>Os campos obrigatorios atópanse en negriña</i></p>
         <ul th:each="field: ${template.fields}">
             <li th:if="${field.mandatory}"><strong th:text="|${field.name}: ${field.type}|"></strong></li>
