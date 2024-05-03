@@ -11,16 +11,15 @@ import org.openapitools.client.model.Template;
 import org.openapitools.client.model.TemplateField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.util.HtmlUtils;
 
-import java.net.*;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,34 +33,16 @@ public class NewComponent {
 		this.defaultApi = defaultApi;
 	}
 
-	private static String encodeURI(String text) {
-		return URLEncoder.encode(text, Charset.defaultCharset());
-	}
-
-	private static String decodeURI(String text) {
-		return URLDecoder.decode(text, Charset.defaultCharset());
-	}
-
-	private static String encodeHTML(String text) {
-		return HtmlUtils.htmlEscape(text);
-	}
-
 	@GetMapping("/newcomponent")
-	public String newComponent(@RequestParam(name = "template") String templateIdParam, @RequestParam(name = "name", required = false) String nameParam, @RequestParam(name = "description", required = false) String descriptionParam, Model model) {
-		String templateId = decodeURI(templateIdParam);
-		String name = nameParam == null ? "" : decodeURI(nameParam);
-		String description = descriptionParam == null ? "" : decodeURI(descriptionParam);
-
-		model.addAttribute("component_name", encodeHTML(name));
-		model.addAttribute("component_description", encodeHTML(description));
-		model.addAttribute("selected_template", encodeHTML(templateIdParam));
+	public String newComponent(@RequestParam(name = "template") String templateIdParam, Model model) {
+		model.addAttribute("selected_template", templateIdParam);
 
 		try {
 			model.addAttribute("templates", defaultApi.getAllTemplates());
-			model.addAttribute("fields", defaultApi.getTemplate(templateId).getFields());
+			model.addAttribute("fields", defaultApi.getTemplate(templateIdParam).getFields());
 		} catch (ApiException e) {
 			if(e.getCode() == HttpStatus.NOT_FOUND.value()) {
-				throw new ObjectNotFoundException(templateId + " not found");
+				throw new ObjectNotFoundException(templateIdParam + " not found");
 			} else {
 				throw new InternalErrorException(e.getMessage());
 			}
@@ -71,21 +52,14 @@ public class NewComponent {
 	}
 
 	@PostMapping(value = "/newcomponent")
-	public ResponseEntity<String> createNewComponent(
-			@RequestParam(name = "template") String templateIdParam,
-			@RequestParam(name = "component_name") String nameParam,
-			@RequestParam(name = "component_description", required = false) String descriptionParam,
-			@RequestParam Map<String, String> fields) {
+	public ResponseEntity<String> createNewComponent(@RequestParam(name = "template") String templateIdParam, @RequestParam Map<String, String> fields) {
 		Long newId;
 		Template template;
 		Component component = new Component();
 		Map<String, String> fieldMap = new HashMap<>();
 
-		String name = decodeURI(nameParam);
-		String description = decodeURI(descriptionParam);
-
-		component.setName(name);
-		component.setDescription(description);
+		component.setName(fields.get("component_name"));
+		component.setDescription(fields.get("component_description"));
 
 		for(String field : fields.keySet()) {
 			if(field.matches("^field_.*")) {
@@ -108,6 +82,7 @@ public class NewComponent {
 				} else {
 					Field tmpField = new Field();
 					tmpField.setTemplateField(new TemplateField().id(templateField.getId()));
+					tmpField.setName(defaultApi.getFieldTemplate(template.getId().toString(), templateField.getId().toString()).getName());
 
 					if (templateField.getType().equals(TemplateField.TypeEnum.LINK)) {
 						if(fieldMap.get(templateField.getName()).isEmpty()) {

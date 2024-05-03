@@ -52,12 +52,14 @@ public class ComponentResource {
 	}
 
 	private boolean isFieldMissing(Field field) {
-		boolean mandatory = field.getTemplateField().isMandatory();
+		TemplateField templateField = databaseFactory.getSqlTemplateFieldDao().getReferenceById(field.getTemplateField().getId());
+
+		boolean mandatory = templateField.isMandatory();
 		boolean linkEmpty = field.getLink() == null;
 		boolean contentEmpty = field.getContent() == null || field.getContent().isEmpty();
-		boolean isLink = field.getTemplateField().getType().equals(FieldTypes.LINK);
-		boolean isDatetime = field.getTemplateField().getType().equals(FieldTypes.DATETIME);
-		boolean isText = field.getTemplateField().getType().equals(FieldTypes.TEXT);
+		boolean isLink = templateField.getType().equals(FieldTypes.LINK);
+		boolean isDatetime = templateField.getType().equals(FieldTypes.DATETIME);
+		boolean isText = templateField.getType().equals(FieldTypes.TEXT);
 
 		return mandatory && ( (isLink && linkEmpty) || ((isText || isDatetime) && contentEmpty) );
 	}
@@ -77,11 +79,11 @@ public class ComponentResource {
 
 		//Check if fields are consistent between Template and Component
 		List<Field> fields = component.getFields();
-		List<TemplateField> templateFields = component.getTemplate().getFields();
+		List<TemplateField> templateFields = databaseFactory.getSqlTemplateDao().getReferenceById(component.getTemplate().getId()).getFields();
 		List<String> missingFields = new ArrayList<>();
 
 		for (TemplateField field : templateFields) {
-			if (fields.stream().noneMatch(f -> f.getName().equals(field.getName()))) {
+			if (fields.stream().noneMatch(f -> f.getTemplateField().getId().equals(field.getId()))) {
 				missingFields.add(field.getName());
 			}
 		}

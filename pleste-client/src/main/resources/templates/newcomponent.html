@@ -17,11 +17,11 @@
         <form method="POST">
             <label>
                 Nome do compoñente
-                <input required id="component_name" name="component_name" th:value="${component_name}">
+                <input required id="component_name" name="component_name">
             </label>
             <label>
                 Descripción do compoñente
-                <input id="component_description" name="component_description" th:value="${component_description}">
+                <input id="component_description" name="component_description">
             </label>
             <h2>Campos</h2>
             <p><i>Os campos obrigatorios atópanse en negriña</i></p>
@@ -44,10 +44,6 @@
 
             <input type="submit" />
         </form>
-
-        <div th:if="${error_message != ''}" id="error_message">
-            <p th:text="${error_message}"></p>
-        </div>
     </main>
 </body>
 </html>
