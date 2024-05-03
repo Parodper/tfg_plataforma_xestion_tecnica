@@ -3,6 +3,7 @@ package gal.udc.fic.prperez.pleste.service.dao.template;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @Entity
@@ -58,5 +59,17 @@ public class Template {
 
 	public void setFields(List<TemplateField> fields) {
 		this.fields = fields;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Template template)) return false;
+		return Objects.equals(id, template.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(id);
 	}
 }

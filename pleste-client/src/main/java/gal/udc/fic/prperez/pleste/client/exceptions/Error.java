@@ -11,7 +11,6 @@ public class Error {
 	public ModelAndView error(HttpServletRequest httpRequest) {
 		ModelAndView model = new ModelAndView("error.html");
 
-		model.addObject("code", httpRequest.getAttribute("jakarta.servlet.error.status_code"));
 		model.addObject("message", httpRequest.getAttribute("jakarta.servlet.error.message"));
 
 		return model;

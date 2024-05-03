@@ -2,6 +2,8 @@ package gal.udc.fic.prperez.pleste.service.dao.template;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 public class TemplateField {
 	@Id
@@ -54,5 +56,17 @@ public class TemplateField {
 
 	public void setType(FieldTypes type) {
 		this.type = type;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof TemplateField that)) return false;
+		return Objects.equals(id, that.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(id);
 	}
 }
