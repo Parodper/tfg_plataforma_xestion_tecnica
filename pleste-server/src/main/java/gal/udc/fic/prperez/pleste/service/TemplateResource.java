@@ -134,15 +134,14 @@ public class TemplateResource {
 
 	/// Fields
 
-	private boolean templateContainsField(Long templateId, Long fieldId) {
+	private boolean templateDoesntContainsField(String templateIdS, String fieldIdS) {
+		Long templateId = Long.parseLong(templateIdS);
+		Long fieldId = Long.parseLong(fieldIdS);
+
 		return templateDatabase.existsById(templateId) &&
 				templateFieldDatabase.existsById(fieldId) &&
 				templateDatabase.getReferenceById(templateId).getFields().stream()
 						.anyMatch(f -> f.getId().equals(fieldId));
-	}
-
-	private boolean templateDoesntContainsField(String templateId, String fieldId) {
-		return !templateContainsField(Long.parseLong(templateId), Long.parseLong(fieldId));
 	}
 
 	@Path("/{id : \\d+}/fields")

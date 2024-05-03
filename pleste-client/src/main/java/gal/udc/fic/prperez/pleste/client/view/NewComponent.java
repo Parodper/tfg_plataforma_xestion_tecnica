@@ -11,13 +11,11 @@ import org.openapitools.client.model.Template;
 import org.openapitools.client.model.TemplateField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
@@ -51,7 +49,7 @@ public class NewComponent {
 		return "newcomponent.html";
 	}
 
-	@PostMapping(value = "/newcomponent")
+	@PostMapping(value = "/newcomponent", consumes = "application/x-www-form-urlencoded;charset=UTF-8")
 	public ResponseEntity<String> createNewComponent(@RequestParam(name = "template") String templateIdParam, @RequestParam Map<String, String> fields) {
 		Long newId;
 		Template template;

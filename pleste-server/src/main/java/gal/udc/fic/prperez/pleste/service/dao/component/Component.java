@@ -4,6 +4,7 @@ import gal.udc.fic.prperez.pleste.service.dao.template.Template;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "components")
@@ -71,5 +72,17 @@ public class Component {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Component component)) return false;
+		return Objects.equals(id, component.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(id);
 	}
 }

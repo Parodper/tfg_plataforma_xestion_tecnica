@@ -3,6 +3,8 @@ package gal.udc.fic.prperez.pleste.service.dao.component;
 import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 public class Field {
 	@Id
@@ -67,5 +69,17 @@ public class Field {
 
 	public void setLink(Component link) {
 		this.link = link;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Field field)) return false;
+		return Objects.equals(id, field.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
 	}
 }
