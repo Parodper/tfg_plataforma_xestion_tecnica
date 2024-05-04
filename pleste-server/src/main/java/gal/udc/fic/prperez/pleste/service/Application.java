@@ -3,6 +3,8 @@ package gal.udc.fic.prperez.pleste.service;
 import jakarta.ws.rs.ApplicationPath;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -14,7 +16,7 @@ import java.util.Map;
 import static gal.udc.fic.prperez.pleste.service.Application.BASE_URL;
 
 @ApplicationPath(BASE_URL)
-@SpringBootApplication
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class})
 public class Application extends SpringBootServletInitializer {
 	public final static String BASE_URL = "/api/v0";
 
