@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="gl">
+<head>
+    <title>pleste: Iniciar sesión</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<header>
+    <div id="user"></div>
+</header>
+<main>
+    <form method="POST">
+        <label>Usuario: <input type="text" name="username" /></label>
+        <label>Contrasinal: <input type="text" name="password" /></label>
+        <input type="submit" />
+    </form>
+    <p th:if="${error}" th:text="${error}"></p>
+</main>
+</body>
+</html>

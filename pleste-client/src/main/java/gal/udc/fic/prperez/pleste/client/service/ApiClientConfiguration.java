@@ -1,5 +1,6 @@
 package gal.udc.fic.prperez.pleste.client.service;
 
+import okhttp3.OkHttpClient;
 import org.openapitools.client.api.DefaultApi;
 import org.openapitools.client.ApiClient;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +16,8 @@ public class ApiClientConfiguration {
 
 	@Bean
 	public ApiClient apiClient() {
-		return new ApiClient();
+		return new ApiClient(new OkHttpClient.Builder()
+				.addInterceptor(SecureServiceFactory::addAPIHeader)
+				.build());
 	}
 }

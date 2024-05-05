@@ -30,12 +30,10 @@ import java.util.random.RandomGenerator;
 		})
 public class AuthenticationResource {
 	private final SQLUserDao userDatabase;
-	private final SQLPasswordDao passwordDatabase;
 	private final SQLDaoFactoryUtil databaseFactory;
 
-	public @Autowired AuthenticationResource(SQLUserDao userDatabase, SQLPasswordDao passwordDatabase, SQLDaoFactoryUtil databaseFactory) {
+	public @Autowired AuthenticationResource(SQLUserDao userDatabase, SQLDaoFactoryUtil databaseFactory) {
 		this.userDatabase = userDatabase;
-		this.passwordDatabase = passwordDatabase;
 		this.databaseFactory = databaseFactory;
 	}
 
@@ -58,14 +56,12 @@ public class AuthenticationResource {
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public Long addUser(String username, String email, String password ) {
 		User user = new User();
-		Password pass = new Password();
 
 		if(email != null) {
 			user.setEmail(email);
 		}
 		user.setUsername(username);
-		pass.setPassword(password);
-		user.setPassword(pass);
+		user.setPassword(password);
 		user.setRole(Roles.NORMAL_USER);
 
 		if(userDatabase.existsByUsername(username)) {
@@ -79,10 +75,10 @@ public class AuthenticationResource {
 	@POST
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public String login(String username, String password ) {
+	public String login(@QueryParam("user") String username, String password) {
 		if(userDatabase.existsByUsername(username)) {
 			User user = userDatabase.getByUsername(username);
-			if(user.getPassword().getPassword().equals(password)) {
+			if(user.getPassword().equals(password)) {
 				Token token = new Token();
 				token.setUser(user);
 				token.setToken(generateRandomToken());
@@ -92,6 +88,17 @@ public class AuthenticationResource {
 		}
 
 		throw new UserNotFoundException(username);
+	}
+
+	@Path("/search")
+	@POST
+	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	public User userByName(@QueryParam("name") String name) {
+		if(userDatabase.existsByUsername(name)) {
+			return userDatabase.getByUsername(name);
+		} else {
+			throw new UserNotFoundException(name);
+		}
 	}
 
 	@Path("/{userId: \\d+}")
