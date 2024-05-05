@@ -9,13 +9,12 @@ public class User {
 	private Long id;
 	private String username;
 	private String email;
-	@OneToOne(cascade = CascadeType.ALL)
-	private Password password;
+	private String password;
 	private Roles role;
 
 	public User() {}
 
-	public User(Long id, String username, String email, Password password, Roles role) {
+	public User(Long id, String username, String email, String password, Roles role) {
 		this.id = id;
 		this.username = username;
 		this.email = email;
@@ -51,11 +50,11 @@ public class User {
 		this.email = email;
 	}
 
-	public Password getPassword() {
+	public String getPassword() {
 		return password;
 	}
 
-	public void setPassword(Password password) {
+	public void setPassword(String password) {
 		this.password = password;
 	}
 
