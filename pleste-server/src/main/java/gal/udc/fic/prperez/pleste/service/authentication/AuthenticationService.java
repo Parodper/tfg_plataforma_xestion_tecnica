@@ -7,6 +7,9 @@ import gal.udc.fic.prperez.pleste.service.dao.users.User;
 import gal.udc.fic.prperez.pleste.service.exceptions.authentication.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
@@ -24,14 +27,12 @@ public class AuthenticationService {
 	public Authentication getAuthentication(HttpServletRequest request) {
 		String apiKey = request.getHeader(AUTH_TOKEN_HEADER_NAME);
 		//TODO: Fix this!!!
-		if(apiKey == null) {
-			for(String match : new String[]{"/openapi.json", Application.BASE_URL + "/login", "/error"}) {
-				if(request.getRequestURI().matches(match)) {
-					return new ApiKeyAuthentication(apiKey, AuthorityUtils.NO_AUTHORITIES);
-				}
+		for(String match : new String[]{"/openapi.json", Application.BASE_URL + "/users/login", "/error"}) {
+			if(request.getRequestURI().matches(match)) {
+				return new AnonymousAuthenticationToken("anonymous", "anonymous", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 			}
-			throw new UserNotFoundException("API_KEY");
-		} else if(sqlTokenDao.existsByToken(apiKey) &&
+		}
+		if(apiKey != null && sqlTokenDao.existsByToken(apiKey) &&
 				canAccess(request.getMethod(), request.getRequestURI(), sqlTokenDao.getByToken(apiKey).getUser())) {
 			return new ApiKeyAuthentication(apiKey, AuthorityUtils.NO_AUTHORITIES);
 		} else {
