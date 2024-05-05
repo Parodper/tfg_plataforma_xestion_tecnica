@@ -1,6 +1,7 @@
 package gal.udc.fic.prperez.pleste.service.dao.users;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 @Entity
 public class Token {
 	@Id
+	@GeneratedValue
 	private Long id;
 	@ManyToOne
 	private User user;

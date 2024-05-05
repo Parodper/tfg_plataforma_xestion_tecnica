@@ -13,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.util.Random;
-import java.util.random.RandomGenerator;
 
 @Path( "/users")
 @Service
@@ -28,11 +26,11 @@ import java.util.random.RandomGenerator;
 				@Server(
 						url = "http://localhost:8080/api/v0")
 		})
-public class AuthenticationResource {
+public class UsersResource {
 	private final SQLUserDao userDatabase;
 	private final SQLDaoFactoryUtil databaseFactory;
 
-	public @Autowired AuthenticationResource(SQLUserDao userDatabase, SQLDaoFactoryUtil databaseFactory) {
+	public @Autowired UsersResource(SQLUserDao userDatabase, SQLDaoFactoryUtil databaseFactory) {
 		this.userDatabase = userDatabase;
 		this.databaseFactory = databaseFactory;
 	}
@@ -54,18 +52,9 @@ public class AuthenticationResource {
 	@POST
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public Long addUser(String username, String email, String password ) {
-		User user = new User();
-
-		if(email != null) {
-			user.setEmail(email);
-		}
-		user.setUsername(username);
-		user.setPassword(password);
-		user.setRole(Roles.NORMAL_USER);
-
-		if(userDatabase.existsByUsername(username)) {
-			throw new UserAlreadyExistsException(username);
+	public Long addUser(User user) {
+		if(userDatabase.existsByUsername(user.getUsername())) {
+			throw new UserAlreadyExistsException(user.getUsername());
 		}
 
 		return userDatabase.save(user).getId();
@@ -82,7 +71,7 @@ public class AuthenticationResource {
 				Token token = new Token();
 				token.setUser(user);
 				token.setToken(generateRandomToken());
-				databaseFactory.getSqlTokenDao().save(token);
+				token = databaseFactory.getSqlTokenDao().save(token);
 				return token.getToken();
 			}
 		}
