@@ -18,6 +18,7 @@ public class Index {
 
 	@GetMapping("/")
 	public String index(Model model) {
+		model.addAttribute("user", "Usuario");
 		try {
 			model.addAttribute("templates", defaultApi.getAllTemplates());
 		} catch (ApiException e) {

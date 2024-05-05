@@ -3,13 +3,12 @@
 <head>
     <title>pleste: PLataforma de xEstión de configuraciónS TÉcnicas</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <th:block th:insert="~{includes}" />
 </head>
 <body>
-    <header>
-        <div id="user"></div>
-    </header>
-    <main>
-        <a href="/newtemplate">Crear un novo modelo</a>
+    <header th:insert="~{header}"></header>
+    <main class="container mt-5">
+        <a class="btn btn-info" role="button" href="/newtemplate">Crear un novo modelo</a>
         <h2>Modelos xa creados</h2>
         <ul th:each="template: ${templates}">
             <li><a th:href="|/template?id=${template.id}|" th:text="|Modelo ${template.name} (nº ${template.id})|"></a></li>

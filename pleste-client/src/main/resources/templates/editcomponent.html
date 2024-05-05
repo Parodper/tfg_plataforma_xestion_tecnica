@@ -3,22 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="|pleste: Modificar ${component_name} (nº ${component_id})|"></title>
+    <th:block th:insert="~{includes}" />
 </head>
 <body>
-    <main>
+    <header th:include="~{header}"></header>
+    <main class="container mt-5">
         <form method="POST">
             <label>
                 Nome do compoñente
                 <input required id="component_name" name="component_name" th:value="${component_name}">
             </label>
+            <hr class="w-100" />
             <label>
                 Descripción do compoñente
-                <input id="component_description" name="component_description" th:value="${component_description}">
+                <textarea id="component_description" name="component_description" th:value="${component_description}"></textarea>
             </label>
             <h2>Campos</h2>
             <p><i>Os campos obrigatorios atópanse en negriña.</i></p>
             <p>Para os campos de ligazóns, engadir o número do compoñente.</p>
-            <table>
+            <table class="table">
                 <tr>
                     <th>Nome</th><th>Tipo</th><th>Valor</th>
                 </tr>
@@ -34,7 +37,7 @@
                 </tr>
             </table>
 
-            <input type="submit" />
+            <input type="submit" value="Gardar" />
         </form>
     </main>
 </body>

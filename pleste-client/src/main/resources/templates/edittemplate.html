@@ -4,27 +4,32 @@
     <meta charset="UTF-8">
     <title th:text="|pleste: Modificar modelo ${template.name} (nº ${template.id})|"></title>
     <script src="js/newtemplate.js"></script>
+    <th:block th:insert="~{includes}" />
 </head>
 <body>
-    <form method="POST">
-        <label>Nome <input name="template_name" th:value="${template.name}" /></label>
-        <label>Descripción <input name="template_description" th:value="${template.description}"/></label>
-        <p th:if="${fieldsdisabled}">Non se poden modificar os campos mentres estean en uso por compoñentes.</p>
-        <div id="fields">
-            <button type="button" th:onclick="|appendField(${fieldsdisabled})|">Crear novo campo</button>
-            <div id="field_000" th:each="field: ${template.fields}">
-                <label>Nome: <input th:disabled="${fieldsdisabled}" th:value="${field.name}" th:name="|field_${field.id}_name|" /></label>
-                <label>Tipo <select th:disabled="${fieldsdisabled}" th:selected="${field_types[field.type]}" th:name="|field_${field.id}_type|">
-                        <option>Texto libre</option>
-                        <option>Ligazón</option>
-                        <option>Data</option>
-                    </select>
-                </label>
-                <label>Obrigatorio? <input th:disabled="${fieldsdisabled}" th:checked="${field.mandatory}" type="checkbox" th:name="|field_${field.id}_mandatory|"/></label>
-                <button type="button" onclick="removeField(this)">Borrar campo</button>
+    <header th:replace="~{header}"></header>
+    <main class="container mt-5">
+        <form method="POST">
+            <label>Nome <input name="template_name" th:value="${template.name}" /></label>
+            <hr class="w-100" />
+            <label>Descripción <textarea name="template_description" th:value="${template.description}"></textarea></label>
+            <p th:if="${fieldsdisabled}">Non se poden modificar os campos mentres estean en uso por compoñentes.</p>
+            <div id="fields">
+                <button type="button" th:onclick="|appendField(${fieldsdisabled})|">Crear novo campo</button>
+                <div id="field_000" th:each="field: ${template.fields}">
+                    <label>Nome: <input th:disabled="${fieldsdisabled}" th:value="${field.name}" th:name="|field_${field.id}_name|" /></label>
+                    <label>Tipo <select th:disabled="${fieldsdisabled}" th:selected="${field_types[field.type]}" th:name="|field_${field.id}_type|">
+                            <option>Texto libre</option>
+                            <option>Ligazón</option>
+                            <option>Data</option>
+                        </select>
+                    </label>
+                    <label>Obrigatorio? <input th:disabled="${fieldsdisabled}" th:checked="${field.mandatory}" type="checkbox" th:name="|field_${field.id}_mandatory|"/></label>
+                    <button type="button" onclick="removeField(this)">Borrar campo</button>
+                </div>
             </div>
-        </div>
-        <input type="submit" value="Gardar" />
-    </form>
+            <input type="submit" value="Gardar" />
+        </form>
+    </main>
 </body>
 </html>

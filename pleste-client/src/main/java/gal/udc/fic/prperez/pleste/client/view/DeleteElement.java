@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -19,9 +20,9 @@ public class DeleteElement {
 	}
 
 	@GetMapping("/deleteelement")
-	public ResponseEntity<String> deleteElement(@RequestParam(name = "type") String type, @RequestParam(name = "id") String id) {
+	public ResponseEntity<String> deleteElement(@RequestParam(name = "type") String type, @RequestParam(name = "id") String id, Model model) {
+		model.addAttribute("user", "Usuario");
 		return switch (type) {
-
 			case "template" -> deleteTemplate(id);
 			case "component" -> deleteComponent(id);
 			default -> ResponseEntity
