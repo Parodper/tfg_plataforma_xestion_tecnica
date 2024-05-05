@@ -4,26 +4,30 @@
     <meta charset="UTF-8">
     <title>pleste: Novo modelo</title>
     <script src="js/newtemplate.js"></script>
+    <th:block th:insert="~{includes}" />
 </head>
 <body>
-    <form method="POST">
-        <label>Nome <input name="template_name" /></label>
-        <label>Descripción <input name="template_description" /></label>
-        <div id="fields">
-            <button type="button" onclick="appendField(false)">Crear novo campo</button>
-            <div id="field_000">
-                <label>Nome <input name="field_000_name" /></label>
-                <label>Tipo <select name="field_000_type">
-                        <option>Texto libre</option>
-                        <option>Ligazón</option>
-                        <option>Data</option>
-                    </select>
-                </label>
-                <label>Obrigatorio? <input type="checkbox"  name="field_000_mandatory"/></label>
-                <button type="button" onclick="removeField(this)">Borrar campo</button>
+    <header th:insert="~{header}"></header>
+    <main class="container mt-5">
+        <form method="POST">
+            <label>Nome <input name="template_name" /></label>
+            <label>Descripción <textarea name="template_description"></textarea></label>
+            <div id="fields">
+                <button type="button" onclick="appendField(false)">Crear novo campo</button>
+                <div id="field_000">
+                    <label>Nome <input name="field_000_name" /></label>
+                    <label>Tipo <select name="field_000_type">
+                            <option>Texto libre</option>
+                            <option>Ligazón</option>
+                            <option>Data</option>
+                        </select>
+                    </label>
+                    <label>Obrigatorio? <input type="checkbox"  name="field_000_mandatory"/></label>
+                    <button type="button" onclick="removeField(this)">Borrar campo</button>
+                </div>
             </div>
-        </div>
-        <input type="submit" value="Gardar" />
-    </form>
+            <input type="submit" value="Crear modelo" />
+        </form>
+    </main>
 </body>
 </html>

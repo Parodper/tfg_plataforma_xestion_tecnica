@@ -21,6 +21,7 @@ public class Index {
 
 	@GetMapping("/")
 	public String index(HttpSession session, Model model) {
+		model.addAttribute("user", "Usuario");
 		try {
 			model.addAttribute("templates", defaultApi.getAllTemplates());
 		} catch (ApiException e) {

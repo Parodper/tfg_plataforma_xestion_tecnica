@@ -30,6 +30,7 @@ public class EditTemplate {
 
 	@GetMapping("/edittemplate")
 	public String editTemplate(@RequestParam(name = "id") String idParam, Model model) {
+		model.addAttribute("user", "Usuario");
 		Map<String, String> fieldTypes = new HashMap<>();
 		fieldTypes.put("LINK", "Ligazón");
 		fieldTypes.put("DATETIME", "Data");

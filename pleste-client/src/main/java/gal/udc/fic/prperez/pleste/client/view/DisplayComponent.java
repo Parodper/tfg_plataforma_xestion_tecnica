@@ -23,6 +23,7 @@ public class DisplayComponent {
 	@GetMapping("/component")
 	public String displayComponent(@RequestParam(name = "id") String idPath, Model model) {
 		long id = Long.parseLong(idPath);
+		model.addAttribute("user", "Usuario");
 
 		try {
 			Template template;

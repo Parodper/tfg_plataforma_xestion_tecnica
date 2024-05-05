@@ -38,6 +38,7 @@ public class EditComponent {
 
 	@GetMapping("/editcomponent")
 	public String editComponent(@RequestParam(name = "id") String componentIdPath, Model model) {
+		model.addAttribute("user", "Usuario");
 		try {
 			Component component = defaultApi.getComponent(componentIdPath);
 

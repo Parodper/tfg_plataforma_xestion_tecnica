@@ -33,6 +33,7 @@ public class NewComponent {
 
 	@GetMapping("/newcomponent")
 	public String newComponent(@RequestParam(name = "template") String templateIdParam, Model model) {
+		model.addAttribute("user", "Usuario");
 		model.addAttribute("selected_template", templateIdParam);
 
 		try {

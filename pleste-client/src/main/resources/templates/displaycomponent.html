@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="|pleste: Compoñente ${component.name} (nº ${component.id})|"></title>
+    <th:block th:insert="~{includes}" />
 </head>
 <body>
-    <main>
+    <header th:insert="~{header}"></header>
+    <main class="container mt-5">
         <h1 th:text="|Compoñente ${component.name} (nº ${component.id})|"></h1>
         <p th:text="|${component.description}|"></p>
         <p><strong>Baseado en:</strong> <a th:href="|/template?id=${template.id}|" th:text="|${template.name} (nº ${template.id})|"></a></p>
-        <a th:href="|/editcomponent?id=${component.id}|">Modificar</a>
-        <a th:href="|/deleteelement?type=component&id=${component.id}">Eliminar</a>
+        <a class="btn btn-info" role="button" th:href="|/editcomponent?id=${component.id}|">Modificar</a>
+        <a class="btn btn-info" role="button" th:href="|/deleteelement?type=component&id=${component.id}|">Eliminar</a>
         <h2>Campos</h2>
         <p><i>Os campos obrigatorios atópanse en negriña</i></p>
-        <table>
+        <table class="table">
             <tr>
                 <th>Nome</th><th>Tipo</th><th>Valor</th>
             </tr>
