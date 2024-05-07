@@ -39,7 +39,7 @@ public class AuthenticationManager implements ContainerRequestFilter {
 		method = requestContext.getMethod();
 
 		if( token == null || token.isEmpty() ) {
-			if(!path.matches("users/login")) {
+			if(!path.matches("users/login") && !path.matches("users/search")) {
 				throw new UserNotFoundException(token);
 			}
 		} else {

@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.servers.Server;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,9 +67,11 @@ public class UsersResource {
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public String login(@QueryParam("user") String username, String password) {
+		//TODO: Arranxar isto
+		String strippedPassword = password.replace("\"", "");
 		if(userDatabase.existsByUsername(username)) {
 			User user = userDatabase.getByUsername(username);
-			if(user.getPassword().equals(password)) {
+			if(new BCryptPasswordEncoder().matches(strippedPassword, user.getPassword())) {
 				Token token = new Token();
 				token.setUser(user);
 				token.setToken(generateRandomToken());
@@ -80,11 +84,11 @@ public class UsersResource {
 	}
 
 	@Path("/search")
-	@POST
+	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public User userByName(@QueryParam("name") String name) {
+	public Long userByName(@QueryParam("name") String name) {
 		if(userDatabase.existsByUsername(name)) {
-			return userDatabase.getByUsername(name);
+			return userDatabase.getByUsername(name).getId();
 		} else {
 			throw new UserNotFoundException(name);
 		}
@@ -159,12 +163,15 @@ public class UsersResource {
 	}
 
 	@Path("/{userId: \\d+}/logout")
-	@PUT
-	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@POST
+	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	public void logout(@PathParam("userId") String idParam, String token) {
 		Long id = Long.parseLong(idParam);
+		String localToken = token.replace("\"", "");
 
-		if(userDatabase.existsById(id) && databaseFactory.getSqlTokenDao().existsByToken(token)) {
+		if(userDatabase.existsById(id) &&
+				databaseFactory.getSqlTokenDao().existsByToken(localToken) &&
+				databaseFactory.getSqlTokenDao().getByToken(localToken).getUser().getId().equals(id)) {
 			databaseFactory.getSqlTokenDao().deleteByToken(token);
 		} else {
 			throw new UserNotFoundException(idParam);

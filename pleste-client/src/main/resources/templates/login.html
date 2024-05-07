@@ -3,17 +3,18 @@
 <head>
     <title>pleste: Iniciar sesión</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <th:block th:insert="~{includes}" />
 </head>
 <body>
-<header>
-    <div id="user"></div>
-</header>
-<main>
+<main class="container">
     <form method="POST">
         <label>Usuario: <input type="text" name="username" /></label>
-        <label>Contrasinal: <input type="text" name="password" /></label>
+        <br />
+        <label>Contrasinal: <input type="password" name="password" /></label>
+        <br />
         <input type="submit" />
     </form>
+    <hr class="w-100" />
     <p th:if="${error}" th:text="${error}"></p>
 </main>
 </body>

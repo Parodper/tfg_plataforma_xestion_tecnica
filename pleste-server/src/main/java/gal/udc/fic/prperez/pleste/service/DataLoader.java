@@ -18,14 +18,16 @@ public class DataLoader implements ApplicationRunner {
 	}
 
 	public void run(ApplicationArguments args) {
-		User u = new User();
+		if(!userRepository.existsByUsername("root")) {
+			User u = new User();
 
-		u.setUsername("root");
-		u.setEmail("root@localhost");
-		u.setPassword(new BCryptPasswordEncoder().encode("root"));
+			u.setUsername("root");
+			u.setEmail("root@localhost");
+			u.setPassword(new BCryptPasswordEncoder().encode("root"));
 
-		u.setRole(Roles.ADMINISTRATOR);
+			u.setRole(Roles.ADMINISTRATOR);
 
-		userRepository.save(u);
+			userRepository.save(u);
+		}
 	}
 }

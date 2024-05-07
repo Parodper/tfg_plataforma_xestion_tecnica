@@ -31,16 +31,17 @@ public class Login {
 		return "login.html";
 	}
 
+	/*
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password, HttpSession session) {
 		try {
 			if(session.getAttribute("token") != null) {
 				throw new AlreadyLoggedInException(username);
 			} else {
-				String token = defaultApi.login(username, new BCryptPasswordEncoder().encode(password));
+				String token = defaultApi.login(username, password);
 				session.setAttribute("token", token);
 				session.setAttribute("username", username);
-				session.setAttribute("userid", defaultApi.userByName(username).getId());
+				session.setAttribute("userid", defaultApi.userByName(username));
 				return ResponseEntity
 						.status(HttpStatus.SEE_OTHER)
 						.header("Location","/index")
@@ -53,5 +54,5 @@ public class Login {
 				throw new InternalErrorException(e.getMessage());
 			}
 		}
-	}
+	}*/
 }
