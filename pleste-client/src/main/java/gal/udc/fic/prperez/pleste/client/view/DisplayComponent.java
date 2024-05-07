@@ -2,6 +2,7 @@ package gal.udc.fic.prperez.pleste.client.view;
 
 import gal.udc.fic.prperez.pleste.client.exceptions.InternalErrorException;
 import gal.udc.fic.prperez.pleste.client.exceptions.ObjectNotFoundException;
+import jakarta.servlet.http.HttpSession;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
 import org.openapitools.client.model.Component;
@@ -21,9 +22,9 @@ public class DisplayComponent {
 	}
 
 	@GetMapping("/component")
-	public String displayComponent(@RequestParam(name = "id") String idPath, Model model) {
+	public String displayComponent(@RequestParam(name = "id") String idPath, Model model, HttpSession session) {
 		long id = Long.parseLong(idPath);
-		model.addAttribute("user", "Usuario");
+		CommonView.setModel(model, session);
 
 		try {
 			Template template;

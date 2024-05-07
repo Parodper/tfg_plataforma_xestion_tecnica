@@ -3,6 +3,7 @@ package gal.udc.fic.prperez.pleste.client.view;
 import gal.udc.fic.prperez.pleste.client.exceptions.InternalErrorException;
 import gal.udc.fic.prperez.pleste.client.exceptions.MissingMandatoryFieldException;
 import gal.udc.fic.prperez.pleste.client.exceptions.ObjectNotFoundException;
+import jakarta.servlet.http.HttpSession;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
 import org.openapitools.client.model.Component;
@@ -32,8 +33,8 @@ public class NewComponent {
 	}
 
 	@GetMapping("/newcomponent")
-	public String newComponent(@RequestParam(name = "template") String templateIdParam, Model model) {
-		model.addAttribute("user", "Usuario");
+	public String newComponent(@RequestParam(name = "template") String templateIdParam, Model model, HttpSession session) {
+		CommonView.setModel(model, session);
 		model.addAttribute("selected_template", templateIdParam);
 
 		try {

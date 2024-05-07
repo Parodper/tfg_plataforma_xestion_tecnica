@@ -2,6 +2,7 @@ package gal.udc.fic.prperez.pleste.client.view;
 
 import gal.udc.fic.prperez.pleste.client.exceptions.InternalErrorException;
 import gal.udc.fic.prperez.pleste.client.exceptions.ObjectNotFoundException;
+import jakarta.servlet.http.HttpSession;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
 import org.openapitools.client.model.Template;
@@ -29,8 +30,8 @@ public class EditTemplate {
 	}
 
 	@GetMapping("/edittemplate")
-	public String editTemplate(@RequestParam(name = "id") String idParam, Model model) {
-		model.addAttribute("user", "Usuario");
+	public String editTemplate(@RequestParam(name = "id") String idParam, Model model, HttpSession session) {
+		CommonView.setModel(model, session);
 		Map<String, String> fieldTypes = new HashMap<>();
 		fieldTypes.put("LINK", "Ligazón");
 		fieldTypes.put("DATETIME", "Data");

@@ -1,5 +1,6 @@
 package gal.udc.fic.prperez.pleste.client.view;
 
+import jakarta.servlet.http.HttpSession;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
 import org.openapitools.client.model.Template;
@@ -22,8 +23,8 @@ public class NewTemplate {
 	}
 
 	@GetMapping("/newtemplate")
-	public String newTemplate(Model model) {
-		model.addAttribute("user", "Usuario");
+	public String newTemplate(Model model, HttpSession session) {
+		CommonView.setModel(model, session);
 		return "newtemplate.html";
 	}
 

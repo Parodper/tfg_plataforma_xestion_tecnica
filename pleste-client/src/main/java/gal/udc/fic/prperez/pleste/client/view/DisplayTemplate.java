@@ -1,6 +1,7 @@
 package gal.udc.fic.prperez.pleste.client.view;
 
 import gal.udc.fic.prperez.pleste.client.exceptions.ObjectNotFoundException;
+import jakarta.servlet.http.HttpSession;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ public class DisplayTemplate {
 	}
 
 	@GetMapping("/template")
-	public String displayTemplate(@RequestParam(name = "id") String idPath, Model model) {
-		model.addAttribute("user", "Usuario");
+	public String displayTemplate(@RequestParam(name = "id") String idPath, Model model, HttpSession session) {
+		CommonView.setModel(model, session);
 		try {
 			model.addAttribute("template", defaultApi.getTemplate(idPath));
 			model.addAttribute("components", defaultApi.getTemplateComponents(idPath));

@@ -1,6 +1,7 @@
 package gal.udc.fic.prperez.pleste.client.view;
 
 import gal.udc.fic.prperez.pleste.client.exceptions.InternalErrorException;
+import jakarta.servlet.http.HttpSession;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,7 @@ public class DeleteElement {
 	}
 
 	@GetMapping("/deleteelement")
-	public ResponseEntity<String> deleteElement(@RequestParam(name = "type") String type, @RequestParam(name = "id") String id, Model model) {
-		model.addAttribute("user", "Usuario");
+	public ResponseEntity<String> deleteElement(@RequestParam(name = "type") String type, @RequestParam(name = "id") String id) {
 		return switch (type) {
 			case "template" -> deleteTemplate(id);
 			case "component" -> deleteComponent(id);
