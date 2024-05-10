@@ -26,7 +26,7 @@ public class AuthenticationManager implements ContainerRequestFilter {
 	}
 
 	@Override
-	public void filter(ContainerRequestContext requestContext) {
+	public void filter(ContainerRequestContext requestContext) throws IllegalActionForUserException {
 		String token, path, method;
 		User user;
 
@@ -35,7 +35,7 @@ public class AuthenticationManager implements ContainerRequestFilter {
 		method = requestContext.getMethod();
 
 		if( token == null || token.isEmpty() ) {
-			if(!path.matches("users/login") && !path.matches("users/search")) {
+			if(!path.matches("users/login") && !path.matches("users/find")) {
 				throw new UserNotFoundException(token);
 			}
 		} else {

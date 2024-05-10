@@ -53,7 +53,7 @@ public class UsersResource {
 	@POST
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public Long addUser(User user) {
+	public Long addUser(User user) throws UserAlreadyExistsException {
 		if(userDatabase.existsByUsername(user.getUsername())) {
 			throw new UserAlreadyExistsException(user.getUsername());
 		}
@@ -65,7 +65,7 @@ public class UsersResource {
 	@POST
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public String login(@QueryParam("user") String username, String password) {
+	public String login(@QueryParam("user") String username, String password) throws UserNotFoundException {
 		//TODO: Arranxar isto
 		String strippedPassword = password.replace("\"", "");
 		if(userDatabase.existsByUsername(username)) {
@@ -82,10 +82,10 @@ public class UsersResource {
 		throw new UserNotFoundException(username);
 	}
 
-	@Path("/search")
+	@Path("/find")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public Long userByName(@QueryParam("name") String name) {
+	public Long userByName(@QueryParam("name") String name) throws UserNotFoundException {
 		if(userDatabase.existsByUsername(name)) {
 			return userDatabase.getByUsername(name).getId();
 		} else {
@@ -96,7 +96,7 @@ public class UsersResource {
 	@Path("/{userId: \\d+}")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public User getUser(@PathParam("userId") String idParam) {
+	public User getUser(@PathParam("userId") String idParam) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 
 		if(userDatabase.existsById(id)) {
@@ -109,7 +109,7 @@ public class UsersResource {
 	@Path("/{userId: \\d+}/")
 	@POST
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public User setUser(@PathParam("userId") String idParam, User user) {
+	public User setUser(@PathParam("userId") String idParam, User user) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 
 		if(userDatabase.existsById(id)) {
@@ -123,7 +123,7 @@ public class UsersResource {
 	@Path("/{userId: \\d+}")
 	@DELETE
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public void deleteUser(@PathParam("userId") String idParam) {
+	public void deleteUser(@PathParam("userId") String idParam) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 
 		if(userDatabase.existsById(id)) {
@@ -136,7 +136,7 @@ public class UsersResource {
 	@Path("/{userId: \\d+}/role")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public Roles getUserRole(@PathParam("userId") String idParam) {
+	public Roles getUserRole(@PathParam("userId") String idParam) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 
 		if(userDatabase.existsById(id)) {
@@ -149,7 +149,7 @@ public class UsersResource {
 	@Path("/{userId: \\d+}/role")
 	@PUT
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public void setUserRole(@PathParam("userId") String idParam, Roles role) {
+	public void setUserRole(@PathParam("userId") String idParam, Roles role) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 
 		if(userDatabase.existsById(id)) {
@@ -164,7 +164,7 @@ public class UsersResource {
 	@Path("/{userId: \\d+}/logout")
 	@POST
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public void logout(@PathParam("userId") String idParam, String token) {
+	public void logout(@PathParam("userId") String idParam, String token) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 		String localToken = token.replace("\"", "");
 

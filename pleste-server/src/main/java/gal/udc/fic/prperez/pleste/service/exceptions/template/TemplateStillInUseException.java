@@ -4,6 +4,6 @@ import jakarta.ws.rs.core.Response;
 
 public class TemplateStillInUseException extends TemplateExceptionTemplate {
 	public TemplateStillInUseException(String id, String name) {
-		super(Response.Status.CONFLICT, id, name, "still has components attached");
+		super(Response.Status.BAD_REQUEST, id, name, "still has components attached");
 	}
 }
