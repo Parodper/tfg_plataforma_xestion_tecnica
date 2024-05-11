@@ -7,6 +7,7 @@ import gal.udc.fic.prperez.pleste.service.dao.template.SQLTemplateDao;
 import gal.udc.fic.prperez.pleste.service.dao.template.SQLTemplateFieldDao;
 import gal.udc.fic.prperez.pleste.service.dao.template.Template;
 import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
+import gal.udc.fic.prperez.pleste.service.exceptions.RESTException;
 import gal.udc.fic.prperez.pleste.service.exceptions.TemplateFieldAlreadyExistsException;
 import gal.udc.fic.prperez.pleste.service.exceptions.TemplateFieldNotFoundException;
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateAlreadyExistsException;
@@ -71,13 +72,13 @@ public class TemplateResource {
 	}
 
 	@POST
-	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	@Consumes({MediaType.APPLICATION_JSON})
 	@ApiResponses(value = {
 			@ApiResponse(description = "Returns created template ID", responseCode = "200",
 					content = @Content(schema = @Schema(implementation = Long.class))),
 			@ApiResponse(description = "A template with the same name already exists", responseCode = "409",
-					content = @Content(schema = @Schema(implementation = String.class)))
+					content = @Content(schema = @Schema(implementation = RESTException.class)))
 	})
 	public Long addTemplate(Template template) throws TemplateAlreadyExistsException {
 		if(templateDatabase.findByName(template.getName()).isEmpty()) {
@@ -88,7 +89,7 @@ public class TemplateResource {
 	}
 
 	@GET
-	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
 	@ApiResponses(value = {
 			@ApiResponse(description = "Returns all templates", responseCode = "200",
 					content = @Content(array = @ArraySchema(schema = @Schema(implementation = Template.class))))
@@ -98,7 +99,7 @@ public class TemplateResource {
 	}
 
 	@Path("/find")
-	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
 	@ApiResponses(value = {
 			@ApiResponse(description = "Returns all matching templates", responseCode = "200",
 					content = @Content(array = @ArraySchema(schema = @Schema(implementation = Template.class))))
@@ -109,12 +110,12 @@ public class TemplateResource {
 
 	@Path("/{id : \\d+}")
 	@GET
-	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
 	@ApiResponses(value = {
 			@ApiResponse(description = "Returns the given template", responseCode = "200",
 					content = @Content(schema = @Schema(implementation = Template.class))),
 			@ApiResponse(description = "Template not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = String.class)))
+					content = @Content(schema = @Schema(implementation = RESTException.class)))
 	})
 	public Template getTemplate(@PathParam("id") String idPath) throws TemplateNotFoundException {
 		Long id = Long.parseLong(idPath);
@@ -123,11 +124,11 @@ public class TemplateResource {
 
 	@Path("/{id : \\d+}")
 	@POST
-	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@Consumes({MediaType.APPLICATION_JSON})
 	@ApiResponses(value = {
 			@ApiResponse(description = "Updates the template with the provided one", responseCode = "204"),
 			@ApiResponse(description = "Template not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = String.class)))
+					content = @Content(schema = @Schema(implementation = RESTException.class)))
 	})
 	public void modifyTemplate(@PathParam("id") String idPath, Template template) throws TemplateNotFoundException {
 		Long id = Long.parseLong(idPath);
@@ -144,9 +145,9 @@ public class TemplateResource {
 	@ApiResponses(value = {
 			@ApiResponse(description = "Deletes the template", responseCode = "204"),
 			@ApiResponse(description = "Template not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = String.class))),
+					content = @Content(schema = @Schema(implementation = RESTException.class))),
 			@ApiResponse(description = "Template still has components", responseCode = "400",
-					content = @Content(schema = @Schema(implementation = String.class)))
+					content = @Content(schema = @Schema(implementation = RESTException.class)))
 	})
 	public void removeTemplate(@PathParam("id") String idPath) throws TemplateNotFoundException, TemplateStillInUseException {
 		Long id = Long.parseLong(idPath);
@@ -163,12 +164,12 @@ public class TemplateResource {
 
 	@Path("/{id : \\d+}/components")
 	@GET
-	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
 	@ApiResponses(value = {
 			@ApiResponse(description = "Returns all components created from this template", responseCode = "200",
 					content = @Content(array = @ArraySchema(schema = @Schema(implementation = Component.class)))),
 			@ApiResponse(description = "Template not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = String.class)))
+					content = @Content(schema = @Schema(implementation = RESTException.class)))
 	})
 	public List<Component> getTemplateComponents(@PathParam("id") String idPath) throws TemplateNotFoundException {
 		Long id = Long.parseLong(idPath);
@@ -189,12 +190,12 @@ public class TemplateResource {
 
 	@Path("/{id : \\d+}/fields")
 	@GET
-	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
 	@ApiResponses(value = {
 			@ApiResponse(description = "Returns the fields of the template", responseCode = "200",
 					content = @Content(array = @ArraySchema(schema = @Schema(implementation = TemplateField.class)))),
 			@ApiResponse(description = "Template not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = String.class)))
+					content = @Content(schema = @Schema(implementation = RESTException.class)))
 	})
 	public List<TemplateField> getFieldsTemplate(@PathParam("id") String idPath) throws TemplateNotFoundException {
 		Long id = Long.parseLong(idPath);
@@ -203,17 +204,17 @@ public class TemplateResource {
 
 	@Path("/{id : \\d+}/fields")
 	@POST
-	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	@Consumes({MediaType.APPLICATION_JSON})
 	@ApiResponses(value = {
 			@ApiResponse(description = "Returns the ID of the template field", responseCode = "200",
 					content = @Content(schema = @Schema(implementation = Long.class))),
 			@ApiResponse(description = "Template not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = String.class))),
+					content = @Content(schema = @Schema(implementation = RESTException.class))),
 			@ApiResponse(description = "Template has at least one Component", responseCode = "400",
-					content = @Content(schema = @Schema(implementation = String.class))),
+					content = @Content(schema = @Schema(implementation = RESTException.class))),
 			@ApiResponse(description = "A field with the same name already exists", responseCode = "409",
-					content = @Content(schema = @Schema(implementation = String.class)))
+					content = @Content(schema = @Schema(implementation = RESTException.class)))
 	})
 	public Long addFieldTemplate(@PathParam("id") String idPath, TemplateField templateField) throws TemplateNotFoundException, TemplateStillInUseException, TemplateFieldAlreadyExistsException {
 		Long id = Long.parseLong(idPath);
@@ -239,13 +240,13 @@ public class TemplateResource {
 
 	@Path("/{templateId : \\d+}/fields/{fieldId : \\d+}")
 	@POST
-	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@Consumes({MediaType.APPLICATION_JSON})
 	@ApiResponses(value = {
 			@ApiResponse(description = "Modifies the given field", responseCode = "204"),
 			@ApiResponse(description = "Template, or the field, not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = String.class))),
+					content = @Content(schema = @Schema(implementation = RESTException.class))),
 			@ApiResponse(description = "Template has at least one Component", responseCode = "400",
-					content = @Content(schema = @Schema(implementation = String.class))),
+					content = @Content(schema = @Schema(implementation = RESTException.class))),
 	})
 	public void modifyFieldTemplate(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath, TemplateField templateField) throws TemplateFieldNotFoundException, TemplateStillInUseException {
 		Long fieldId = Long.parseLong(fieldIdPath);
@@ -267,12 +268,12 @@ public class TemplateResource {
 
 	@Path("/{templateId : \\d+}/fields/{fieldId : \\d+}")
 	@GET
-	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
 	@ApiResponses(value = {
 			@ApiResponse(description = "Returns the given field", responseCode = "200",
 					content = @Content(schema = @Schema(implementation = TemplateField.class))),
 			@ApiResponse(description = "Template, or the field, not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = String.class)))
+					content = @Content(schema = @Schema(implementation = RESTException.class)))
 	})
 	public TemplateField getFieldTemplate(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath) throws TemplateFieldNotFoundException {
 		Long fieldId = Long.parseLong(fieldIdPath);
@@ -289,7 +290,7 @@ public class TemplateResource {
 	@ApiResponses(value = {
 			@ApiResponse(description = "Deletes the given field, also from all its components", responseCode = "204"),
 			@ApiResponse(description = "Template, or the field, not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = String.class)))
+					content = @Content(schema = @Schema(implementation = RESTException.class)))
 	})
 	public void removeTemplateField(@PathParam("templateId") String idPath, @PathParam("fieldId") String fieldIdPath) throws TemplateFieldNotFoundException {
 		Long fieldId = Long.parseLong(fieldIdPath);

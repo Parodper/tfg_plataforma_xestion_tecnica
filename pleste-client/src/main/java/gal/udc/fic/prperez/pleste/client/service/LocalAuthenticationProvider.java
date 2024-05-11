@@ -3,7 +3,9 @@ package gal.udc.fic.prperez.pleste.client.service;
 import gal.udc.fic.prperez.pleste.client.exceptions.InternalErrorException;
 import jakarta.servlet.http.HttpSession;
 import org.openapitools.client.ApiException;
+import org.openapitools.client.JSON;
 import org.openapitools.client.api.DefaultApi;
+import org.openapitools.client.model.JSONString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -47,7 +49,7 @@ public class LocalAuthenticationProvider implements AuthenticationProvider {
 		final String password = authentication.getCredentials().toString();
 
 		try {
-			String token = defaultApi.login(name, password);
+			String token = defaultApi.login(name, new JSONString().content(password)).getContent();
 			HttpSession session = session();
 
 			session.setAttribute("username", name);
@@ -59,7 +61,7 @@ public class LocalAuthenticationProvider implements AuthenticationProvider {
 			if(e.getCode() == HttpStatus.BAD_REQUEST.value()) {
 				throw new AuthenticationCredentialsNotFoundException("User " + name + " not found", e);
 			} else {
-				throw new InternalErrorException(e.getMessage());
+				throw new InternalErrorException(e.getResponseBody());
 			}
 		}
 	}

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
+import org.openapitools.client.model.JSONString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -25,7 +26,7 @@ public class LocalLogoutHandler implements LogoutHandler {
 		HttpSession session = request.getSession();
 		try {
 			if(!(session.getAttribute("token") == null)) {
-				defaultApi.logout(session.getAttribute("userid").toString(), (String) session.getAttribute("token"));
+				defaultApi.logout(session.getAttribute("userid").toString(), new JSONString().content((String) session.getAttribute("token")));
 				session.removeAttribute("token");
 				session.removeAttribute("userid");
 				session.removeAttribute("username");
