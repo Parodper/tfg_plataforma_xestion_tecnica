@@ -9,7 +9,6 @@ import gal.udc.fic.prperez.pleste.service.dao.template.FieldTypes;
 import gal.udc.fic.prperez.pleste.service.dao.template.Template;
 import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
 import gal.udc.fic.prperez.pleste.service.exceptions.component.ComponentFieldIsMandatoryException;
-import gal.udc.fic.prperez.pleste.service.exceptions.component.ComponentMissingFieldException;
 import gal.udc.fic.prperez.pleste.service.exceptions.component.ComponentNotFoundException;
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateAlreadyExistsException;
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateNotFoundException;
@@ -99,9 +98,6 @@ public class ComponentResourceTest {
 		component.setFields(new ArrayList<>());
 		component.getFields().add(new Field(null, "Z", "text", testTemplate.getFields().get(1), null));
 		component.getFields().add(new Field(null, "Y", null, testTemplate.getFields().get(2), null));
-
-		assertThrows(ComponentMissingFieldException.class, () -> componentResource.addComponent(component));
-		component.getFields().add(new Field(null, "X", null, testTemplate.getFields().get(0), null));
 		assertThrows(ComponentFieldIsMandatoryException.class, () -> componentResource.addComponent(component));
 		component.getFields().set(2, new Field(null, "X", LocalDateTime.now().toString(), testTemplate.getFields().get(0), null));
 

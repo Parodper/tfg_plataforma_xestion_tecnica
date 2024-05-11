@@ -1,11 +1,16 @@
 package gal.udc.fic.prperez.pleste.service;
 
 import gal.udc.fic.prperez.pleste.service.dao.SQLDaoFactoryUtil;
+import gal.udc.fic.prperez.pleste.service.dao.template.Template;
 import gal.udc.fic.prperez.pleste.service.dao.users.*;
 import gal.udc.fic.prperez.pleste.service.exceptions.authentication.UserAlreadyExistsException;
 import gal.udc.fic.prperez.pleste.service.exceptions.authentication.UserNotFoundException;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.servers.Server;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -53,6 +58,12 @@ public class UsersResource {
 	@POST
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns created user ID", responseCode = "200",
+					content = @Content(schema = @Schema(implementation = Long.class))),
+			@ApiResponse(description = "A user with the same name already exists", responseCode = "409",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public Long addUser(User user) throws UserAlreadyExistsException {
 		if(userDatabase.existsByUsername(user.getUsername())) {
 			throw new UserAlreadyExistsException(user.getUsername());
@@ -65,6 +76,12 @@ public class UsersResource {
 	@POST
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns a randomly generated token", responseCode = "200",
+					content = @Content(schema = @Schema(implementation = String.class))),
+			@ApiResponse(description = "User not found, or password doesn't match", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public String login(@QueryParam("user") String username, String password) throws UserNotFoundException {
 		//TODO: Arranxar isto
 		String strippedPassword = password.replace("\"", "");
@@ -85,6 +102,12 @@ public class UsersResource {
 	@Path("/find")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns the given template", responseCode = "200",
+					content = @Content(schema = @Schema(implementation = Template.class))),
+			@ApiResponse(description = "Template not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public Long userByName(@QueryParam("name") String name) throws UserNotFoundException {
 		if(userDatabase.existsByUsername(name)) {
 			return userDatabase.getByUsername(name).getId();
@@ -96,6 +119,12 @@ public class UsersResource {
 	@Path("/{userId: \\d+}")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns the given user", responseCode = "200",
+					content = @Content(schema = @Schema(implementation = User.class))),
+			@ApiResponse(description = "User not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public User getUser(@PathParam("userId") String idParam) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 
@@ -109,6 +138,11 @@ public class UsersResource {
 	@Path("/{userId: \\d+}/")
 	@POST
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Updates the user with the provided one", responseCode = "204"),
+			@ApiResponse(description = "User not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public User setUser(@PathParam("userId") String idParam, User user) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 
@@ -123,6 +157,11 @@ public class UsersResource {
 	@Path("/{userId: \\d+}")
 	@DELETE
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Deletes the user", responseCode = "204"),
+			@ApiResponse(description = "User not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public void deleteUser(@PathParam("userId") String idParam) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 
@@ -136,6 +175,12 @@ public class UsersResource {
 	@Path("/{userId: \\d+}/role")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns the role of the user", responseCode = "200",
+					content = @Content(schema = @Schema(implementation = Roles.class))),
+			@ApiResponse(description = "User not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public Roles getUserRole(@PathParam("userId") String idParam) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 
@@ -149,6 +194,11 @@ public class UsersResource {
 	@Path("/{userId: \\d+}/role")
 	@PUT
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Sets the role of the user", responseCode = "204"),
+			@ApiResponse(description = "User not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public void setUserRole(@PathParam("userId") String idParam, Roles role) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 
@@ -164,6 +214,11 @@ public class UsersResource {
 	@Path("/{userId: \\d+}/logout")
 	@POST
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Removes the given token", responseCode = "204"),
+			@ApiResponse(description = "User or token not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public void logout(@PathParam("userId") String idParam, String token) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 		String localToken = token.replace("\"", "");

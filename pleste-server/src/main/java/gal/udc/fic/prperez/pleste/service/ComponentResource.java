@@ -12,6 +12,11 @@ import gal.udc.fic.prperez.pleste.service.exceptions.TemplateFieldNotFoundExcept
 import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateNotFoundException;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.servers.Server;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.ws.rs.*;
@@ -72,7 +77,15 @@ public class ComponentResource {
 	@POST
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
-	public Long addComponent(Component component) throws TemplateNotFoundException, ComponentFieldIsMandatoryException, ComponentMissingFieldException {
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns created component ID", responseCode = "200",
+					content = @Content(schema = @Schema(implementation = Long.class))),
+			@ApiResponse(description = "Template not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class))),
+			@ApiResponse(description = "Mandatory field is missing", responseCode = "400",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
+	public Long addComponent(Component component) throws TemplateNotFoundException, ComponentFieldIsMandatoryException {
 		if(component.getTemplate() == null || !databaseFactory.getSqlTemplateDao().existsById(component.getTemplate().getId())) {
 			throw new TemplateNotFoundException(component.getTemplate() == null ? "" : component.getTemplate().getId().toString(), component.getTemplate().getName());
 		}
@@ -80,16 +93,11 @@ public class ComponentResource {
 		//Check if fields are consistent between Template and Component
 		List<Field> fields = component.getFields();
 		List<TemplateField> templateFields = databaseFactory.getSqlTemplateDao().getReferenceById(component.getTemplate().getId()).getFields();
-		List<String> missingFields = new ArrayList<>();
 
 		for (TemplateField field : templateFields) {
 			if (fields.stream().noneMatch(f -> f.getTemplateField().getId().equals(field.getId()))) {
-				missingFields.add(field.getName());
+				fields.add(new Field(null, field.getName(), null, field, null));
 			}
-		}
-		if(!missingFields.isEmpty()) {
-			throw new ComponentMissingFieldException(component.getName(),
-					Arrays.toString(missingFields.toArray()));
 		}
 
 		if(component.getFields().stream().anyMatch(this::isFieldMissing)) {
@@ -104,12 +112,20 @@ public class ComponentResource {
 
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns a list of all components", responseCode = "200",
+					content = @Content(array = @ArraySchema(schema = @Schema(implementation = Component.class)))),
+	})
 	public List<Component> getAllComponents() {
 		return componentDatabase.findAll();
 	}
 
 	@Path("/find")
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns a list of all matching components", responseCode = "200",
+					content = @Content(array = @ArraySchema(schema = @Schema(implementation = Component.class))))
+	})
 	public List<Component> getComponentsByName(@QueryParam("name") String name) {
 		return componentDatabase.findByName(name);
 	}
@@ -117,7 +133,17 @@ public class ComponentResource {
 	@Path("/{id : \\d+}")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns component. The template object might only have the ID initialized", responseCode = "200",
+					content = @Content(schema = @Schema(implementation = Component.class))),
+			@ApiResponse(description = "Component not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public Component getComponent(@PathParam("id") String idPath) throws ComponentNotFoundException {
+		if(idPath.equals("100")) {
+			throw new ComponentFieldIsMandatoryException("");
+		}
+
 		Long id = Long.parseLong(idPath);
 		Component component = getComponentUtil(id);
 		component.setTemplate(new Template(component.getTemplate().getId()));
@@ -127,6 +153,11 @@ public class ComponentResource {
 	@Path("/{id : \\d+}")
 	@POST
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Successfully modified", responseCode = "204"),
+			@ApiResponse(description = "Component not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public void modifyComponent(@PathParam("id") String idPath, Component newComponent) throws ComponentNotFoundException {
 		Component component;
 		Long id = Long.parseLong(idPath);
@@ -142,6 +173,11 @@ public class ComponentResource {
 
 	@Path("/{id : \\d+}")
 	@DELETE
+	@ApiResponses(value = {
+			@ApiResponse(description = "Successfully deleted", responseCode = "204"),
+			@ApiResponse(description = "Component not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public void removeComponent(@PathParam("id") String idPath) throws ComponentNotFoundException {
 		Long id = Long.parseLong(idPath);
 		if(componentDatabase.existsById(id)) {
@@ -154,6 +190,12 @@ public class ComponentResource {
 	@Path("/{id : \\d+}/template")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns the template object this is based on", responseCode = "200",
+					content = @Content(schema = @Schema(implementation = Template.class))),
+			@ApiResponse(description = "Component not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public Template getParentTemplate(@PathParam("id") String idPath) throws ComponentNotFoundException {
 		Long id = Long.parseLong(idPath);
 		return componentDatabase.getReferenceById(id).getTemplate();
@@ -164,6 +206,12 @@ public class ComponentResource {
 	@Path("/{id : \\d+}/fields")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns the list of fields of this component", responseCode = "200",
+					content = @Content(array = @ArraySchema(schema = @Schema(implementation = Field.class)))),
+			@ApiResponse(description = "Component not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public List<Field> getFieldsComponent(@PathParam("id") String idPath) throws ComponentNotFoundException {
 		Long id = Long.parseLong(idPath);
 		return getComponentUtil(id).getFields();
@@ -172,6 +220,13 @@ public class ComponentResource {
 	@Path("/{componentId : \\d+}/fields/{fieldName : \\S+}")
 	@PUT
 	@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Successfully modified", responseCode = "204"),
+			@ApiResponse(description = "Component or the field not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class))),
+			@ApiResponse(description = "Field is mandatory, and the provided value is null", responseCode = "400",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public void modifyFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName, String value) throws ComponentFieldNotFoundException, ComponentFieldIsMandatoryException {
 		Field componentField;
 
@@ -203,6 +258,12 @@ public class ComponentResource {
 	@Path("/{componentId : \\d+}/fields/{fieldName : \\S+}")
 	@GET
 	@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns the requested field", responseCode = "200",
+					content = @Content(schema = @Schema(implementation = Field.class))),
+			@ApiResponse(description = "Component, or the field, not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public Field getFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName) throws ComponentFieldNotFoundException {
 		if(databaseFactory.getSqlFieldDao().existsByName(fieldName)) {
 			return databaseFactory.getSqlFieldDao().getByName(fieldName);
@@ -213,6 +274,11 @@ public class ComponentResource {
 
 	@Path("/{componentId : \\d+}/fields/{fieldName : \\S+}")
 	@DELETE
+	@ApiResponses(value = {
+			@ApiResponse(description = "Successfully deleted", responseCode = "204"),
+			@ApiResponse(description = "Component, or the field, not found", responseCode = "404",
+					content = @Content(schema = @Schema(implementation = String.class)))
+	})
 	public void removeComponentField(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName) throws TemplateFieldNotFoundException {
 		try {
 			Field field = databaseFactory.getSqlFieldDao().getByName(fieldName);
