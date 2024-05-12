@@ -173,7 +173,15 @@ public class TemplateResource {
 	})
 	public List<Component> getTemplateComponents(@PathParam("id") String idPath) throws TemplateNotFoundException {
 		Long id = Long.parseLong(idPath);
-		return databaseFactory.getSqlComponentDao().findByTemplate(getTemplateUtil(id));
+
+		if(!templateDatabase.existsById(id)) {
+			throw new TemplateNotFoundException(idPath, "");
+		}
+		//Need to do this so that the same Template isn't repeated for all components
+		return databaseFactory.getSqlComponentDao().findByTemplate(new Template(id))
+				.stream().peek(
+						component ->
+								component.setTemplate(new Template(component.getTemplate().getId()))).toList();
 	}
 
 	/// Fields

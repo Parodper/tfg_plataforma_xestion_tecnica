@@ -237,15 +237,7 @@ public class ComponentResource {
 				throw new ComponentFieldIsMandatoryException(componentField.getTemplateField().getName());
 			} else {
 				if(componentField.getTemplateField().getType() == FieldTypes.LINK) {
-					if(componentDatabase.existsById(Long.parseLong(value))) {
-						try {
-							componentField.setLink(new Component(Long.parseLong(value)));
-						} catch (NumberFormatException e) {
-							throw new ComponentFieldInvalidValueException(fieldName, value, componentField.getTemplateField().getType().toString());
-						}
-					} else {
-						throw new ComponentNotFoundException(value, "");
-					}
+					componentField.setLink(Long.parseLong(value));
 				} else {
 					componentField.setContent(value);
 				}

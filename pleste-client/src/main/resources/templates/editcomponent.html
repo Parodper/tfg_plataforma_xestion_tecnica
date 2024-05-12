@@ -8,38 +8,36 @@
 <body>
     <header th:include="~{header}"></header>
     <main class="container mt-5">
-        <form method="POST">
-            <label>
-                Nome do compoñente
-                <input required id="component_name" name="component_name" th:value="${component_name}">
-            </label>
-            <hr class="w-100" />
-            <label>
-                Descripción do compoñente
-                <textarea id="component_description" name="component_description" th:value="${component_description}"></textarea>
-            </label>
-            <hr class="w-100" />
-            <h2>Campos</h2>
-            <p><i>Os campos obrigatorios atópanse en negriña.</i></p>
-            <p>Para os campos de ligazóns, engadir o número do compoñente.</p>
+        <form method="POST"><label for="component_name">Nome do compoñente:</label>
+            <div class="input-group">
+                <input class="form-control" type="text" required id="component_name" name="component_name" th:value="${component_name}" />
+            </div><label for="component_description">Descripción do compoñente:</label>
+            <div class="input-group">
+                <textarea class="form-control" required id="component_description" name="component_description" th:text="${component_description}"></textarea>
+            </div>
+            <h2 class="mt-2">Campos</h2>
+            <p><i>Os campos obrigatorios atópanse en negriña</i></p>
+            <p>Para os campos de ligazóns, engadir o número do compoñente</p>
             <table class="table">
                 <tr>
                     <th>Nome</th><th>Tipo</th><th>Valor</th>
                 </tr>
                 <tr th:each="field: ${fields}">
-                    <td th:if="${field.templateField.mandatory}"><strong th:text="|${field.templateField.name}|"></strong></td>
-                    <td th:unless="${field.templateField.mandatory}" th:text="|${field.templateField.name}|"></td>
+                    <td th:if="${field.templateField.mandatory}"><label th:for="|field_${field.name}|"><strong th:text="|${field.name}|"></strong></label></td>
+                    <td th:unless="${field.templateField.mandatory}"><label th:for="|field_${field.name}|" th:text="|${field.name}|"></label></td>
                     <td th:text="|${field.templateField.type}|"></td>
                     <td th:switch="${#strings.toString(field.templateField.type)}">
-                        <input th:case="'LINK'" th:name="|field_${field.templateField.name}|" th:value="${field.link}" type="number">
-                        <input th:case="'DATETIME'" th:name="|field_${field.templateField.name}|" th:value="${field.content}" type="datetime-local">
-                        <input th:case="'TEXT'" th:name="|field_${field.templateField.name}|" th:value="${field.content}" type="text">
+                        <div class="input-group mb-3">
+                            <input th:case="'LINK'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" th:value="${field.link}" type="number">
+                            <input th:case="'DATETIME'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" th:value="${field.content}" type="datetime-local">
+                            <input th:case="'TEXT'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" th:value="${field.content}" type="text">
+                        </div>
                     </td>
                 </tr>
             </table>
-
-            <input type="submit" value="Gardar" />
+            <input class="btn btn-outline-primary" type="submit" value="Gardar"/>
         </form>
+        <a th:href="|/component?id=${component_id}|" class="btn btn-outline-primary mt-3">Volver</a>
     </main>
 </body>
 </html>

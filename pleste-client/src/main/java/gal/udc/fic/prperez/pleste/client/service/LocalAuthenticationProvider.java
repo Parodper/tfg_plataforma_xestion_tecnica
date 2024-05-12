@@ -3,7 +3,6 @@ package gal.udc.fic.prperez.pleste.client.service;
 import gal.udc.fic.prperez.pleste.client.exceptions.InternalErrorException;
 import jakarta.servlet.http.HttpSession;
 import org.openapitools.client.ApiException;
-import org.openapitools.client.JSON;
 import org.openapitools.client.api.DefaultApi;
 import org.openapitools.client.model.JSONString;
 import org.springframework.beans.factory.annotation.Autowired;

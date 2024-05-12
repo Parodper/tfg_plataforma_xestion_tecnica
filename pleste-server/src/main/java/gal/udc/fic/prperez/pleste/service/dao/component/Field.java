@@ -12,12 +12,11 @@ public class Field {
 	private Long id;
 	private String name;
 	private String content;
+	private Long link;
 	@OneToOne(optional = false)
 	private TemplateField templateField;
-	@ManyToOne
-	private Component link;
 
-	public Field(Long id, String name, String content, TemplateField templateField, Component link) {
+	public Field(Long id, String name, String content, TemplateField templateField, Long link) {
 		this.id = id;
 		this.name = name;
 		this.content = content;
@@ -63,11 +62,11 @@ public class Field {
 		this.templateField = templateField;
 	}
 
-	public Component getLink() {
+	public Long getLink() {
 		return link;
 	}
 
-	public void setLink(Component link) {
+	public void setLink(Long link) {
 		this.link = link;
 	}
 

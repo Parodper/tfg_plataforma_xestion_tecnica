@@ -42,11 +42,11 @@ public class DataLoader implements ApplicationRunner {
 			Template template = new Template();
 
 			template.setName("Ordenador");
-			template.setDescription("Ordenadores de la prueba");
+			template.setDescription("Ordenadores");
 			template.setFields(new ArrayList<>());
 			template.getFields().add(new TemplateField(null, "Modelo", true, FieldTypes.TEXT));
 			template.getFields().add(new TemplateField(null, "Data de compra", true, FieldTypes.DATETIME));
-			template.getFields().add(new TemplateField(null, "Sistema operativo", true, FieldTypes.LINK));
+			template.getFields().add(new TemplateField(null, "Sistema operativo", false, FieldTypes.LINK));
 
 			templateResource.addTemplate(template);
 		}
@@ -62,15 +62,14 @@ public class DataLoader implements ApplicationRunner {
 
 			templateResource.addTemplate(template);
 		}
-		if(templateResource.getTemplatesByName("Ordenador").isEmpty()) {
+		if(templateResource.getTemplatesByName("Programa").isEmpty()) {
 			Template template = new Template();
 
-			template.setName("Ordenadores");
-			template.setDescription("Ordenadores mercados");
+			template.setName("Programa");
+			template.setDescription("Programas instalados");
 			template.setFields(new ArrayList<>());
-			template.getFields().add(new TemplateField(null, "Modelo", true, FieldTypes.TEXT));
+			template.getFields().add(new TemplateField(null, "Nome", true, FieldTypes.TEXT));
 			template.getFields().add(new TemplateField(null, "Data de compra", true, FieldTypes.DATETIME));
-			template.getFields().add(new TemplateField(null, "Sistema operativo", true, FieldTypes.LINK));
 
 			templateResource.addTemplate(template);
 		}

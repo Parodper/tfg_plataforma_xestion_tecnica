@@ -1,51 +1,31 @@
 last_id = 0;
 
-function appendField(start_disabled) {
-    form = document.getElementById("fields");
+function appendField() {
+    const form = document.getElementById("fields");
     last_id++;
-    this_id = "field_" + (last_id.toString().padStart(3, '0'));
+    const this_id = "field_" + (last_id.toString().padStart(3, '0'));
 
-    field = document.createElement("div");
-    field.id = "field_" + (last_id.toString().padStart(3, '0'));
-
-    label_name = document.createElement("label");
-    label_name_input = document.createElement("input");
-    label_name_input.name = this_id + "_name";
-    label_name_input.disabled = start_disabled;
-    label_name.append("Nome: ", label_name_input);
-
-    label_type = document.createElement("label");
-    field_types = document.createElement("select");
-    field_types.name = this_id + "_type";
-    field_types.disabled = start_disabled;
-    option = document.createElement("option");
-    option.text = "Texto libre"
-    field_types.add(option);
-    option = document.createElement("option");
-    option.text = "Ligazón"
-    field_types.add(option);
-    option = document.createElement("option");
-    option.text = "Data"
-    field_types.add(option);
-    label_type.append("Tipo: ", field_types);
-
-    label_mandatory = document.createElement("label");
-    input_mandatory = document.createElement("input");
-    input_mandatory.name = this_id + "_mandatory";
-    input_mandatory.type = "checkbox";
-    input_mandatory.disabled = start_disabled;
-    label_mandatory.append("Obrigatorio? ", input_mandatory)
-
-    delete_button = document.createElement("button");
-    delete_button.addEventListener("click", (event) => removeField(event.target));
-    delete_button.innerText = "Borrar campo";
-    delete_button.type = "submit";
-
-    field.append(label_name, label_type, label_mandatory, delete_button);
-    form.appendChild(field);
+    const template = document.createElement('template');
+    template.innerHTML = "<div id=\"" + this_id + "\" class=\"mt-2 mb-2\"><div class=\"input-group\">\n" +
+        "                        <div class=\"input-group-prepend\">\n" +
+        "                            <div class=\"input-group-text\" title=\"Obrigatorio\">\n" +
+        "                                <input type=\"checkbox\" id=\"" + this_id + "_mandatory\" name=\"" + this_id + "_mandatory\"/>\n" +
+        "                            </div>\n" +
+        "                        </div>\n" +
+        "                        <input class=\"form-control\" name=\"" + this_id + "_name\" placeholder=\"Nome\" />\n" +
+        "                        <select class=\"custom-select\" style=\"max-width: 20%\" name=\"" + this_id + "_type\">\n" +
+        "                            <option>Texto libre</option>\n" +
+        "                            <option>Ligazón</option>\n" +
+        "                            <option>Data</option>\n" +
+        "                        </select>\n" +
+        "                        <div class=\"input-group-append\">\n" +
+        "                            <button class=\"btn btn-outline-secondary\" type=\"button\" onclick=\"removeField('" + last_id.toString().padStart(3, '0') + "')\">Borrar campo</button>\n" +
+        "                        </div>\n" +
+        "                    </div></div>";
+    form.appendChild(template.content.children[0]);
 }
 
 function removeField(field) {
-    field.parentNode.remove();
+    document.getElementById("field_" + field).remove();
 }
 

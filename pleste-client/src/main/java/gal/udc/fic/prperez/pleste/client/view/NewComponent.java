@@ -88,9 +88,7 @@ public class NewComponent {
 						if(fieldMap.get(templateField.getName()).isEmpty()) {
 							tmpField.setLink(null);
 						} else {
-							tmpField.setLink(
-									new Component().id(
-											Long.parseLong(fieldMap.get(templateField.getName()))));
+							tmpField.setLink(Long.parseLong(fieldMap.get(templateField.getName())));
 						}
 					} else {
 						tmpField.setContent(fieldMap.get(templateField.getName()));

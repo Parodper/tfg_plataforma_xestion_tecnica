@@ -9,25 +9,25 @@
 <body>
     <header th:insert="~{header}"></header>
     <main class="container mt-5">
-        <label class="mt-3">
-            Modelo a usar:
-            <select id="template_select" >
+        <label for="template_select">Modelo a usar:</label>
+        <div class="input-group">
+            <select class="custom-select" id="template_select">
                 <option th:each="template: ${templates}" th:selected="${selected_template} == ${template.id}" selected th:text="|${template.id} - ${template.name}|" th:value="${template.id}"></option>
             </select>
-            <button onclick="cambiar_modelo()">Cambiar</button>
-        </label>
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="cambiar_modelo()">Cambiar</button>
+            </div>
+        </div>
         <hr class="w-100" />
         <form method="POST">
-            <label>
-                Nome do compoñente
-                <input required id="component_name" name="component_name">
-            </label>
-            <br />
-            <label>
-                Descripción do compoñente
-                <textarea id="component_description" name="component_description"></textarea>
-            </label>
-            <h2>Campos</h2>
+            <label for="component_name">Nome do compoñente:</label>
+            <div class="input-group">
+                <input class="form-control" type="text" required id="component_name" name="component_name" />
+            </div><label for="component_description">Descripción do compoñente:</label>
+            <div class="input-group">
+                <textarea class="form-control" required id="component_description" name="component_description"></textarea>
+            </div>
+            <h2 class="mt-2">Campos</h2>
             <p><i>Os campos obrigatorios atópanse en negriña</i></p>
             <p>Para os campos de ligazóns, engadir o número do compoñente</p>
             <table class="table">
@@ -35,18 +35,20 @@
                     <th>Nome</th><th>Tipo</th><th>Valor</th>
                 </tr>
                 <tr th:each="field: ${fields}">
-                    <td th:if="${field.mandatory}"><strong th:text="|${field.name}|"></strong></td>
-                    <td th:unless="${field.mandatory}" th:text="|${field.name}|"></td>
+                    <td th:if="${field.mandatory}"><label th:for="|field_${field.name}|"><strong th:text="|${field.name}|"></strong></label></td>
+                    <td th:unless="${field.mandatory}"><label th:for="|field_${field.name}|" th:text="|${field.name}|"></label></td>
                     <td th:text="|${field.type}|"></td>
                     <td th:switch="${#strings.toString(field.type)}">
-                        <input th:case="'LINK'" th:name="|field_${field.name}|" type="number">
-                        <input th:case="'DATETIME'" th:name="|field_${field.name}|" type="datetime-local">
-                        <input th:case="'TEXT'" th:name="|field_${field.name}|" type="text">
+                        <div class="input-group mb-3">
+                            <input th:case="'LINK'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" type="number">
+                            <input th:case="'DATETIME'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" type="datetime-local">
+                            <input th:case="'TEXT'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" type="text">
+                        </div>
                     </td>
                 </tr>
             </table>
 
-            <input type="submit" value="Crear compoñente"/>
+            <input class="btn btn-outline-primary" type="submit" value="Crear compoñente"/>
         </form>
     </main>
 </body>

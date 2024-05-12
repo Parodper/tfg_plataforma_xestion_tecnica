@@ -96,9 +96,7 @@ public class EditComponent {
 						if(value == null || value.isEmpty()) {
 							field.setLink(null);
 						} else {
-							field.setLink(
-									new Component().id(
-											Long.parseLong(value)));
+							field.setLink(Long.parseLong(value));
 						}
 					} else {
 						field.setContent(value);
@@ -115,7 +113,7 @@ public class EditComponent {
 			defaultApi.modifyComponent(componentIdPath, component);
 			for(Field field : component.getFields()) {
 				defaultApi.modifyFieldComponent(componentIdPath, field.getName(),
-						field.getTemplateField().getType().equals(TemplateField.TypeEnum.LINK) ? field.getLink().getId().toString() : field.getContent());
+						field.getTemplateField().getType().equals(TemplateField.TypeEnum.LINK) ? field.getLink().toString() : field.getContent());
 			}
 		} catch (ApiException e) {
 			if(e.getCode() == HttpStatus.NOT_FOUND.value()) {

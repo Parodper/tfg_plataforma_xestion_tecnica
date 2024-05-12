@@ -10,27 +10,40 @@
     <header th:replace="~{header}"></header>
     <main class="container mt-5">
         <form method="POST">
-            <label>Nome <input name="template_name" th:value="${template.name}" /></label>
-            <hr class="w-100" />
-            <label>Descripción <textarea name="template_description" th:value="${template.description}"></textarea></label>
-            <hr class="w-100" />
+            <label for="template_name">Nome:</label>
+            <div class="input-group">
+                <input class="form-control" type="text" required id="template_name" name="template_name" th:value="${template.name}" />
+            </div>
+            <label for="template_description">Descripción:</label>
+            <div class="input-group">
+                <textarea class="form-control" required id="template_description" name="template_description" th:text="${template.description}"></textarea>
+            </div>
             <p th:if="${fieldsdisabled}">Non se poden modificar os campos mentres estean en uso por compoñentes.</p>
             <div id="fields">
-                <button type="button" th:onclick="|appendField(${fieldsdisabled})|">Crear novo campo</button>
-                <div id="field_000" th:each="field: ${template.fields}">
-                    <label>Nome: <input th:disabled="${fieldsdisabled}" th:value="${field.name}" th:name="|field_${field.id}_name|" /></label>
-                    <label>Tipo <select th:disabled="${fieldsdisabled}" th:selected="${field_types[field.type]}" th:name="|field_${field.id}_type|">
+                <button th:if="${fieldsdisabled}" class="btn btn-outline-secondary mb-3 mt-3" disabled type="button" aria-disabled="true">Crear novo campo</button>
+                <button th:unless="${fieldsdisabled}" class="btn btn-outline-secondary mb-3 mt-3" type="button" onclick="appendField()">Crear novo campo</button>
+                <div id="field_000" class="mt-2 mb-2" th:each="field: ${template.fields}">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text" title="Obrigatorio">
+                                <input th:disabled="${fieldsdisabled}" th:checked="${field.mandatory}" type="checkbox" th:name="|field_${field.id}_mandatory|"/>
+                            </div>
+                        </div>
+                        <input class="form-control" th:disabled="${fieldsdisabled}" th:value="${field.name}" th:name="|field_${field.id}_name|" placeholder="Nome" />
+                        <select class="custom-select" style="max-width: 20%" th:disabled="${fieldsdisabled}" th:selected="${field_types[field.type]}" th:name="|field_${field.id}_type|">
                             <option>Texto libre</option>
                             <option>Ligazón</option>
                             <option>Data</option>
                         </select>
-                    </label>
-                    <label>Obrigatorio? <input th:disabled="${fieldsdisabled}" th:checked="${field.mandatory}" type="checkbox" th:name="|field_${field.id}_mandatory|"/></label>
-                    <button type="button" onclick="removeField(this)">Borrar campo</button>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" th:onclick="|removeField(${field.id})|">Borrar campo</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <input type="submit" value="Gardar" />
+            <input class="btn btn-outline-primary mt-3" type="submit" value="Gardar" />
         </form>
+        <a th:href="|/template?id=${template.id}|" class="btn btn-outline-primary mt-3">Volver</a>
     </main>
 </body>
 </html>
