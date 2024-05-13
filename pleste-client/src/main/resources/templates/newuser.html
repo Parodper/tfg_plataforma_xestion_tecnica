@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="gl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:unless="${user_edit}">pleste: Novo usuario</title>
+    <title th:if="${user_edit}" th:text="|pleste: Modificar usuario ${user_name}|"></title>
+    <th:block th:insert="~{includes}" />
+</head>
+<body>
+<header th:insert="~{header}"></header>
+<main class="container mt-5">
+    <form method="POST">
+        <label for="user_name">Nome:</label>
+        <div class="input-group">
+            <input th:value="${user_name}" class="form-control" type="text" required id="user_name" name="user_name" />
+        </div>
+        <label for="user_email">Correo:</label>
+        <div class="input-group">
+            <input th:value="${user_email}" class="form-control" id="user_email" name="user_email" />
+        </div>
+        <label for="user_password">Contrasinal:</label>
+        <div class="input-group">
+            <input class="form-control" type="password" th:required="${!user_edit}" id="user_password" name="user_password" />
+        </div>
+        <label for="user_role">Rol:</label>
+        <div class="input-group">
+            <select class="custom-select" name="user_role" id="user_role">
+                <option th:selected="${user_role} == 'ADMINISTRATOR'" value="ADMINISTRATOR">Administrador</option>
+                <option th:selected="${user_role} == 'NORMAL_USER'" value="NORMAL_USER">Técnico</option>
+            </select>
+        </div>
+        <input th:if="${user_edit}" class="btn btn-outline-primary mt-2" type="submit" value="Gardar"/>
+        <input th:unless="${user_edit}" class="btn btn-outline-primary mt-2" type="submit" value="Crear usuario"/>
+    </form>
+</main>
+</body>
+</html>

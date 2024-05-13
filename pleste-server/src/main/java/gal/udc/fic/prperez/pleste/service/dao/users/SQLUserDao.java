@@ -7,4 +7,5 @@ import java.util.List;
 public interface SQLUserDao extends JpaRepository<User, Long> {
 	User getByUsername(String username);
 	boolean existsByUsername(String username);
+	List<User> findAll();
 }

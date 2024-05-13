@@ -7,6 +7,7 @@ import gal.udc.fic.prperez.pleste.service.exceptions.authentication.UserAlreadyE
 import gal.udc.fic.prperez.pleste.service.exceptions.authentication.UserNotFoundException;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,6 +20,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Path( "/users")
@@ -53,6 +56,16 @@ public class UsersResource {
 		}
 
 		return hexToken.toString();
+	}
+
+	@GET
+	@Produces({MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns all users", responseCode = "200",
+					content = @Content(array = @ArraySchema(schema = @Schema(implementation =  Long.class))))
+	})
+	public List<Long> getAllUsers() {
+		return userDatabase.findAll().stream().map(User::getId).toList();
 	}
 
 	@POST
@@ -107,7 +120,7 @@ public class UsersResource {
 			@ApiResponse(description = "User not found", responseCode = "404",
 					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
-	public Long userByName(@QueryParam("name") String name) throws UserNotFoundException {
+	public Long getUserByName(@QueryParam("name") String name) throws UserNotFoundException {
 		if(userDatabase.existsByUsername(name)) {
 			return userDatabase.getByUsername(name).getId();
 		} else {
@@ -127,8 +140,9 @@ public class UsersResource {
 	public User getUser(@PathParam("userId") String idParam) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
 
-		if(userDatabase.existsById(id)) {
-			return userDatabase.getReferenceById(id);
+		Optional<User> user = userDatabase.findById(id);
+		if(user.isPresent()) {
+			return user.get();
 		} else {
 			throw new UserNotFoundException(idParam);
 		}

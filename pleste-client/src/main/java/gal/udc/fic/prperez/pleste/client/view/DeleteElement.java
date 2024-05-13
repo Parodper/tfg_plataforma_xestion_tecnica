@@ -1,6 +1,8 @@
 package gal.udc.fic.prperez.pleste.client.view;
 
+import gal.udc.fic.prperez.pleste.client.exceptions.BadRequestException;
 import gal.udc.fic.prperez.pleste.client.exceptions.InternalErrorException;
+import gal.udc.fic.prperez.pleste.client.exceptions.ObjectNotFoundException;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,49 +22,52 @@ public class DeleteElement {
 
 	@GetMapping("/deleteelement")
 	public ResponseEntity<String> deleteElement(@RequestParam(name = "type") String type, @RequestParam(name = "id") String id) {
-		return switch (type) {
+		switch (type) {
 			case "template" -> deleteTemplate(id);
 			case "component" -> deleteComponent(id);
-			default -> ResponseEntity
-					.status(HttpStatus.BAD_REQUEST)
-					.body("Non se recoñece o tipo " + type + ".");
-		};
+			case "user" -> deleteUser(id);
+			default -> throw new BadRequestException("Tipo non coñecido");
+		}
+
+		return ResponseEntity
+				.status(HttpStatus.SEE_OTHER)
+				.header("Location","/")
+				.body("Eliminado nº" + id + ".");
 	}
 
-	private ResponseEntity<String> deleteTemplate(String templateId) {
+	private void deleteTemplate(String templateId) {
 		try {
 			defaultApi.removeTemplate(templateId);
-
-			return ResponseEntity
-					.status(HttpStatus.SEE_OTHER)
-					.header("Location","/")
-					.body("Eliminado nº" + templateId + ".");
 		} catch(ApiException e) {
-			return switch (HttpStatus.valueOf(e.getCode())) {
-				case CONFLICT -> ResponseEntity
-						.status(HttpStatus.CONFLICT)
-						.body("O modelo nº" + templateId + " inda está en uso. Elimine antes todos os compoñentes que a referencian.");
-				case NOT_FOUND -> ResponseEntity
-						.status(HttpStatus.NOT_FOUND)
-						.body("Non se atopou o modelo nº" + templateId + ".");
-				default -> throw new InternalErrorException(e.getMessage());
-			};
+			switch (HttpStatus.valueOf(e.getCode())) {
+				case CONFLICT:
+					throw new BadRequestException("O modelo inda ten compoñentes asociados");
+				case NOT_FOUND:
+					throw new ObjectNotFoundException("modelo", templateId);
+				default:
+					throw new InternalErrorException(e.getMessage());
+			}
 		}
 	}
 
-	private ResponseEntity<String> deleteComponent(String componentId) {
+	private void deleteComponent(String componentId) {
 		try {
 			defaultApi.removeComponent(componentId);
-
-			return ResponseEntity
-					.status(HttpStatus.SEE_OTHER)
-					.header("Location","/")
-					.body("Eliminado nº" + componentId + ".");
 		} catch(ApiException e) {
 			if (HttpStatus.valueOf(e.getCode()).equals(HttpStatus.NOT_FOUND)) {
-				return ResponseEntity
-						.status(HttpStatus.NOT_FOUND)
-						.body("Non se atopou o compoñente nº" + componentId + ".");
+				throw new ObjectNotFoundException("compoñente", componentId);
+			} else {
+				throw new InternalErrorException(e.getMessage());
+			}
+		}
+	}
+
+	private void deleteUser(String componentId) {
+		try {
+			defaultApi.removeComponent(componentId);
+		} catch(ApiException e) {
+			if (HttpStatus.valueOf(e.getCode()).equals(HttpStatus.NOT_FOUND)) {
+				throw new ObjectNotFoundException("usuario", componentId);
 			} else {
 				throw new InternalErrorException(e.getMessage());
 			}

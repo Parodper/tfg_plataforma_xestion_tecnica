@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="gl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|pleste: Usuario ${user.username} (nº ${user.id})|"></title>
+    <th:block th:insert="~{includes}" />
+</head>
+<body>
+<header th:insert="~{header}"></header>
+<main class="container mt-5">
+    <h1>Nome</h1>
+    <h3 th:text="${user.username}"></h3>
+    <h1>Correo</h1>
+    <h3><a th:href="|mailto:${user.email}|" th:text="${user.email}"></a></h3>
+    <h1>Rol</h1>
+    <h3 th:if="${user_rol} == 'ADMINISTRATOR'">Administrador</h3>
+    <h3 th:if="${user_rol} == 'NORMAL_USER'">Técnico</h3>
+    <a class="btn btn-info" role="button" th:href="|/edituser?id=${user.id}|">Modificar</a>
+    <a class="btn btn-info" role="button" th:href="|/deleteelement?type=user&id=${user.id}|">Eliminar</a>
+</main>
+</body>
+</html>
