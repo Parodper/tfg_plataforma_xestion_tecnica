@@ -46,16 +46,22 @@ public class LocalAuthenticationProvider implements AuthenticationProvider {
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		final String name = authentication.getName();
 		final String password = authentication.getCredentials().toString();
+		String token;
 
 		try {
-			String token = defaultApi.login(name, new JSONString().content(password)).getContent();
 			HttpSession session = session();
 
-			session.setAttribute("username", name);
-			session.setAttribute("userid", defaultApi.userByName(name));
-			session.setAttribute("token", token);
+			if(session.getAttribute("userid") == null) {
+				token = defaultApi.login(name, new JSONString().content(password)).getContent();
 
-			return new LocalAuthentication(password, name, token);
+				session.setAttribute("username", name);
+				session.setAttribute("userid", defaultApi.getUserByName(name));
+				session.setAttribute("token", token);
+			} else {
+				token = (String) session.getAttribute("token");
+			}
+
+			return new LocalAuthentication(password, token, name);
 		} catch (ApiException e) {
 			if(e.getCode() == HttpStatus.BAD_REQUEST.value()) {
 				throw new AuthenticationCredentialsNotFoundException("User " + name + " not found", e);
@@ -87,6 +93,6 @@ public class LocalAuthenticationProvider implements AuthenticationProvider {
 	 */
 	@Override
 	public boolean supports(Class<?> authentication) {
-		return true;
+		return authentication.isInstance(LocalAuthentication.class);
 	}
 }

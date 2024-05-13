@@ -2,7 +2,6 @@ package gal.udc.fic.prperez.pleste.service;
 
 import gal.udc.fic.prperez.pleste.service.dao.users.Roles;
 import gal.udc.fic.prperez.pleste.service.dao.users.SQLTokenDao;
-import gal.udc.fic.prperez.pleste.service.dao.users.SQLUserDao;
 import gal.udc.fic.prperez.pleste.service.dao.users.User;
 import gal.udc.fic.prperez.pleste.service.exceptions.authentication.IllegalActionForUserException;
 import gal.udc.fic.prperez.pleste.service.exceptions.authentication.UserNotFoundException;
@@ -17,11 +16,9 @@ import org.springframework.stereotype.Service;
 @Provider
 @PreMatching
 public class AuthenticationManager implements ContainerRequestFilter {
-	private final SQLUserDao userDatabase;
 	private final SQLTokenDao tokenDatabase;
 
-	public @Autowired AuthenticationManager(SQLUserDao userDatabase, SQLTokenDao tokenDatabase) {
-		this.userDatabase = userDatabase;
+	public @Autowired AuthenticationManager(SQLTokenDao tokenDatabase) {
 		this.tokenDatabase = tokenDatabase;
 	}
 
@@ -52,7 +49,7 @@ public class AuthenticationManager implements ContainerRequestFilter {
 					return;
 				}
 				if (path.matches("users/?.*")) {
-					if( user.getRole().equals(Roles.NORMAL_USER) && method.equals("POST")) {
+					if( user.getRole().equals(Roles.NORMAL_USER) && method.equals("POST") && !path.matches(".*/logout$")) {
 						throw new IllegalActionForUserException(user.getUsername());
 					} else {
 						return;

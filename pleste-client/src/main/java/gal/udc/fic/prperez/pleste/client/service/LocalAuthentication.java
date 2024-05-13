@@ -13,7 +13,7 @@ public class LocalAuthentication implements Authentication {
 	private final String username;
 
 	public LocalAuthentication(String password, String token, String username) {
-		this.password = password;
+		this.password = "";
 		this.token = token;
 		this.username = username;
 	}
@@ -133,7 +133,7 @@ public class LocalAuthentication implements Authentication {
 	 */
 	@Override
 	public String getName() {
-		return "";
+		return username;
 	}
 
 	/**
