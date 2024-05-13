@@ -6,9 +6,11 @@ import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class Index {
@@ -27,5 +29,13 @@ public class Index {
 			throw new InternalErrorException(e.getResponseBody());
 		}
 		return "index.html";
+	}
+
+	@PostMapping("/")
+	public ResponseEntity<String> postIndex() {
+		//Needed for some issue with redirecting from /login
+		return ResponseEntity
+				.status(HttpStatus.SEE_OTHER)
+				.header("Location","/" ).build();
 	}
 }

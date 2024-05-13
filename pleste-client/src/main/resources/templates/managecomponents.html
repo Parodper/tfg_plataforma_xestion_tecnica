@@ -1,0 +1,18 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="gl">
+<head>
+    <title>pleste: Xestión de compoñentes</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <th:block th:insert="~{includes}" />
+</head>
+<body>
+    <header th:insert="~{header}"></header>
+    <main class="container mt-5">
+        <h1>Compoñentes</h1>
+        <a class="btn btn-info" role="button" href="/newcomponent">Engadir</a>
+        <ul class="mt-2">
+            <li th:each="component: ${components}"><a th:text="${component.name}" th:href="|/component?id=${component.id}|"></a></li>
+        </ul>
+    </main>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="gl">
+<head>
+    <title>pleste: Xestión de modelos</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <th:block th:insert="~{includes}" />
+</head>
+<body>
+    <header th:insert="~{header}"></header>
+    <main class="container mt-5">
+        <h1>Modelos</h1>
+        <a class="btn btn-info" role="button" href="/newtemplate">Engadir</a>
+        <ul class="mt-2">
+            <li th:each="template: ${templates}"><a th:text="${template.name}" th:href="|/template?id=${template.id}|"></a></li>
+        </ul>
+    </main>
+</body>
+</html>

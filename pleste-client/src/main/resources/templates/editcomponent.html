@@ -25,7 +25,7 @@
                 <tr th:each="field: ${fields}">
                     <td th:if="${field.templateField.mandatory}"><label th:for="|field_${field.name}|"><strong th:text="|${field.name}|"></strong></label></td>
                     <td th:unless="${field.templateField.mandatory}"><label th:for="|field_${field.name}|" th:text="|${field.name}|"></label></td>
-                    <td th:text="|${field.templateField.type}|"></td>
+                    <td th:text="|${field_enum_map.get(field.templateField.type)}|"></td>
                     <td th:switch="${#strings.toString(field.templateField.type)}">
                         <div class="input-group mb-3">
                             <input th:case="'LINK'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" th:value="${field.link}" type="number">

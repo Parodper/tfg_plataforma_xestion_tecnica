@@ -22,7 +22,7 @@
             <tr th:each="field: ${component.fields}">
                 <td th:if="${field.templateField.mandatory}"><strong th:text="|${field.templateField.name}|"></strong></td>
                 <td th:unless="${field.templateField.mandatory}" th:text="|${field.templateField.name}|"></td>
-                <td th:text="|${field.templateField.type}|"></td>
+                <td th:text="|${field_enum_map.get(field.templateField.type)}|"></td>
                 <td th:if="${#strings.toString(field.templateField.type) == 'LINK'}"><a th:href="|/component?id=${field.link}|" th:text="${links.get(field.link)}"></a></td>
                 <td th:unless="${#strings.toString(field.templateField.type) == 'LINK'}" th:text="|${field.content}|"></td>
             </tr>

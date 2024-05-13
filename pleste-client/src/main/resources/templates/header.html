@@ -1,7 +1,18 @@
 <header id="banner" class="navbar">
     <div id="left">
-        <h3 th:text="|${user}|"></h3>
-        <a href="/">Volver ao inicio</a>
+        <h3 th:text="${header_Username}"></h3>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Menú
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="/">Inicio</a>
+                <div role="separator" class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/manageusers">Usuarios</a>
+                <a class="dropdown-item" href="/managecomponents">Compoñentes</a>
+                <a class="dropdown-item" href="/managetemplates">Modelos</a>
+            </div>
+        </div>
     </div>
     <div id="right">
         <a class="btn btn-info" role="button" href="/logout">Pechar sesión</a>

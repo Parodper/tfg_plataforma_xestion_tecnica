@@ -14,11 +14,11 @@
         <a class="btn btn-info" role="button" th:href="|/deleteelement?type=template&id=${template.id}|">Eliminar</a>
         <p><i>Os campos obrigatorios atópanse en negriña</i></p>
         <ul th:each="field: ${template.fields}">
-            <li th:if="${field.mandatory}"><strong th:text="|${field.name}: ${field.type}|"></strong></li>
-            <li th:unless="${field.mandatory}" th:text="|${field.name}: ${field.type}|"></li>
+            <li th:if="${field.mandatory}"><strong th:text="|${field.name}: ${field_enum_map.get(field.type)}|"></strong></li>
+            <li th:unless="${field.mandatory}" th:text="|${field.name}: ${field_enum_map.get(field.type)}|"></li>
         </ul>
         <h2>Compoñentes baseados neste modelo</h2>
-        <a th:href="|/newcomponent?template=${template.id}|">Engadir un compoñente</a>
+        <a class="btn btn-info mt-2 mb-2" role="button" th:href="|/newcomponent?template=${template.id}|">Engadir un compoñente</a>
         <ul th:each="component: ${components}">
             <li><a th:href="|/component?id=${component.id}|" th:text="|${component.name} (nº ${component.id})|"></a></li>
         </ul>
