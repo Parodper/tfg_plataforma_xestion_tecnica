@@ -55,8 +55,8 @@ public class LocalAuthenticationProvider implements AuthenticationProvider {
 				token = defaultApi.login(name, new JSONString().content(password)).getContent();
 
 				session.setAttribute("username", name);
-				session.setAttribute("userid", defaultApi.getUserByName(name));
 				session.setAttribute("token", token);
+				session.setAttribute("userid", defaultApi.getUserByName(name));
 			} else {
 				token = (String) session.getAttribute("token");
 			}
@@ -87,12 +87,12 @@ public class LocalAuthenticationProvider implements AuthenticationProvider {
 	 * authentication is conducted at runtime the <code>ProviderManager</code>.
 	 * </p>
 	 *
-	 * @param authentication
+	 * @param authentication Class to match against
 	 * @return <code>true</code> if the implementation can more closely evaluate the
 	 * <code>Authentication</code> class presented
 	 */
 	@Override
 	public boolean supports(Class<?> authentication) {
-		return authentication.isInstance(LocalAuthentication.class);
+		return true;
 	}
 }

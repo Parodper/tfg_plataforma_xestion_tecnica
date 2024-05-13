@@ -26,21 +26,27 @@ public class LocalAuthorizationManager implements AuthorizationManager<RequestAu
 
 	@Override
 	public void verify(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
-		try {
-			if (authentication.get() instanceof AnonymousAuthenticationToken) {
-				return;
-			}
-			LocalAuthentication user = (LocalAuthentication) authentication.get();
-
-			String newId = defaultApi.getUserByName((String) user.getPrincipal()).toString();
-			URL url = new URL(object.getRequest().getRequestURL().toString());
-			if(RoleEnum.fromValue(defaultApi.getUserRole(newId)) == RoleEnum.NORMAL_USER && (
-					url.getPath().matches("^/(new|edit)(template|user).*") ||
-					(url.getPath().equals("/deleteelement") && url.getQuery().matches(".*type=(user|template).*")) )) {
+		if (authentication.get() instanceof AnonymousAuthenticationToken) {
+			if(! (object.getRequest().getRequestURI().startsWith("/login") ||
+					object.getRequest().getRequestURI().startsWith("/logout") ||
+					object.getRequest().getRequestURI().startsWith("/css/") ||
+					object.getRequest().getRequestURI().startsWith("/js/")) ) {
 				throw new AccessDeniedException();
 			}
-		} catch (ApiException | MalformedURLException e) {
-			throw new AccessDeniedException();
+		} else {
+			try {
+				LocalAuthentication user = (LocalAuthentication) authentication.get();
+
+				String newId = defaultApi.getUserByName((String) user.getPrincipal()).toString();
+				URL url = new URL(object.getRequest().getRequestURL().toString());
+				if(RoleEnum.fromValue(defaultApi.getUserRole(newId)) == RoleEnum.NORMAL_USER && (
+						url.getPath().matches("^/(new|edit)(template|user).*") ||
+								(url.getPath().equals("/deleteelement") && url.getQuery().matches(".*type=(user|template).*")) )) {
+					throw new AccessDeniedException();
+				}
+			} catch (ApiException | MalformedURLException e) {
+				throw new AccessDeniedException();
+			}
 		}
 	}
 
