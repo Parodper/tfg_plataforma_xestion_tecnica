@@ -26,7 +26,7 @@ public class DisplayTemplate {
 			model.addAttribute("components", defaultApi.getTemplateComponents(idPath));
 		} catch (ApiException e) {
 			if(e.getCode() == 404) {
-				throw new ObjectNotFoundException("Template not found");
+				throw new ObjectNotFoundException("modelo", idPath);
 			} else {
 				throw new RuntimeException(e);
 			}

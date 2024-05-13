@@ -8,6 +8,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
+import java.io.IOException;
+
 @Provider
 public class RESTExceptionMapper implements ExceptionMapper<Exception> {
 	@Override
@@ -15,10 +17,10 @@ public class RESTExceptionMapper implements ExceptionMapper<Exception> {
 		if(exception instanceof RESTException restException){
 			try {
 				return Response.status(restException.getStatus())
-						.entity(new ObjectMapper().writeValueAsString(restException))
+						.entity(new ObjectMapper().writeValueAsString(new RESTExceptionSerializable(restException)))
 						.type(MediaType.APPLICATION_JSON)
 						.build();
-			} catch (JsonProcessingException e) {
+			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		} else if (exception instanceof ClientErrorException clientErrorException) {

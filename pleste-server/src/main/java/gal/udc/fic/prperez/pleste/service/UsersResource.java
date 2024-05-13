@@ -2,7 +2,7 @@ package gal.udc.fic.prperez.pleste.service;
 
 import gal.udc.fic.prperez.pleste.service.dao.SQLDaoFactoryUtil;
 import gal.udc.fic.prperez.pleste.service.dao.users.*;
-import gal.udc.fic.prperez.pleste.service.exceptions.RESTException;
+import gal.udc.fic.prperez.pleste.service.exceptions.RESTExceptionSerializable;
 import gal.udc.fic.prperez.pleste.service.exceptions.authentication.UserAlreadyExistsException;
 import gal.udc.fic.prperez.pleste.service.exceptions.authentication.UserNotFoundException;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -62,7 +62,7 @@ public class UsersResource {
 			@ApiResponse(description = "Returns created user ID", responseCode = "200",
 					content = @Content(schema = @Schema(implementation = Long.class))),
 			@ApiResponse(description = "A user with the same name already exists", responseCode = "409",
-					content = @Content(schema = @Schema(implementation = RESTException.class)))
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
 	public Long addUser(User user) throws UserAlreadyExistsException {
 		if(userDatabase.existsByUsername(user.getUsername())) {
@@ -80,7 +80,7 @@ public class UsersResource {
 			@ApiResponse(description = "Returns a randomly generated token", responseCode = "200",
 					content = @Content(schema = @Schema(implementation = JSONString.class))),
 			@ApiResponse(description = "User not found, or password doesn't match", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = RESTException.class)))
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
 	public JSONString login(@QueryParam("user") String username, JSONString passwordArg) throws UserNotFoundException {
 		String password = passwordArg.toString();
@@ -105,7 +105,7 @@ public class UsersResource {
 			@ApiResponse(description = "Returns the given user", responseCode = "200",
 					content = @Content(schema = @Schema(implementation = Long.class))),
 			@ApiResponse(description = "User not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = RESTException.class)))
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
 	public Long userByName(@QueryParam("name") String name) throws UserNotFoundException {
 		if(userDatabase.existsByUsername(name)) {
@@ -122,7 +122,7 @@ public class UsersResource {
 			@ApiResponse(description = "Returns the given user", responseCode = "200",
 					content = @Content(schema = @Schema(implementation = User.class))),
 			@ApiResponse(description = "User not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = RESTException.class)))
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
 	public User getUser(@PathParam("userId") String idParam) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
@@ -140,7 +140,7 @@ public class UsersResource {
 	@ApiResponses(value = {
 			@ApiResponse(description = "Updates the user with the provided one", responseCode = "204"),
 			@ApiResponse(description = "User not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = RESTException.class)))
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
 	public User setUser(@PathParam("userId") String idParam, User user) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
@@ -159,7 +159,7 @@ public class UsersResource {
 	@ApiResponses(value = {
 			@ApiResponse(description = "Deletes the user", responseCode = "204"),
 			@ApiResponse(description = "User not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = RESTException.class)))
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
 	public void deleteUser(@PathParam("userId") String idParam) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
@@ -178,7 +178,7 @@ public class UsersResource {
 			@ApiResponse(description = "Returns the role of the user", responseCode = "200",
 					content = @Content(schema = @Schema(implementation = Roles.class))),
 			@ApiResponse(description = "User not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = RESTException.class)))
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
 	public Roles getUserRole(@PathParam("userId") String idParam) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
@@ -196,7 +196,7 @@ public class UsersResource {
 	@ApiResponses(value = {
 			@ApiResponse(description = "Sets the role of the user", responseCode = "204"),
 			@ApiResponse(description = "User not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = RESTException.class)))
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
 	public void setUserRole(@PathParam("userId") String idParam, Roles role) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);
@@ -216,7 +216,7 @@ public class UsersResource {
 	@ApiResponses(value = {
 			@ApiResponse(description = "Removes the given token", responseCode = "204"),
 			@ApiResponse(description = "User or token not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = RESTException.class)))
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
 	public void logout(@PathParam("userId") String idParam, JSONString tokenArg) throws UserNotFoundException {
 		Long id = Long.parseLong(idParam);

@@ -43,7 +43,7 @@ public class EditTemplate {
 			model.addAttribute("field_types", fieldTypes);
 		} catch (ApiException e) {
 			if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
-				throw new ObjectNotFoundException("Non se atopou o modelo " + idParam);
+				throw new ObjectNotFoundException("modelo", idParam);
 			} else {
 				throw new InternalErrorException(e.getMessage());
 			}
@@ -106,7 +106,7 @@ public class EditTemplate {
 			defaultApi.modifyTemplate(template.getId().toString(), template);
 		} catch (ApiException e) {
 			if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
-				throw new ObjectNotFoundException("Non se atopou o modelo " + idParam);
+				throw new ObjectNotFoundException("modelo", idParam);
 			} else {
 				throw new InternalErrorException(e.getMessage());
 			}

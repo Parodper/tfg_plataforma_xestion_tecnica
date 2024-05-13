@@ -24,11 +24,7 @@ public class Index {
 		try {
 			model.addAttribute("templates", defaultApi.getAllTemplates());
 		} catch (ApiException e) {
-			if(e.getCode() == HttpStatus.UNAUTHORIZED.value()) {
-				return "login.html";
-			} else {
-				throw new InternalErrorException(e.getMessage());
-			}
+			throw new InternalErrorException(e.getResponseBody());
 		}
 		return "index.html";
 	}

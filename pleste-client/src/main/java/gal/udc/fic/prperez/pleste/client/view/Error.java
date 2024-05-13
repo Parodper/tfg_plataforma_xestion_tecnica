@@ -1,17 +1,17 @@
-package gal.udc.fic.prperez.pleste.client.exceptions;
+package gal.udc.fic.prperez.pleste.client.view;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class Error {
 	@GetMapping(value = "errors")
-	public ModelAndView error(HttpServletRequest httpRequest) {
+	public ModelAndView error(@RequestParam(required = false) String message) {
 		ModelAndView model = new ModelAndView("error.html");
 
-		model.addObject("message", httpRequest.getAttribute("jakarta.servlet.error.message"));
+		model.addObject("message", message);
 
 		return model;
 	}

@@ -1,5 +1,6 @@
 package gal.udc.fic.prperez.pleste.client.view;
 
+import gal.udc.fic.prperez.pleste.client.exceptions.ObjectAlreadyExistsException;
 import jakarta.servlet.http.HttpSession;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
@@ -65,7 +66,7 @@ public class NewTemplate {
 			newId = defaultApi.addTemplate(template);
 		} catch (ApiException e) {
 			if(e.getCode() == 409) {
-				return ResponseEntity.ok().body("Template already exists");
+				throw new ObjectAlreadyExistsException("modelo", template.getName());
 			} else {
 				throw new RuntimeException(e);
 			}

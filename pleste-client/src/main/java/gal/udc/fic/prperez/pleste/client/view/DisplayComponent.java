@@ -58,7 +58,7 @@ public class DisplayComponent {
 			model.addAttribute("links", links);
 		} catch (ApiException e) {
 			if(e.getCode() == 404) {
-				throw new ObjectNotFoundException("Component not found");
+				throw new ObjectNotFoundException("compoñente", idPath);
 			} else {
 				throw new InternalErrorException(e.getMessage());
 			}

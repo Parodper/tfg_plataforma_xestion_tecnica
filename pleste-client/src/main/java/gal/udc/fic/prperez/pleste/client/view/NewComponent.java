@@ -42,7 +42,7 @@ public class NewComponent {
 			model.addAttribute("fields", defaultApi.getTemplate(templateIdParam).getFields());
 		} catch (ApiException e) {
 			if(e.getCode() == HttpStatus.NOT_FOUND.value()) {
-				throw new ObjectNotFoundException(templateIdParam + " not found");
+				throw new ObjectNotFoundException("modelo", templateIdParam);
 			} else {
 				throw new InternalErrorException(e.getMessage());
 			}

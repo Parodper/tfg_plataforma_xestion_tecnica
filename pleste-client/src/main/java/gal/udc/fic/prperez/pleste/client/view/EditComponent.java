@@ -49,7 +49,7 @@ public class EditComponent {
 			model.addAttribute("fields", component.getFields());
 		} catch (ApiException e) {
 			if(e.getCode() == HttpStatus.NOT_FOUND.value()) {
-				throw new ObjectNotFoundException("Component" + componentIdPath + " not found");
+				throw new ObjectNotFoundException("compoñente", componentIdPath);
 			} else {
 				throw new InternalErrorException(e.getMessage());
 			}
@@ -117,7 +117,7 @@ public class EditComponent {
 			}
 		} catch (ApiException e) {
 			if(e.getCode() == HttpStatus.NOT_FOUND.value()) {
-				throw new ObjectNotFoundException("Component #" + componentIdPath + " not found");
+				throw new ObjectNotFoundException("compoñente", componentIdPath);
 			} else {
 				throw new InternalErrorException(e.getMessage());
 			}
