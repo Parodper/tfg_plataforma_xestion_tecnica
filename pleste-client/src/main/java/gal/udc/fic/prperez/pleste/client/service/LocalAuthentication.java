@@ -128,18 +128,11 @@ public class LocalAuthentication implements Authentication {
 		}
 	}
 
-	/**
-	 * @return 
-	 */
 	@Override
 	public String getName() {
 		return username;
 	}
 
-	/**
-	 * @param subject 
-	 * @return
-	 */
 	@Override
 	public boolean implies(Subject subject) {
 		return true;

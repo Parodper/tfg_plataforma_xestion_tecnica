@@ -1,7 +1,5 @@
 package gal.udc.fic.prperez.pleste.service.exceptions;
 
-import jakarta.ws.rs.core.Response;
-
 public class RESTExceptionSerializable {
 	private final Integer status;
 	private final String message;

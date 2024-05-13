@@ -28,7 +28,6 @@ public class DisplayComponent {
 
 	@GetMapping("/component")
 	public String displayComponent(@RequestParam(name = "id") String idPath, Model model, HttpSession session) {
-		long id = Long.parseLong(idPath);
 		CommonView.setModel(model, session);
 
 		try {
