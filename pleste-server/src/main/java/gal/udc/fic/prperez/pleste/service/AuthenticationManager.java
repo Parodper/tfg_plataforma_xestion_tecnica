@@ -23,7 +23,7 @@ public class AuthenticationManager implements ContainerRequestFilter {
 	}
 
 	@Override
-	public void filter(ContainerRequestContext requestContext) throws IllegalActionForUserException {
+	public void filter(ContainerRequestContext requestContext) throws IllegalActionForUserException, UserNotFoundException {
 		String token, path, method;
 		User user;
 

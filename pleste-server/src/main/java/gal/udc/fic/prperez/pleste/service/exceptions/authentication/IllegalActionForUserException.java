@@ -5,6 +5,6 @@ import jakarta.ws.rs.core.Response.Status;
 
 public class IllegalActionForUserException extends RESTException {
 	public IllegalActionForUserException(String user) {
-		super("User " + user + " doesn't have enough permissions to do that.", Status.UNAUTHORIZED);
+		super("User " + user + " doesn't have enough permissions to do that.", Status.FORBIDDEN);
 	}
 }
