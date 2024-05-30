@@ -40,7 +40,7 @@ public class DeleteElement {
 			defaultApi.removeTemplate(templateId);
 		} catch(ApiException e) {
 			switch (HttpStatus.valueOf(e.getCode())) {
-				case CONFLICT:
+				case BAD_REQUEST:
 					throw new BadRequestException("O modelo inda ten compoñentes asociados");
 				case NOT_FOUND:
 					throw new ObjectNotFoundException("modelo", templateId);
