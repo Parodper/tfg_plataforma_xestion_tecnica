@@ -28,13 +28,12 @@ public class SecurityConfig {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(
 						authorizationManagerRequestMatcherRegistry ->
-								authorizationManagerRequestMatcherRegistry.requestMatchers("/favicon*").anonymous())
+								authorizationManagerRequestMatcherRegistry.requestMatchers("/login*").permitAll())
 				.authorizeHttpRequests(
 						authorizationManagerRequestMatcherRegistry ->
-								authorizationManagerRequestMatcherRegistry.requestMatchers("/login*").anonymous())
-				.authorizeHttpRequests(
-						authorizationManagerRequestMatcherRegistry ->
-								authorizationManagerRequestMatcherRegistry.requestMatchers("/error*").anonymous())
+								authorizationManagerRequestMatcherRegistry.requestMatchers(
+										"/favicon*", "/logout*", "/css/*", "/js/*", "/error*")
+										.permitAll())
 				.authorizeHttpRequests(
 						authorizationManagerRequestMatcherRegistry ->
 								authorizationManagerRequestMatcherRegistry.requestMatchers("/**").access(authorizationManager))

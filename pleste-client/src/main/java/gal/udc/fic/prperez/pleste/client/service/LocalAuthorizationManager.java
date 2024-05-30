@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 @Service
@@ -27,10 +28,13 @@ public class LocalAuthorizationManager implements AuthorizationManager<RequestAu
 	@Override
 	public void verify(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
 		if (authentication.get() instanceof AnonymousAuthenticationToken) {
-			if(! (object.getRequest().getRequestURI().startsWith("/login") ||
-					object.getRequest().getRequestURI().startsWith("/logout") ||
-					object.getRequest().getRequestURI().startsWith("/css/") ||
-					object.getRequest().getRequestURI().startsWith("/js/")) ) {
+			String[] allowAnonymous = {
+					"/login",
+					"/logout",
+					"/css/",
+					"/js/"
+			};
+			if(Arrays.stream(allowAnonymous).noneMatch(s -> object.getRequest().getRequestURI().startsWith(s))) {
 				throw new AccessDeniedException();
 			}
 		} else {
@@ -39,9 +43,9 @@ public class LocalAuthorizationManager implements AuthorizationManager<RequestAu
 
 				String newId = defaultApi.getUserByName((String) user.getPrincipal()).toString();
 				URL url = new URL(object.getRequest().getRequestURL().toString());
-				if(RoleEnum.fromValue(defaultApi.getUserRole(newId)) == RoleEnum.NORMAL_USER && (
+				if (RoleEnum.fromValue(defaultApi.getUserRole(newId)) == RoleEnum.NORMAL_USER && (
 						url.getPath().matches("^/(new|edit)(template|user).*") ||
-								(url.getPath().equals("/deleteelement") && url.getQuery().matches(".*type=(user|template).*")) )) {
+								(url.getPath().equals("/deleteelement") && url.getQuery().matches(".*type=(user|template).*")))) {
 					throw new AccessDeniedException();
 				}
 			} catch (ApiException | MalformedURLException e) {

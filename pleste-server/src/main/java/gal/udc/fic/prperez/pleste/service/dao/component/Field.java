@@ -13,7 +13,7 @@ public class Field {
 	private String name;
 	private String content;
 	private Long link;
-	@OneToOne(optional = false)
+	@ManyToOne(optional = false)
 	private TemplateField templateField;
 
 	public Field(Long id, String name, String content, TemplateField templateField, Long link) {
