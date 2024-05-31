@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = Application.class)
-@TestPropertySource(properties="spring.jpa.properties.hibernate.default_schema=testing")
-@TestPropertySource(properties="spring.jpa.hibernate.ddl-auto=create-drop")
 public class ComponentResourceTest {
 	private final ComponentResource componentResource;
 	private final TemplateResource templateResource;

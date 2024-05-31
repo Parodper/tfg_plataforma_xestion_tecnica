@@ -3,6 +3,7 @@ package gal.udc.fic.prperez.pleste.service.dao.users;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "pleste_User")
 public class User {
 	@Id
 	@GeneratedValue
