@@ -126,7 +126,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>http://localhost:8080/openapi.json</inputSpec>
+                            <inputSpec>http://pleste-server/api/v0/openapi.json</inputSpec>
                             <generatorName>java</generatorName>
                             <configOptions>
                                 <useJakartaEe>true</useJakartaEe>

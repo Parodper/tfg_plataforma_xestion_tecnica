@@ -1,4 +1,3 @@
-version: '3'
 services:
   postgres:
     image: postgres
@@ -6,9 +5,43 @@ services:
       - type: volume
         source: postgres-data
         target: /var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_PASSWORD=mysecretpassword
+    networks:
+      - pleste-backend
+  pleste-client:
+    build:
+      context: .
+      dockerfile: pleste-client/Dockerfile
+      network: tfg_plataforma_xestion_tecnica_pleste-frontend
+    ports:
+      - "8000:80"
+      - "5005:5005"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:80"]
+      interval: 15s
+    depends_on:
+      - pleste-server
+    networks:
+      - pleste-frontend
+  pleste-server:
+    build:
+      context: .
+      dockerfile: pleste-server/Dockerfile
+    ports:
+      - "8080:80"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:80"]
+      interval: 15s
+    depends_on:
+      - postgres
+    networks:
+      - pleste-backend
+      - pleste-frontend
 volumes:
   postgres-data:
+networks:
+  pleste-backend:
+    internal: true
+  pleste-frontend:
+    driver: bridge

@@ -32,7 +32,7 @@ public class AuthenticationManager implements ContainerRequestFilter {
 		method = requestContext.getMethod();
 
 		if( token == null || token.isEmpty() ) {
-			if(!path.matches("users/login")) {
+			if(!(path.matches("users/login") || path.matches("openapi.json"))) {
 				throw new UserNotFoundException(token == null ? "" : token);
 			}
 		} else {

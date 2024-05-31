@@ -19,6 +19,7 @@ import static gal.udc.fic.prperez.pleste.service.Application.BASE_URL;
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class})
 public class Application extends SpringBootServletInitializer {
 	public final static String BASE_URL = "/api/v0";
+	public final static String DOMAIN = "pleste-server";
 
 	public static void main(String[] args) {
 		new Application().configure(new SpringApplicationBuilder(Application.class)).run(args);

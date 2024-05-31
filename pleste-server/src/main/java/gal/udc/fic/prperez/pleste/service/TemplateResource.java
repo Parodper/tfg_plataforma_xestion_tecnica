@@ -38,7 +38,7 @@ import java.util.*;
 				version = "0.1.0"),
 		servers = {
 				@Server(
-						url = "http://localhost:8080/api/v0")
+						url = "http://" + Application.DOMAIN + Application.BASE_URL)
 		})
 public class TemplateResource {
 	private final SQLTemplateDao templateDatabase;
