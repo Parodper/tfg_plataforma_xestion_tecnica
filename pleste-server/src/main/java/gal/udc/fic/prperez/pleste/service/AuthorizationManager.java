@@ -5,6 +5,8 @@ import gal.udc.fic.prperez.pleste.service.dao.users.SQLTokenDao;
 import gal.udc.fic.prperez.pleste.service.dao.users.User;
 import gal.udc.fic.prperez.pleste.service.exceptions.authentication.IllegalActionForUserException;
 import gal.udc.fic.prperez.pleste.service.exceptions.authentication.UserNotFoundException;
+import jakarta.annotation.Priority;
+import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.PreMatching;
@@ -15,10 +17,11 @@ import org.springframework.stereotype.Service;
 @Service
 @Provider
 @PreMatching
-public class AuthenticationManager implements ContainerRequestFilter {
+@Priority(Priorities.AUTHORIZATION)
+public class AuthorizationManager implements ContainerRequestFilter {
 	private final SQLTokenDao tokenDatabase;
 
-	public @Autowired AuthenticationManager(SQLTokenDao tokenDatabase) {
+	public @Autowired AuthorizationManager(SQLTokenDao tokenDatabase) {
 		this.tokenDatabase = tokenDatabase;
 	}
 
