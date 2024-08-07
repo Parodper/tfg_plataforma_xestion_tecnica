@@ -4,13 +4,18 @@
     <title>pleste: Xestión de compoñentes</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <th:block th:insert="~{includes}" />
+    <script src="js/filter.js"></script>
 </head>
 <body>
     <header th:insert="~{header}"></header>
     <main class="container mt-5">
         <h1>Compoñentes</h1>
         <a class="btn btn-info" role="button" href="/newcomponent">Engadir</a>
-        <ul class="mt-2">
+        <label class="float-right">
+            Filtrar
+            <input type="text" id="filter_input">
+        </label>
+        <ul class="mt-2" id="list">
             <li th:each="component: ${components}"><a th:text="${component.name}" th:href="|/component?id=${component.id}|"></a></li>
         </ul>
     </main>
