@@ -5,6 +5,6 @@ import jakarta.ws.rs.core.Response.Status;
 
 public class UserNotFoundException extends RESTException {
 	public UserNotFoundException(String username) {
-		super("User " + username + " wasn't found", Status.BAD_REQUEST);
+		super("User " + username + " wasn't found", Status.NOT_FOUND);
 	}
 }

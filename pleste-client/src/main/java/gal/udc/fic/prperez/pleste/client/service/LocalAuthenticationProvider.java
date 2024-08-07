@@ -63,7 +63,7 @@ public class LocalAuthenticationProvider implements AuthenticationProvider {
 
 			return new LocalAuthentication(password, token, name);
 		} catch (ApiException e) {
-			if(e.getCode() == HttpStatus.BAD_REQUEST.value()) {
+			if(e.getCode() == HttpStatus.NOT_FOUND.value()) {
 				throw new AuthenticationCredentialsNotFoundException("User " + name + " not found", e);
 			} else {
 				throw new InternalErrorException(e.getResponseBody());
