@@ -5,8 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface SQLFieldDao extends JpaRepository<Field, Long> {
-	List<Field> findByTemplateField(TemplateField templateField);
-	Field getByName(String name);
-	boolean existsByName(String name);
+public interface SQLFieldDao extends JpaRepository<Field<?>, Long> {
+	List<Field<?>> findByTemplateField(TemplateField templateField);
+	Field<?> getByTemplateFieldName(String name);
+	boolean existsByTemplateFieldName(String name);
 }

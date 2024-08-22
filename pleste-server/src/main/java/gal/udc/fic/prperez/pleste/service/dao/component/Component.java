@@ -18,9 +18,9 @@ public class Component {
 	@ManyToOne( fetch = FetchType.LAZY, optional = false)
 	private Template template;
 	@OneToMany( fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.REMOVE } )
-	private List<Field> fields;
+	private List<Field<?>> fields;
 
-	public Component(Long id, String name, String description, Template template, List<Field> fields) {
+	public Component(Long id, String name, String description, Template template, List<Field<?>> fields) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -50,11 +50,11 @@ public class Component {
 		this.template = template;
 	}
 
-	public List<Field> getFields() {
+	public List<Field<?>> getFields() {
 		return fields;
 	}
 
-	public void setFields(List<Field> fields) {
+	public void setFields(List<Field<?>> fields) {
 		this.fields = fields;
 	}
 

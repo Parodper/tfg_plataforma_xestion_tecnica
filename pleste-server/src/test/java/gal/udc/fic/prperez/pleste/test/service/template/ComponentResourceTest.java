@@ -3,8 +3,7 @@ package gal.udc.fic.prperez.pleste.test.service.template;
 import gal.udc.fic.prperez.pleste.service.Application;
 import gal.udc.fic.prperez.pleste.service.ComponentResource;
 import gal.udc.fic.prperez.pleste.service.TemplateResource;
-import gal.udc.fic.prperez.pleste.service.dao.component.Component;
-import gal.udc.fic.prperez.pleste.service.dao.component.Field;
+import gal.udc.fic.prperez.pleste.service.dao.component.*;
 import gal.udc.fic.prperez.pleste.service.dao.template.FieldTypes;
 import gal.udc.fic.prperez.pleste.service.dao.template.Template;
 import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
@@ -16,7 +15,6 @@ import gal.udc.fic.prperez.pleste.service.exceptions.template.TemplateStillInUse
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,28 +34,24 @@ public class ComponentResourceTest {
 	private static Template testTemplate;
 
 	private static Component createTestComponent(String suffix) {
-		Field field;
 		Component component = new Component();
 
 		component.setName("Q_" + suffix);
 		component.setTemplate(testTemplate);
 		component.setDescription("Description" + suffix);
 		component.setFields(new ArrayList<>());
-		field = new Field();
-		field.setName("X");
-		field.setContent(LocalDateTime.now().toString());
-		field.setTemplateField(testTemplate.getFields().get(1));
-		component.getFields().add(field);
-		field = new Field();
-		field.setName("Y");
-		field.setLink(null);
-		field.setTemplateField(testTemplate.getFields().get(2));
-		component.getFields().add(field);
-		field = new Field();
-		field.setName("Z");
-		field.setContent("text");
-		field.setTemplateField(testTemplate.getFields().get(0));
-		component.getFields().add(field);
+		var field1 = new DatetimeField();
+		field1.setContent(LocalDateTime.now());
+		field1.setTemplateField(testTemplate.getFields().get(1));
+		component.getFields().add(field1);
+		var field2 = new LinkField();
+		field2.setContent(null);
+		field2.setTemplateField(testTemplate.getFields().get(2));
+		component.getFields().add(field2);
+		var field0 = new TextField();
+		field0.setContent("text");
+		field0.setTemplateField(testTemplate.getFields().get(0));
+		component.getFields().add(field0);
 
 		return component;
 	}
@@ -94,10 +88,10 @@ public class ComponentResourceTest {
 		component.setDescription("Description");
 		component.setTemplate(testTemplate);
 		component.setFields(new ArrayList<>());
-		component.getFields().add(new Field(null, "Z", "text", testTemplate.getFields().get(1), null));
-		component.getFields().add(new Field(null, "Y", null, testTemplate.getFields().get(2), null));
+		component.getFields().add(new DatetimeField(null, LocalDateTime.now(), testTemplate.getFields().get(1)));
+		component.getFields().add(new LinkField(null, null, testTemplate.getFields().get(2)));
 		assertThrows(ComponentFieldIsMandatoryException.class, () -> componentResource.addComponent(component));
-		component.getFields().set(2, new Field(null, "X", LocalDateTime.now().toString(), testTemplate.getFields().get(0), null));
+		component.getFields().set(2, new TextField(null, "text", testTemplate.getFields().get(0)));
 
 		id = componentResource.addComponent(component).toString();
 
@@ -108,8 +102,8 @@ public class ComponentResourceTest {
 
 	@Test
 	public void deleteComponentTest() {
-		String id = componentResource.addComponent(createTestComponent("")).toString();
-		assertEquals("Q_", componentResource.getComponent(id).getName());
+		String id = componentResource.addComponent(createTestComponent("delete")).toString();
+		assertEquals("Q_delete", componentResource.getComponent(id).getName());
 		componentResource.removeComponent(id);
 		assertThrows(ComponentNotFoundException.class, () -> componentResource.getComponent(id));
 	}
@@ -119,7 +113,7 @@ public class ComponentResourceTest {
 		Component component = createTestComponent("modify");
 		String id = componentResource.addComponent(component).toString();
 
-		assertThrows(ComponentFieldIsMandatoryException.class, () -> componentResource.modifyFieldComponent(id, "X", null));
+		assertThrows(ComponentFieldIsMandatoryException.class, () -> componentResource.modifyDateFieldComponent(id, "X", null));
 
 		Component tmp = componentResource.getComponent(id);
 		tmp.setName("New name");
@@ -128,7 +122,7 @@ public class ComponentResourceTest {
 
 		assertEquals(componentResource.getFieldsComponent(id).size(), 3);
 		componentResource.removeComponentField(id, "Y");
-		assertNull(componentResource.getFieldComponent(id, "Y").getLink());
+		assertNull(componentResource.getFieldComponent(id, "Y").getContent());
 		assertEquals(componentResource.getFieldsComponent(id).size(), 3);
 
 		componentResource.removeComponent(id);

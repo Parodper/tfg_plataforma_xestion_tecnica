@@ -70,6 +70,7 @@ public class DataLoader implements ApplicationRunner {
 			template.setFields(new ArrayList<>());
 			template.getFields().add(new TemplateField(null, "Nome", true, FieldTypes.TEXT));
 			template.getFields().add(new TemplateField(null, "Data de compra", true, FieldTypes.DATETIME));
+			template.getFields().add(new TemplateField(null, "Instalacións", false, FieldTypes.NUMBER));
 
 			templateResource.addTemplate(template);
 		}
