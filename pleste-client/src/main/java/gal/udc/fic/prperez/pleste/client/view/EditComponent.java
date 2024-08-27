@@ -5,9 +5,7 @@ import gal.udc.fic.prperez.pleste.client.exceptions.InternalErrorException;
 import gal.udc.fic.prperez.pleste.client.exceptions.MissingMandatoryFieldException;
 import gal.udc.fic.prperez.pleste.client.exceptions.ObjectNotFoundException;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.constraints.Null;
 import org.openapitools.client.ApiException;
-import org.openapitools.client.JSON;
 import org.openapitools.client.api.DefaultApi;
 import org.openapitools.client.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +22,9 @@ import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 public class EditComponent {

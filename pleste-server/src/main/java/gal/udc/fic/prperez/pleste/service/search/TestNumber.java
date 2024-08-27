@@ -7,7 +7,6 @@ import gal.udc.fic.prperez.pleste.service.dao.users.User;
 import gal.udc.fic.prperez.pleste.service.exceptions.ParseSearchException;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 

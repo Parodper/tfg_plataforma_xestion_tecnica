@@ -1,18 +1,15 @@
 package gal.udc.fic.prperez.pleste.service.dao.component;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import gal.udc.fic.prperez.pleste.service.FieldDeserializer;
 import gal.udc.fic.prperez.pleste.service.JSONDatetime;
-import gal.udc.fic.prperez.pleste.service.JSONString;
 import gal.udc.fic.prperez.pleste.service.dao.template.FieldTypes;
 import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity

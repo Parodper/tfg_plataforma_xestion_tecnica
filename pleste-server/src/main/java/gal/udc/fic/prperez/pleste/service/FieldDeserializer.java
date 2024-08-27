@@ -12,9 +12,6 @@ import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.Objects;
 
 public class FieldDeserializer extends StdDeserializer<Field> {
 	public static class FieldDeserializerJacksonException extends JacksonException {

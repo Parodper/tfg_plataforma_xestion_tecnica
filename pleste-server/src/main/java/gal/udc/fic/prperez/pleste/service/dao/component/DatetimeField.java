@@ -2,11 +2,9 @@ package gal.udc.fic.prperez.pleste.service.dao.component;
 import gal.udc.fic.prperez.pleste.service.JSONDatetime;
 import gal.udc.fic.prperez.pleste.service.dao.template.FieldTypes;
 import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
-import jakarta.persistence.Basic;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import org.hibernate.annotations.Type;
 
 @Entity
 @DiscriminatorValue("DATETIME")
