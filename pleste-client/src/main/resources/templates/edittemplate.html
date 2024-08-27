@@ -30,10 +30,11 @@
                             </div>
                         </div>
                         <input class="form-control" th:disabled="${fieldsdisabled}" th:value="${field.name}" th:name="|field_${field.id}_name|" placeholder="Nome" />
-                        <select class="custom-select" style="max-width: 20%" th:disabled="${fieldsdisabled}" th:selected="${field_types[field.type]}" th:name="|field_${field.id}_type|">
+                        <select class="custom-select" style="max-width: 20%" th:disabled="${fieldsdisabled}" th:selected="${field_enum_map[field.type]}" th:name="|field_${field.id}_type|">
                             <option>Texto libre</option>
                             <option>Ligazón</option>
                             <option>Data</option>
+                            <option>Número</option>
                         </select>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" th:onclick="|removeField(${field.id})|">Borrar campo</button>

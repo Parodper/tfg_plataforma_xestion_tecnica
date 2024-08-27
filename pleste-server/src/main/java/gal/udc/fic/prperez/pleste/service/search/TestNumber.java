@@ -1,5 +1,6 @@
 package gal.udc.fic.prperez.pleste.service.search;
 
+import gal.udc.fic.prperez.pleste.service.JSONDatetime;
 import gal.udc.fic.prperez.pleste.service.dao.component.*;
 import gal.udc.fic.prperez.pleste.service.dao.template.Template;
 import gal.udc.fic.prperez.pleste.service.dao.users.User;
@@ -7,6 +8,7 @@ import gal.udc.fic.prperez.pleste.service.exceptions.ParseSearchException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 
 public class TestNumber extends Node {
@@ -48,14 +50,18 @@ public class TestNumber extends Node {
 			};
 		}
 
-		public boolean match(LocalDateTime a, LocalDateTime b) {
+		public boolean match(JSONDatetime a, JSONDatetime b) {
+			OffsetDateTime a2, b2;
+			a2 = a.getDatetime();
+			b2 = b.getDatetime();
+			
 			return switch (this) {
-				case EQUAL -> a.isEqual(b);
-				case NOT_EQUAL -> ! a.isEqual(b);
-				case GREAT -> a.isAfter(b);
-				case LESS -> a.isBefore(b);
-				case GREAT_EQUAL -> a.isAfter(b) || a.isEqual(b);
-				case LESS_EQUAL -> a.isBefore(b) || a.isEqual(b);
+				case EQUAL -> a2.isEqual(b2);
+				case NOT_EQUAL -> ! a2.isEqual(b2);
+				case GREAT -> a2.isAfter(b2);
+				case LESS -> a2.isBefore(b2);
+				case GREAT_EQUAL -> a2.isAfter(b2) || a2.isEqual(b2);
+				case LESS_EQUAL -> a2.isBefore(b2) || a2.isEqual(b2);
 			};
 		}
 	}
@@ -63,7 +69,7 @@ public class TestNumber extends Node {
 	private final Properties property;
 	private final Operator operator;
 	private final BigDecimal valueNumber;
-	private final LocalDateTime valueDate;
+	private final JSONDatetime valueDate;
 
 	public TestNumber(String property, String operator, String value) {
 		try {
@@ -78,12 +84,12 @@ public class TestNumber extends Node {
 		}
 
 		BigDecimal valueNumber = null;
-		LocalDateTime valueDate = null;
+		JSONDatetime valueDate = null;
 		try {
 			valueNumber = new BigDecimal(value);
 		} catch (NumberFormatException e) {
 			try {
-				valueDate = LocalDateTime.parse(value);
+				valueDate = JSONDatetime.parse(value);
 			} catch (DateTimeParseException e2) {
 				throw new ParseSearchException("Invalid value: " + value);
 			}
@@ -100,7 +106,7 @@ public class TestNumber extends Node {
 
 	@Override
 	public boolean matches(Object n) {
-		if(n instanceof Template t) {
+		if(n instanceof Template) {
 			throw new ParseSearchException("Tried to use " + this.property + " with a template");
 		} else if (n instanceof Component c) {
 			if (this.property == Properties.COMPONENT_FIELD_VALUE) {
@@ -118,7 +124,7 @@ public class TestNumber extends Node {
 			} else {
 				throw new ParseSearchException("Tried to use " + this.property + " with a component");
 			}
-		} else if (n instanceof User u) {
+		} else if (n instanceof User) {
 			throw new ParseSearchException("Tried to use " + this.property + " with a user");
 		} else {
 			return false;

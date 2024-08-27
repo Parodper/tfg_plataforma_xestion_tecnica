@@ -1,20 +1,22 @@
 package gal.udc.fic.prperez.pleste.service.dao.component;
+import gal.udc.fic.prperez.pleste.service.JSONDatetime;
+import gal.udc.fic.prperez.pleste.service.dao.template.FieldTypes;
 import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
+import jakarta.persistence.Basic;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-
-import java.time.LocalDateTime;
+import org.hibernate.annotations.Type;
 
 @Entity
 @DiscriminatorValue("DATETIME")
-public class DatetimeField extends Field<LocalDateTime> {
+public class DatetimeField extends Field<JSONDatetime> {
 	@Id
 	private Long id;
 
-	private LocalDateTime datetime_content;
+	private JSONDatetime datetime_content;
 
-	public DatetimeField(Long id, LocalDateTime content, TemplateField templateField) {
+	public DatetimeField(Long id, JSONDatetime content, TemplateField templateField) {
 		super(id, content, templateField);
 	}
 
@@ -28,11 +30,16 @@ public class DatetimeField extends Field<LocalDateTime> {
 	}
 
 	@Override
-	public LocalDateTime getContent() {
+	public JSONDatetime getContent() {
 		return datetime_content;
 	}
 	@Override
-	public void setContent(LocalDateTime content) {
+	public void setContent(JSONDatetime content) {
 		this.datetime_content = content;
+		super.content = content;
+	}
+	@Override
+	protected FieldTypes getFieldType() {
+		return FieldTypes.DATETIME;
 	}
 }

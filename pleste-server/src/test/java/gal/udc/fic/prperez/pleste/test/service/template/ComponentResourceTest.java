@@ -2,6 +2,7 @@ package gal.udc.fic.prperez.pleste.test.service.template;
 
 import gal.udc.fic.prperez.pleste.service.Application;
 import gal.udc.fic.prperez.pleste.service.ComponentResource;
+import gal.udc.fic.prperez.pleste.service.JSONDatetime;
 import gal.udc.fic.prperez.pleste.service.TemplateResource;
 import gal.udc.fic.prperez.pleste.service.dao.component.*;
 import gal.udc.fic.prperez.pleste.service.dao.template.FieldTypes;
@@ -41,7 +42,7 @@ public class ComponentResourceTest {
 		component.setDescription("Description" + suffix);
 		component.setFields(new ArrayList<>());
 		var field1 = new DatetimeField();
-		field1.setContent(LocalDateTime.now());
+		field1.setContent(JSONDatetime.now());
 		field1.setTemplateField(testTemplate.getFields().get(1));
 		component.getFields().add(field1);
 		var field2 = new LinkField();
@@ -88,7 +89,7 @@ public class ComponentResourceTest {
 		component.setDescription("Description");
 		component.setTemplate(testTemplate);
 		component.setFields(new ArrayList<>());
-		component.getFields().add(new DatetimeField(null, LocalDateTime.now(), testTemplate.getFields().get(1)));
+		component.getFields().add(new DatetimeField(null, JSONDatetime.now(), testTemplate.getFields().get(1)));
 		component.getFields().add(new LinkField(null, null, testTemplate.getFields().get(2)));
 		assertThrows(ComponentFieldIsMandatoryException.class, () -> componentResource.addComponent(component));
 		component.getFields().set(2, new TextField(null, "text", testTemplate.getFields().get(0)));
@@ -113,7 +114,7 @@ public class ComponentResourceTest {
 		Component component = createTestComponent("modify");
 		String id = componentResource.addComponent(component).toString();
 
-		assertThrows(ComponentFieldIsMandatoryException.class, () -> componentResource.modifyDateFieldComponent(id, "X", null));
+		assertThrows(ComponentFieldIsMandatoryException.class, () -> componentResource.modifyFieldComponent(id, "X", null));
 
 		Component tmp = componentResource.getComponent(id);
 		tmp.setName("New name");

@@ -1,15 +1,14 @@
 package gal.udc.fic.prperez.pleste.client.view;
 
+import gal.udc.fic.prperez.pleste.client.exceptions.BadRequestException;
 import gal.udc.fic.prperez.pleste.client.exceptions.InternalErrorException;
 import gal.udc.fic.prperez.pleste.client.exceptions.MissingMandatoryFieldException;
 import gal.udc.fic.prperez.pleste.client.exceptions.ObjectNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.api.DefaultApi;
+import org.openapitools.client.model.*;
 import org.openapitools.client.model.Component;
-import org.openapitools.client.model.Field;
-import org.openapitools.client.model.Template;
-import org.openapitools.client.model.TemplateField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +18,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 @Controller
 public class NewComponent {
@@ -33,7 +34,15 @@ public class NewComponent {
 	}
 
 	@GetMapping("/newcomponent")
-	public String newComponent(@RequestParam(name = "template") String templateIdParam, Model model, HttpSession session) {
+	public String newComponent(@RequestParam(name = "template", required = false) String templateIdParam, Model model, HttpSession session) {
+		if(templateIdParam == null) {
+			try {
+				templateIdParam = defaultApi.getAllTemplates().get(0).getId().toString();
+			} catch (ApiException | NullPointerException e) {
+				throw new InternalErrorException(e.getMessage());
+			}
+		}
+
 		CommonView.setModel(model, session);
 		model.addAttribute("selected_template", templateIdParam);
 
@@ -58,6 +67,16 @@ public class NewComponent {
 		Component component = new Component();
 		Map<String, String> fieldMap = new HashMap<>();
 
+		if(templateIdParam == null) {
+			try {
+				templateIdParam = defaultApi.getAllTemplates().get(0).getId().toString();
+			} catch (ApiException | NullPointerException e) {
+				throw new InternalErrorException(e.getMessage());
+			}
+		} else if (templateIdParam.contains(",")) {
+			templateIdParam = templateIdParam.split(",")[0];
+		}
+
 		component.setName(fields.get("component_name"));
 		component.setDescription(fields.get("component_description"));
 
@@ -72,7 +91,7 @@ public class NewComponent {
 
 		try {
 			List<String> missingFields = new ArrayList<>();
-			List<Field> localFields = new ArrayList<>();
+			List<FieldObject> localFields = new ArrayList<>();
 			template = defaultApi.getTemplate(templateIdParam);
 
 			for(TemplateField templateField : template.getFields()) {
@@ -80,18 +99,41 @@ public class NewComponent {
 						(!fieldMap.containsKey(templateField.getName()) || fieldMap.get(templateField.getName()).isEmpty()) && templateField.getMandatory()) {
 					missingFields.add(templateField.getName());
 				} else {
-					Field tmpField = new Field();
+					FieldObject tmpField = new FieldObject();
 					tmpField.setTemplateField(new TemplateField().id(templateField.getId()));
-					tmpField.setName(defaultApi.getFieldTemplate(template.getId().toString(), templateField.getId().toString()).getName());
+					tmpField.setType(
+							CommonView.convertTypeEnum(
+									defaultApi.getFieldTemplate(template.getId().toString(), templateField.getId().toString()).getType()));
+					String fieldValue = fieldMap.get(templateField.getName());
 
-					if (templateField.getType().equals(TemplateField.TypeEnum.LINK)) {
-						if(fieldMap.get(templateField.getName()).isEmpty()) {
-							tmpField.setLink(null);
-						} else {
-							tmpField.setLink(Long.parseLong(fieldMap.get(templateField.getName())));
+					try {
+						switch (tmpField.getType()) {
+							case LINK -> {
+								if(fieldMap.get(templateField.getName()).isEmpty()) {
+									tmpField.setContent(new FieldObjectContent());
+								} else {
+									defaultApi.getComponent(fieldValue);
+									tmpField.setContent(new FieldObjectContent(
+											new Component().id(Long.parseLong(fieldValue))
+									));
+								}
+							}
+							case TEXT -> tmpField.setContent(new FieldObjectContent(fieldMap.get(templateField.getName())));
+							case DATETIME -> tmpField.setContent(new FieldObjectContent(new JSONDatetime().datetime(
+									LocalDateTime.parse(fieldValue).atZone(ZoneId.systemDefault()).toOffsetDateTime()
+							)));
+							case NUMBER -> tmpField.setContent(new FieldObjectContent(new BigDecimal(fieldValue)));
 						}
-					} else {
-						tmpField.setContent(fieldMap.get(templateField.getName()));
+					} catch (NumberFormatException | DateTimeParseException | ApiException e) {
+						if (e instanceof ApiException ae) {
+							if(ae.getCode() == HttpStatus.NOT_FOUND.value()) {
+								throw new BadRequestException("Non se atopou o compoñente con ID " + fieldValue);
+							} else {
+								throw e;
+							}
+						} else {
+							throw new BadRequestException("Datos inválidos");
+						}
 					}
 					localFields.add(tmpField);
 				}
@@ -111,6 +153,6 @@ public class NewComponent {
 		return ResponseEntity
 				.status(HttpStatus.SEE_OTHER)
 				.header("Location","/component?id=" + newId)
-				.body("Created component #" + newId);
+				.body("Creado compoñente nº" + newId);
 	}
 }

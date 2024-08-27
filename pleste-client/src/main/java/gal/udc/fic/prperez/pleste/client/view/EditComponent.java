@@ -1,14 +1,15 @@
 package gal.udc.fic.prperez.pleste.client.view;
 
+import gal.udc.fic.prperez.pleste.client.exceptions.BadRequestException;
 import gal.udc.fic.prperez.pleste.client.exceptions.InternalErrorException;
 import gal.udc.fic.prperez.pleste.client.exceptions.MissingMandatoryFieldException;
 import gal.udc.fic.prperez.pleste.client.exceptions.ObjectNotFoundException;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.Null;
 import org.openapitools.client.ApiException;
+import org.openapitools.client.JSON;
 import org.openapitools.client.api.DefaultApi;
-import org.openapitools.client.model.Component;
-import org.openapitools.client.model.Field;
-import org.openapitools.client.model.TemplateField;
+import org.openapitools.client.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +19,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class EditComponent {
@@ -42,11 +47,29 @@ public class EditComponent {
 		CommonView.setModel(model, session);
 		try {
 			Component component = defaultApi.getComponent(componentIdPath);
+			Map<String, String> fieldValues = new HashMap<>();
+
+			for(FieldObject f : component.getFields()) {
+				try {
+					switch (f.getTemplateField().getType()) {
+						case TEXT -> fieldValues.put(f.getTemplateField().getName(), f.getContent().getString());
+						case DATETIME -> fieldValues.put(f.getTemplateField().getName(),
+								f.getContent().getJSONDatetime().getDatetime().toLocalDateTime().toString());
+						case LINK -> fieldValues.put(f.getTemplateField().getName(),
+								f.getContent().getComponent().getId().toString());
+						case NUMBER ->
+								fieldValues.put(f.getTemplateField().getName(), f.getContent().getBigDecimal().toString());
+					}
+				} catch (NullPointerException ignore) {
+					fieldValues.put(f.getTemplateField().getName(), "");
+				}
+			}
 
 			model.addAttribute("component_name", component.getName());
 			model.addAttribute("component_description", component.getDescription());
 			model.addAttribute("component_id", componentIdPath);
 			model.addAttribute("fields", component.getFields());
+			model.addAttribute("values", fieldValues);
 		} catch (ApiException e) {
 			if(e.getCode() == HttpStatus.NOT_FOUND.value()) {
 				throw new ObjectNotFoundException("compoñente", componentIdPath);
@@ -82,28 +105,53 @@ public class EditComponent {
 			component.setDescription(decodeURI(descriptionParam));
 			component.setName(decodeURI(nameParam));
 
-			for(int i = 0; i < component.getFields().size(); i++) {
-				Field field = component.getFields().get(i);
-				String fieldName = field.getTemplateField().getName();
-				field.setName(fieldName);
+			for(FieldObject fieldObject : component.getFields()) {
+				String fieldName = fieldObject.getTemplateField().getName();
+				String fieldValue = fieldMap.get(fieldName);
 
-				if(field.getTemplateField().getMandatory() && (fieldMap.get(fieldName) == null || fieldMap.get(fieldName).isEmpty())) {
-					missingFields.add(fieldName);
+				FieldObjectContent value = null;
+
+				if(fieldValue == null) {
+					if (fieldObject.getTemplateField().getMandatory()) {
+						missingFields.add(fieldName);
+					} else {
+						value = new FieldObjectContent();
+					}
 				} else {
-					String value = fieldMap.get(fieldName);
-
-					if (field.getTemplateField().getType().equals(TemplateField.TypeEnum.LINK)) {
-						if(value == null || value.isEmpty()) {
-							field.setLink(null);
+					if(fieldValue.isEmpty()) {
+						if(fieldObject.getTemplateField().getMandatory()) {
+							missingFields.add(fieldName);
 						} else {
-							field.setLink(Long.parseLong(value));
+							value = new FieldObjectContent();
 						}
 					} else {
-						field.setContent(value);
+						try {
+							value = switch (fieldObject.getType()) {
+								case TEXT -> new FieldObjectContent(fieldValue);
+								case NUMBER -> new FieldObjectContent(new BigDecimal(fieldValue));
+								case LINK -> new FieldObjectContent(new Component().id(Long.parseLong(fieldValue)));
+								case DATETIME -> new FieldObjectContent(
+										new JSONDatetime().datetime(
+												LocalDateTime.parse(fieldValue)
+														.atOffset(ZoneOffset
+																.systemDefault()
+																.getRules()
+																.getOffset(Instant.now()))));
+							};
+						} catch (DateTimeParseException e) {
+							throw new BadRequestException(fieldValue + " isn't a valid date");
+						} catch (NumberFormatException e) {
+							throw new BadRequestException(fieldValue + " isn't a valid number");
+						}
 					}
 				}
 
-				component.getFields().set(i, field);
+				if (value != null) {
+					FieldObject field = component.getFields().stream()
+							.filter(f -> f.getTemplateField().getName().equals(fieldName))
+							.toList().get(0);
+					field.setContent(value);
+				}
 			}
 
 			if(!missingFields.isEmpty()) {
@@ -111,10 +159,6 @@ public class EditComponent {
 			}
 
 			defaultApi.modifyComponent(componentIdPath, component);
-			for(Field field : component.getFields()) {
-				defaultApi.modifyFieldComponent(componentIdPath, field.getName(),
-						field.getTemplateField().getType().equals(TemplateField.TypeEnum.LINK) ? field.getLink().toString() : field.getContent());
-			}
 		} catch (ApiException e) {
 			if(e.getCode() == HttpStatus.NOT_FOUND.value()) {
 				throw new ObjectNotFoundException("compoñente", componentIdPath);

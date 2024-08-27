@@ -17,6 +17,7 @@ function appendField() {
         "                            <option>Texto libre</option>\n" +
         "                            <option>Ligazón</option>\n" +
         "                            <option>Data</option>\n" +
+        "                            <option>Número</option>" +
         "                        </select>\n" +
         "                        <div class=\"input-group-append\">\n" +
         "                            <button class=\"btn btn-outline-secondary\" type=\"button\" onclick=\"removeField('" + last_id.toString().padStart(3, '0') + "')\">Borrar campo</button>\n" +

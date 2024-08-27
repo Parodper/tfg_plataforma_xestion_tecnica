@@ -13,7 +13,7 @@
         <a class="btn btn-info" role="button" href="/newcomponent">Engadir</a>
         <label class="float-right">
             Filtrar
-            <input type="text" id="filter_input">
+            <input type="text" class="form-control" id="filter_input">
         </label>
         <ul class="mt-2" id="list">
             <li th:each="component: ${components}"><a th:text="${component.name}" th:href="|/component?id=${component.id}|"></a></li>

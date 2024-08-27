@@ -44,19 +44,13 @@ public class NewTemplate {
 
 				field.setName(parameters.get("field_" + id + "_name"));
 				field.setMandatory(Boolean.parseBoolean(parameters.get("field_" + id + "_mandatory")));
-				switch (parameters.get("field_" + id + "_type")) {
-					case "Ligazón":
-						field.setType(TemplateField.TypeEnum.LINK);
-						break;
-					case "Data":
-						field.setType(TemplateField.TypeEnum.DATETIME);
-						break;
-					case "Texto libre":
-						field.setType(TemplateField.TypeEnum.TEXT);
-						break;
-					default:
-						field.setType(TemplateField.TypeEnum.TEXT);
-				}
+				field.setType(
+						switch (parameters.get("field_" + id + "_type")) {
+							case "Ligazón" -> TemplateField.TypeEnum.LINK;
+							case "Data" -> TemplateField.TypeEnum.DATETIME;
+							case "Número" -> TemplateField.TypeEnum.NUMBER;
+							default -> TemplateField.TypeEnum.TEXT;
+				});
 
 				template.getFields().add(field);
 			}

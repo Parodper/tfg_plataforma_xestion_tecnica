@@ -32,15 +32,10 @@ public class EditTemplate {
 	@GetMapping("/edittemplate")
 	public String editTemplate(@RequestParam(name = "id") String idParam, Model model, HttpSession session) {
 		CommonView.setModel(model, session);
-		Map<String, String> fieldTypes = new HashMap<>();
-		fieldTypes.put("LINK", "Ligazón");
-		fieldTypes.put("DATETIME", "Data");
-		fieldTypes.put("TEXT", "Texto libre");
 
 		try {
 			model.addAttribute("template", defaultApi.getTemplate(idParam));
 			model.addAttribute("fieldsdisabled", !defaultApi.getTemplateComponents(idParam).isEmpty());
-			model.addAttribute("field_types", fieldTypes);
 		} catch (ApiException e) {
 			if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
 				throw new ObjectNotFoundException("modelo", idParam);
@@ -84,6 +79,8 @@ public class EditTemplate {
 							case "Texto libre":
 								field.setType(TemplateField.TypeEnum.TEXT);
 								break;
+							case "Número":
+								field.setType(TemplateField.TypeEnum.NUMBER);
 							default:
 								field.setType(TemplateField.TypeEnum.TEXT);
 						}

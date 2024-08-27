@@ -1,5 +1,6 @@
 package gal.udc.fic.prperez.pleste.service.dao.component;
 
+import gal.udc.fic.prperez.pleste.service.dao.template.FieldTypes;
 import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -34,5 +35,10 @@ public class TextField extends Field<String> {
 	@Override
 	public void setContent(String content) {
 		this.text_content = content;
+		super.content = content;
+	}
+	@Override
+	protected FieldTypes getFieldType() {
+		return FieldTypes.TEXT;
 	}
 }

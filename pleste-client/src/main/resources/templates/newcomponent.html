@@ -9,17 +9,17 @@
 <body>
     <header th:insert="~{header}"></header>
     <main class="container mt-5">
-        <label for="template_select">Modelo a usar:</label>
-        <div class="input-group">
-            <select class="custom-select" id="template_select">
-                <option th:each="template: ${templates}" th:selected="${selected_template} == ${template.id}" selected th:text="|${template.id} - ${template.name}|" th:value="${template.id}"></option>
-            </select>
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" onclick="cambiar_modelo()">Cambiar</button>
-            </div>
-        </div>
-        <hr class="w-100" />
         <form method="POST">
+            <label for="template_select">Modelo a usar:</label>
+            <div class="input-group">
+                <select class="custom-select" id="template_select" name="template">
+                    <option th:each="template: ${templates}" th:selected="${selected_template} == ${template.id}" selected th:text="|${template.id} - ${template.name}|" th:value="${template.id}"></option>
+                </select>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="cambiar_modelo()">Cambiar</button>
+                </div>
+            </div>
+            <hr class="w-100" />
             <label for="component_name">Nome do compoñente:</label>
             <div class="input-group">
                 <input class="form-control" type="text" required id="component_name" name="component_name" />
@@ -42,12 +42,13 @@
                         <div class="input-group mb-3">
                             <input th:case="'LINK'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" type="number">
                             <input th:case="'DATETIME'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" type="datetime-local">
-                            <input th:case="'TEXT'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" type="text">
+                            <textarea th:case="'TEXT'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" type="text"></textarea>
+                            <input th:case="'NUMBER'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" type="text"
+                                   pattern="[+-]?[0-9]+(.[0-9]+)?" title="Acéptanse valores decimales da forma -1234.345">
                         </div>
                     </td>
                 </tr>
             </table>
-
             <input class="btn btn-outline-primary" type="submit" value="Crear compoñente"/>
         </form>
     </main>

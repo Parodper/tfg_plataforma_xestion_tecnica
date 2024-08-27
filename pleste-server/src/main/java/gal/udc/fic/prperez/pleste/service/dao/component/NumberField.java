@@ -1,5 +1,6 @@
 package gal.udc.fic.prperez.pleste.service.dao.component;
 
+import gal.udc.fic.prperez.pleste.service.dao.template.FieldTypes;
 import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
 import jakarta.persistence.*;
 
@@ -34,5 +35,10 @@ public class NumberField extends Field<BigDecimal> {
 	@Override
 	public void setContent(BigDecimal content) {
 		this.number_content = content;
+		super.content = content;
+	}
+	@Override
+	protected FieldTypes getFieldType() {
+		return FieldTypes.NUMBER;
 	}
 }

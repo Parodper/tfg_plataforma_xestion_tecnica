@@ -1,5 +1,6 @@
 package gal.udc.fic.prperez.pleste.service.dao.component;
 
+import gal.udc.fic.prperez.pleste.service.dao.template.FieldTypes;
 import gal.udc.fic.prperez.pleste.service.dao.template.TemplateField;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -35,5 +36,10 @@ public class LinkField extends Field<Component> {
 	@Override
 	public void setContent(Component content) {
 		this.link_content = content;
+		super.content = content;
+	}
+	@Override
+	protected FieldTypes getFieldType() {
+		return FieldTypes.LINK;
 	}
 }

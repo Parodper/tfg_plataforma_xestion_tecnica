@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 @Path( "/components")
@@ -172,6 +172,39 @@ public class ComponentResource {
 			component = componentDatabase.getReferenceById(id);
 			component.setName(newComponent.getName());
 			component.setDescription(newComponent.getDescription());
+			for(Field<?> field : component.getFields()) {
+				try {
+					switch (field.getTemplateField().getType()) {
+						case TEXT -> ((TextField) field).setContent((String)
+								newComponent.getFields().stream()
+										.filter(f -> f.getTemplateField().equals(field.getTemplateField()))
+										.findFirst()
+										.get()
+										.getContent());
+						case DATETIME -> ((DatetimeField) field).setContent((JSONDatetime)
+								newComponent.getFields().stream()
+										.filter(f -> f.getTemplateField().equals(field.getTemplateField()))
+										.findFirst()
+										.get()
+										.getContent());
+						case LINK -> ((LinkField) field).setContent((Component)
+								newComponent.getFields().stream()
+										.filter(f -> f.getTemplateField().equals(field.getTemplateField()))
+										.findFirst()
+										.get()
+										.getContent());
+						case NUMBER -> ((NumberField) field).setContent((BigDecimal)
+								newComponent.getFields().stream()
+										.filter(f -> f.getTemplateField().equals(field.getTemplateField()))
+										.findFirst()
+										.get()
+										.getContent());
+					}
+				} catch (NoSuchElementException | ClassCastException ignore) {
+					throw new ComponentFieldNotFoundException(idPath, field.getTemplateField().getName());
+				}
+				databaseFactory.getSqlFieldDao().save(field);
+			}
 			componentDatabase.save(component);
 		} else {
 			throw new ComponentNotFoundException(idPath, newComponent.getName());
@@ -219,25 +252,9 @@ public class ComponentResource {
 			@ApiResponse(description = "Component not found", responseCode = "404",
 					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
-	public List<Field<?>> getFieldsComponent(@PathParam("id") String idPath) throws ComponentNotFoundException {
+	public List<Field> getFieldsComponent(@PathParam("id") String idPath) throws ComponentNotFoundException {
 		Long id = Long.parseLong(idPath);
-		return getComponentUtil(id).getFields();
-	}
-
-	private void modifyFieldComponent(String idPath, String fieldName, Object value) throws ComponentFieldNotFoundException, ComponentFieldIsMandatoryException {
-		Field componentField;
-
-		if(databaseFactory.getSqlFieldDao().existsByTemplateFieldName(fieldName)) {
-			componentField = databaseFactory.getSqlFieldDao().getByTemplateFieldName(fieldName);
-			if(value == null || (value instanceof String f && f.isEmpty())) {
-				throw new ComponentFieldIsMandatoryException(componentField.getTemplateField().getName());
-			} else {
-				componentField.setContent(value);
-				databaseFactory.getSqlFieldDao().save(componentField);
-			}
-		} else {
-			throw new ComponentFieldNotFoundException(idPath, fieldName);
-		}
+		return getComponentUtil(id).getFields().stream().map(f -> (Field) f).toList();
 	}
 
 	@Path("/{componentId : \\d+}/fields/{fieldName : \\S+}")
@@ -250,55 +267,53 @@ public class ComponentResource {
 			@ApiResponse(description = "Field is mandatory, and the provided value is null", responseCode = "400",
 					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
-	public void modifyTextFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName, String value) throws ComponentFieldNotFoundException, ComponentFieldIsMandatoryException {
-		modifyFieldComponent(idPath, fieldName, value);
-	}
+	public void modifyFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName, JSONString valueString) throws ComponentFieldNotFoundException, ComponentFieldIsMandatoryException {
+		Field<?> componentField;
 
-	@Path("/{componentId : \\d+}/fields/{fieldName : \\S+}")
-	@PUT
-	@Consumes({MediaType.APPLICATION_JSON})
-	@ApiResponses(value = {
-			@ApiResponse(description = "Successfully modified", responseCode = "204"),
-			@ApiResponse(description = "Component or the field not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class))),
-			@ApiResponse(description = "Field is mandatory, and the provided value is null; or wrong value for the field type", responseCode = "400",
-					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
-	})
-	public void modifyLinkFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName, Long value) throws ComponentFieldNotFoundException, ComponentFieldIsMandatoryException {
-		try {
-			Component component = databaseFactory.getSqlComponentDao().getReferenceById(value);
-			modifyFieldComponent(idPath, fieldName, component);
-		} catch (EntityNotFoundException e) {
-			modifyFieldComponent(idPath, fieldName, null);
+		if(databaseFactory.getSqlFieldDao().existsByTemplateFieldName(fieldName)) {
+			componentField = databaseFactory.getSqlFieldDao().getByTemplateFieldName(fieldName);
+			if(valueString == null) {
+				if(componentField.getTemplateField().isMandatory()) {
+					throw new ComponentFieldIsMandatoryException(componentField.getTemplateField().getName());
+				} else {
+					componentField.setContent(null);
+				}
+			} else {
+				switch (componentField.getType()) {
+					case TEXT -> {
+						String value = valueString.getContent();
+						((TextField) componentField).setContent(value);
+					}
+					case DATETIME -> {
+						try {
+							JSONDatetime value = JSONDatetime.parse(valueString.getContent());
+							((DatetimeField) componentField).setContent(value);
+						} catch (DateTimeParseException e) {
+							throw new ComponentFieldInvalidValueException(fieldName, "DATETIME", valueString.getContent());
+						}
+					}
+					case LINK -> {
+						try {
+							Component value = databaseFactory.getSqlComponentDao().getReferenceById(Long.parseLong(valueString.getContent()));
+							((LinkField) componentField).setContent(value);
+						} catch (EntityNotFoundException e) {
+							throw new ComponentFieldInvalidValueException(fieldName, "LINK", valueString.getContent());
+						}
+					}
+					case NUMBER -> {
+						try {
+							BigDecimal value = new BigDecimal(valueString.getContent());
+							((NumberField) componentField).setContent(value);
+						} catch (EntityNotFoundException e) {
+							throw new ComponentFieldInvalidValueException(fieldName, "NUMBER", valueString.getContent());
+						}
+					}
+				}
+			}
+			databaseFactory.getSqlFieldDao().save(componentField);
+		} else {
+			throw new ComponentFieldNotFoundException(idPath, fieldName);
 		}
-	}
-
-	@Path("/{componentId : \\d+}/fields/{fieldName : \\S+}")
-	@PUT
-	@Consumes({MediaType.APPLICATION_JSON})
-	@ApiResponses(value = {
-			@ApiResponse(description = "Successfully modified", responseCode = "204"),
-			@ApiResponse(description = "Component or the field not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class))),
-			@ApiResponse(description = "Field is mandatory, and the provided value is null; or wrong value for the field type", responseCode = "400",
-					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
-	})
-	public void modifyDateFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName, LocalDateTime value) throws ComponentFieldNotFoundException, ComponentFieldIsMandatoryException {
-		modifyFieldComponent(idPath, fieldName, value);
-	}
-
-	@Path("/{componentId : \\d+}/fields/{fieldName : \\S+}")
-	@PUT
-	@Consumes({MediaType.APPLICATION_JSON})
-	@ApiResponses(value = {
-			@ApiResponse(description = "Successfully modified", responseCode = "204"),
-			@ApiResponse(description = "Component or the field not found", responseCode = "404",
-					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class))),
-			@ApiResponse(description = "Field is mandatory, and the provided value is null; or wrong value for the field type", responseCode = "400",
-					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
-	})
-	public void modifyNumberFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName, BigDecimal value) throws ComponentFieldNotFoundException, ComponentFieldIsMandatoryException {
-		modifyFieldComponent(idPath, fieldName, value);
 	}
 
 	@Path("/{componentId : \\d+}/fields/{fieldName : \\S+}")
@@ -310,7 +325,7 @@ public class ComponentResource {
 			@ApiResponse(description = "Component, or the field, not found", responseCode = "404",
 					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
 	})
-	public Field<?> getFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName) throws ComponentFieldNotFoundException {
+	public Field getFieldComponent(@PathParam("componentId") String idPath, @PathParam("fieldName") String fieldName) throws ComponentFieldNotFoundException {
 		if(databaseFactory.getSqlFieldDao().existsByTemplateFieldName(fieldName)) {
 			return databaseFactory.getSqlFieldDao().getByTemplateFieldName(fieldName);
 		} else {

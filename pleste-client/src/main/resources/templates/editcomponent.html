@@ -23,14 +23,16 @@
                     <th>Nome</th><th>Tipo</th><th>Valor</th>
                 </tr>
                 <tr th:each="field: ${fields}">
-                    <td th:if="${field.templateField.mandatory}"><label th:for="|field_${field.name}|"><strong th:text="|${field.name}|"></strong></label></td>
-                    <td th:unless="${field.templateField.mandatory}"><label th:for="|field_${field.name}|" th:text="|${field.name}|"></label></td>
+                    <td th:if="${field.templateField.mandatory}"><label th:for="|field_${field.templateField.name}|"><strong th:text="|${field.templateField.name}|"></strong></label></td>
+                    <td th:unless="${field.templateField.mandatory}"><label th:for="|field_${field.templateField.name}|" th:text="|${field.templateField.name}|"></label></td>
                     <td th:text="|${field_enum_map.get(field.templateField.type)}|"></td>
                     <td th:switch="${#strings.toString(field.templateField.type)}">
                         <div class="input-group mb-3">
-                            <input th:case="'LINK'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" th:value="${field.link}" type="number">
-                            <input th:case="'DATETIME'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" th:value="${field.content}" type="datetime-local">
-                            <input th:case="'TEXT'" th:name="|field_${field.name}|" th:id="|field_${field.name}|" th:value="${field.content}" type="text">
+                            <input th:case="'LINK'" th:name="|field_${field.templateField.name}|" th:id="|field_${field.templateField.name}|" th:value="${values.get(field.templateField.name)}" type="number">
+                            <input th:case="'DATETIME'" th:name="|field_${field.templateField.name}|" th:id="|field_${field.templateField.name}|" th:value="${values.get(field.templateField.name)}" type="datetime-local">
+                            <textarea th:case="'TEXT'" th:name="|field_${field.templateField.name}|" th:id="|field_${field.templateField.name}|" th:text="${values.get(field.templateField.name)}" ></textarea>
+                            <input th:case="'NUMBER'" th:name="|field_${field.templateField.name}|" th:id="|field_${field.templateField.name}|" type="text"
+                                   pattern="[+-]?[0-9]+(.[0-9]+)?" title="Acéptanse valores decimales da forma -1234.345" th:value="${values.get(field.templateField.name)}">
                         </div>
                     </td>
                 </tr>
