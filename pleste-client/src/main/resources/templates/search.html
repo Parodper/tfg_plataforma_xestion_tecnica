@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="gl">
+<head>
+    <title>pleste: Busca</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <th:block th:insert="~{includes}" />
+    <script src="js/filter.js"></script>
+</head>
+<body>
+    <header th:insert="~{header}"></header>
+    <main class="container mt-5">
+         <form method="GET" id="search-form">
+             <label class="form-inline" for="search-input">Introducir termos de busca</label>
+             <div class="input-group">
+                 <input name="search-input" id="search-input" class="form-control" type="text" th:value="${query}"></input>
+                 <select class="custom-select" style="max-width: 15%" name="search-type" id="search-type">
+                     <option th:selected="${type} == 'COMPONENT'" value="COMPONENT">Compoñentes</option>
+                     <option th:selected="${type} == 'TEMPLATE'" value="TEMPLATE">Modelos</option>
+                     <option th:seamless="${type} == 'USER'" value="USER">Usuarios</option>
+                 </select>
+                 <button class="btn btn-outline-primary" type="submit">Buscar</button>
+             </div>
+             <div class="form-check float-right mt-2">
+                 <input class="form-check-input" type="checkbox" id="clear-cache" name="clear-cache">
+                 <label class="form-check-label" for="clear-cache">
+                     Borrar caché
+                 </label>
+             </div>
+             <input id="from-field" name="from" th:value="${from}" hidden />
+             <input id="count-field" name="to" th:value="${count}" hidden />
+         </form>
+        <div >
+
+        </div>
+        <div class="text-left mt-5">
+            <ul id="results">
+                <li th:each="result: ${results_list}"><a th:href="|/${url_path.get(result)}|" th:text="${result}"></a></li>
+            </ul>
+            <div>
+                <p class="float-left btn btn-primary" onclick="previous_results()">Anteriores</p>
+                <p class="float-right btn btn-primary" onclick="next_results()">Seguintes</p>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

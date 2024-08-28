@@ -79,18 +79,6 @@ public class FindListener extends FindBaseListener {
 		}
 	}
 
-//	@Override
-//	public void enterExpComplex(FindParser.ExpComplexContext ctx) {
-//		Node current = new RootNode();
-//		appendNode(current);
-//		stack.push(current);
-//	}
-
-	@Override
-	public void exitExpComplex(FindParser.ExpComplexContext ctx) {
-		stack.pop();
-	}
-
 	@Override
 	public void enterExpOr(FindParser.ExpOrContext ctx) {
 		Node current = new Or();

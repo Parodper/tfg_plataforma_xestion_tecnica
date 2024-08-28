@@ -4,14 +4,22 @@ import gal.udc.fic.prperez.pleste.service.dao.SQLDaoFactoryUtil;
 import gal.udc.fic.prperez.pleste.service.dao.component.Component;
 import gal.udc.fic.prperez.pleste.service.dao.template.Template;
 import gal.udc.fic.prperez.pleste.service.dao.users.User;
+import gal.udc.fic.prperez.pleste.service.exceptions.ParseSearchException;
+import gal.udc.fic.prperez.pleste.service.exceptions.RESTExceptionSerializable;
 import gal.udc.fic.prperez.pleste.service.search.FindListener;
 import gal.udc.fic.prperez.pleste.service.search.Node;
 import gal.udc.fic.prperez.pleste.service.search.RootNode;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.servers.Server;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -50,7 +58,18 @@ public class SearchResource {
 
 	@Path("/templates")
 	@GET
-	public List<Template> searchTemplates(@QueryParam("query") String query, @QueryParam("skip") Integer skip, @QueryParam("count") Integer count) {
+	@Produces({MediaType.APPLICATION_JSON})
+	@Consumes({MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns the list of matching templates", responseCode = "200",
+					content = @Content(array = @ArraySchema(schema = @Schema(implementation = Template.class)))),
+			@ApiResponse(description = "Couldn't parse input", responseCode = "400",
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
+	})
+	public List<Template> searchTemplates(
+			@QueryParam("query") String query,
+			@QueryParam("skip") Integer skip,
+			@QueryParam("count") Integer count) throws ParseSearchException {
 		List<Template> result;
 		if (searchResultTemplatesCache.containsKey(query)) {
 			result = searchResultTemplatesCache.get(query);
@@ -67,6 +86,10 @@ public class SearchResource {
 			to = result.size();
 		}
 
+		if (from > to) {
+			from = to;
+		}
+
 		try {
 			return result.subList(from, to);
 		} catch (IndexOutOfBoundsException e) {
@@ -76,7 +99,18 @@ public class SearchResource {
 
 	@Path("/components")
 	@GET
-	public List<Component> searchComponents(@QueryParam("query") String query, @QueryParam("skip") Integer skip, @QueryParam("count") Integer count) {
+	@Produces({MediaType.APPLICATION_JSON})
+	@Consumes({MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns the list of matching components", responseCode = "200",
+					content = @Content(array = @ArraySchema(schema = @Schema(implementation = Component.class)))),
+			@ApiResponse(description = "Couldn't parse input", responseCode = "400",
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
+	})
+	public List<Component> searchComponents(
+			@QueryParam("query") String query,
+			@QueryParam("skip") Integer skip,
+			@QueryParam("count") Integer count) throws ParseSearchException {
 		List<Component> result;
 		if (searchResultComponentsCache.containsKey(query)) {
 			result = searchResultComponentsCache.get(query);
@@ -93,6 +127,10 @@ public class SearchResource {
 			to = result.size();
 		}
 
+		if (from > to) {
+			from = to;
+		}
+
 		try {
 			return result.subList(from, to);
 		} catch (IndexOutOfBoundsException e) {
@@ -102,7 +140,18 @@ public class SearchResource {
 
 	@Path("/users")
 	@GET
-	public List<User> searchUsers(@QueryParam("query") String query, @QueryParam("skip") Integer skip, @QueryParam("count") Integer count) {
+	@Produces({MediaType.APPLICATION_JSON})
+	@Consumes({MediaType.APPLICATION_JSON})
+	@ApiResponses(value = {
+			@ApiResponse(description = "Returns the list of matching templates", responseCode = "200",
+					content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class)))),
+			@ApiResponse(description = "Couldn't parse input", responseCode = "400",
+					content = @Content(schema = @Schema(implementation = RESTExceptionSerializable.class)))
+	})
+	public List<User> searchUsers(
+			@QueryParam("query") String query,
+			@QueryParam("skip") Integer skip,
+			@QueryParam("count") Integer count) throws ParseSearchException {
 		List<User> result;
 		if (searchResultUsersCache.containsKey(query)) {
 			result = searchResultUsersCache.get(query);
@@ -118,6 +167,10 @@ public class SearchResource {
 
 		if (to > result.size()) {
 			to = result.size();
+		}
+
+		if (from > to) {
+			from = to;
 		}
 
 		try {
@@ -158,7 +211,7 @@ public class SearchResource {
 	}
 
 	@NotNull
-	private Node generateTree(String query) {
+	private Node generateTree(String query) throws ParseSearchException {
 		FindLexer lexer = new FindLexer(CharStreams.fromString(query));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		FindParser parser = new FindParser(tokens);
