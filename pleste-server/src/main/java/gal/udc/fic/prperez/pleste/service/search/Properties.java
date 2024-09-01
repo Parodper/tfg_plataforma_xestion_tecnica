@@ -11,8 +11,6 @@ public enum Properties {
 	COMPONENT_FIELD_NAME("component.field.name"),
 	COMPONENT_FIELD_TYPE("component.field.type"),
 	COMPONENT_FIELD_VALUE("component.field.value"),
-	COMPONENT_FIELD_LINK("component.field.link"),
-	COMPONENT_FIELD_DATE("component.field.date"),
 
 	USER_NAME("user.name"),
 	USER_EMAIL("user.email"),

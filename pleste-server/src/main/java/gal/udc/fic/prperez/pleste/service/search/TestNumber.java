@@ -114,7 +114,7 @@ public class TestNumber extends Node {
 					case LINK -> switch (this.operator) {
 						case EQUAL -> ((LinkField) f).getContent().getId().equals((long) valueNumber.intValue());
 						case NOT_EQUAL -> ! ((LinkField) f).getContent().getId().equals((long) valueNumber.intValue());
-						default -> throw new ParseSearchException("Can't use " + operator + " on a link, use «=» or «!=» only");
+						default -> false;
 					};
 					case NUMBER -> this.operator.match(((NumberField)f).getContent(), valueNumber);
 					case DATETIME -> this.operator.match(((DatetimeField)f).getContent(), valueDate);
