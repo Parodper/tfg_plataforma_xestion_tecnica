@@ -20,9 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
@@ -128,16 +127,12 @@ public class EditComponent {
 								case LINK -> new FieldObjectContent(new Component().id(Long.parseLong(fieldValue)));
 								case DATETIME -> new FieldObjectContent(
 										new JSONDatetime().datetime(
-												LocalDateTime.parse(fieldValue)
-														.atOffset(ZoneOffset
-																.systemDefault()
-																.getRules()
-																.getOffset(Instant.now()))));
+												LocalDateTime.parse(fieldValue).atZone(ZoneId.systemDefault()).toOffsetDateTime()));
 							};
 						} catch (DateTimeParseException e) {
-							throw new BadRequestException(fieldValue + " isn't a valid date");
+							throw new BadRequestException(fieldValue + " non é unha data válida");
 						} catch (NumberFormatException e) {
-							throw new BadRequestException(fieldValue + " isn't a valid number");
+							throw new BadRequestException(fieldValue + " non é un número valido");
 						}
 					}
 				}

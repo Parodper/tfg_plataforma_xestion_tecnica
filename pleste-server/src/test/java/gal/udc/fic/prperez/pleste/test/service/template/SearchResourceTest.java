@@ -64,6 +64,6 @@ public class SearchResourceTest {
 	@Test
 	public void searchComponents() {
 		assertEquals(searchResource.searchComponents("component.field.type @ [ \"LINK\" ] ",null, null).size(),0);
-		assertEquals(searchResource.searchComponents("component.field.value > 2",null, null).size(),0);
+		assertEquals(searchResource.searchComponents("component.field.value > 2 | component.field.value = 2001-01-01T00:00:00",null, null).size(),0);
 	}
 }
