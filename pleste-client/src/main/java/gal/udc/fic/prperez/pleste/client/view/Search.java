@@ -25,6 +25,12 @@ public class Search {
 		this.defaultApi = defaultApi;
 	}
 
+	@GetMapping("/searchhelp")
+	public String searchHelp(Model model, HttpSession session) {
+		CommonView.setModel(model, session);
+		return "searchhelp.html";
+	}
+
 	@GetMapping("/search")
 	public String displayTemplate(@RequestParam(name = "search-input", required = false) String query,
 	                              @RequestParam(name = "search-type", required = false) String type,

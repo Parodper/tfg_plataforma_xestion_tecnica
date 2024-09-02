@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="gl">
+<head>
+    <title>pleste: Busca - Axuda</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <th:block th:insert="~{includes}" />
+</head>
+<body>
+    <header th:insert="~{header}"></header>
+    <main class="container mt-5">
+        <p>Unha petición de busca componse dunha comprobación, ou varias unidas polos operadores <code>|</code> e <code>&</code>, opcionalmente agrupados con parénteses.
+            Por exemplo, a petición <code>template.name ~ "y" & template.description @ [ "A", "B" ]</code> busca calquera modelo cuxo nome sexa unha «<i>y</i>» e a descripción sexa «<i>A</i>» ou «<i>B</i>».
+        </p>
+        <h2>
+            Operandos:
+        </h2>
+        <ul>
+            <li><code>&tilde;</code> e <code>!&tilde;</code>: Aplican unha expresión regular á propiedade indicada</li>
+            <li><code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>=</code> e <code>=</code>: Aplican unha comparación numérica</li>
+            <li><code>@</code> e <code>!@</code>: Aplican <code>&tilde;</code> e <code>!&tilde;</code>, respectivamente, á listaxe de cadeas entre corchetes e separadas por comas</li>
+        </ul>
+        <p>As comparacións numéricas só se poden usar coa propiedade <code>component.field.value</code>. As outras, con calquera propiedade.</p>
+        <h2>Propiedades</h2>
+        <ul>
+            <li>template.name</li>
+            <li>template.description</li>
+            <li>template.field.name</li>
+            <li>template.field.type</li>
+            <li>component.name</li>
+            <li>component.description</li>
+            <li>component.field.name</li>
+            <li>component.field.type</li>
+            <li>component.field.value</li>
+            <li>user.name</li>
+            <li>user.email</li>
+            <li>user.role</li>
+        </ul>
+        <p>Para comparar os contidos dalgúns campos téñense que usar certos valores:</p>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <table class="table">
+                        <tr style="background: lightgray">
+                            <th colspan="2" style="text-align: center"><code>component.field.type</code> e <code>template.field.type</code></th>
+                        </tr>
+                        <tr>
+                            <th>Valor</th><th>Cadea</th>
+                        </tr>
+                        <tr>
+                            <td>Número</td><td><code>"NUMBER"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Ligazón</td><td><code>"LINK"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Data</td><td><code>"DATETIME"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Texto libre</td><td><code>"TEXT"</code></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col">
+                    <table class="table">
+                        <tr style="background: lightgray">
+                            <th colspan="2" style="text-align: center"><code>user.role</code></th>
+                        </tr>
+                        <tr>
+                            <th>Valor</th><th>Cadea</th>
+                        </tr>
+                        <tr>
+                            <td>Administrador</td><td><code>"ADMINISTRATOR"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Técnico</td><td><code>"NORMAL_USER"</code></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <h2>Tipos</h2>
+        <p>Os tipos dispoñibles son:</p>
+        <table class="table table-light">
+            <tr><th>Tipo</th><th>Operandos válidos</th><th>Exemplo</th></tr>
+            <tr>
+                <td>Cadeas</td><td><code>&tilde;</code>,  <code>!&tilde;</code>, <code>@</code> e <code>!@</code></td><td><pre>"Hola \"mundo\""</pre></td>
+            </tr>
+            <tr>
+                <td>Números</td><td rowspan="2" style="vertical-align : middle"><code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>=</code> e <code>=</code></td><td><pre>+123123.23</pre></td>
+            </tr>
+            <tr>
+                <td>Datas</td><td><pre>2023-01-25T01:03:24</pre></td>
+            </tr>
+        </table>
+    </main>
+</body>
+</html>
