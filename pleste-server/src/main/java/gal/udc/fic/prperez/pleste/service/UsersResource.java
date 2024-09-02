@@ -16,6 +16,9 @@ import io.swagger.v3.oas.annotations.servers.Server;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,8 +67,16 @@ public class UsersResource {
 			@ApiResponse(description = "Returns all users", responseCode = "200",
 					content = @Content(array = @ArraySchema(schema = @Schema(implementation =  Long.class))))
 	})
-	public List<Long> getAllUsers() {
-		return userDatabase.findAll().stream().map(User::getId).toList();
+	public List<Long> getAllUsers(@QueryParam("skip") Integer skip, @QueryParam("count") Integer count) {
+		if(count == null) {
+			return userDatabase.findAll().stream().map(User::getId).toList();
+		} else {
+			skip = skip == null ? 0 : skip;
+
+			Pageable page = PageRequest.of(skip, count, Sort.by("id"));
+
+			return userDatabase.findAll(page).stream().map(User::getId).toList();
+		}
 	}
 
 	@POST

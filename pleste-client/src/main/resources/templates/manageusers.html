@@ -9,6 +9,7 @@
 <body>
     <header th:insert="~{header}"></header>
     <main class="container mt-5">
+        <input id="skip-field" th:value="${skip}" hidden />
         <h1>Usuarios</h1>
         <a class="btn btn-info" role="button" href="/newuser">Engadir</a>
         <label class="float-right">
@@ -18,6 +19,11 @@
         <ul class="mt-2" id="list">
             <li th:each="user: ${users}"><a th:text="${user.username}" th:href="|/user?id=${user.id}|"></a></li>
         </ul>
+        <div>
+            <p class="float-left btn btn-primary" onclick="move_list(false)">Anteriores</p>
+            <input id="count-field" title="Elementos por páxina" class="form-control float-left" th:value="${count}" type="number" style="max-width: 7%" hidden/>
+            <p class="float-right btn btn-primary" onclick="move_list(true)">Seguintes</p>
+        </div>
     </main>
 </body>
 </html>

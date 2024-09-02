@@ -24,7 +24,7 @@ public class Index {
 	public String index(HttpSession session, Model model) {
 		CommonView.setModel(model, session);
 		try {
-			model.addAttribute("templates", defaultApi.getAllTemplates());
+			model.addAttribute("templates", defaultApi.getAllTemplates(0, 10));
 		} catch (ApiException e) {
 			throw new InternalErrorException(e.getResponseBody());
 		}

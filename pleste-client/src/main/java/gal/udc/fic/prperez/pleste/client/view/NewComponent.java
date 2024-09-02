@@ -36,7 +36,7 @@ public class NewComponent {
 	public String newComponent(@RequestParam(name = "template", required = false) String templateIdParam, Model model, HttpSession session) {
 		if(templateIdParam == null) {
 			try {
-				templateIdParam = defaultApi.getAllTemplates().get(0).getId().toString();
+				templateIdParam = defaultApi.getAllTemplates(0, 1).get(0).getId().toString();
 			} catch (ApiException | NullPointerException e) {
 				throw new InternalErrorException(e.getMessage());
 			}
@@ -46,7 +46,7 @@ public class NewComponent {
 		model.addAttribute("selected_template", templateIdParam);
 
 		try {
-			model.addAttribute("templates", defaultApi.getAllTemplates());
+			model.addAttribute("templates", defaultApi.getAllTemplates(null, null));
 			model.addAttribute("fields", defaultApi.getTemplate(templateIdParam).getFields());
 		} catch (ApiException e) {
 			if(e.getCode() == HttpStatus.NOT_FOUND.value()) {
@@ -68,7 +68,7 @@ public class NewComponent {
 
 		if(templateIdParam == null) {
 			try {
-				templateIdParam = defaultApi.getAllTemplates().get(0).getId().toString();
+				templateIdParam = defaultApi.getAllTemplates(0, 1).get(0).getId().toString();
 			} catch (ApiException | NullPointerException e) {
 				throw new InternalErrorException(e.getMessage());
 			}

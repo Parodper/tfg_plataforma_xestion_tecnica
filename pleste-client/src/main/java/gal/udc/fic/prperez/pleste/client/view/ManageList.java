@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Objects;
 
@@ -19,11 +20,28 @@ public class ManageList {
 		this.defaultApi = defaultApi;
 	}
 
+	private final int DEFAULT_SKIP = 0;
+	private final int DEFAULT_COUNT = 10;
+
 	@GetMapping("/manageusers")
-	public String manageusers(Model model, HttpSession session) {
+	public String manageusers(Model model, HttpSession session,
+	                          @RequestParam(name = "skip", required = false) Integer skip,
+	                          @RequestParam(name = "count", required = false) Integer count) {
 		CommonView.setModel(model, session);
+
+
+		if (skip == null) {
+			skip = DEFAULT_SKIP;
+		}
+		if (count == null) {
+			count = DEFAULT_COUNT;
+		}
+
+		model.addAttribute("skip", skip);
+		model.addAttribute("count", count);
+
 		try {
-			model.addAttribute("users", defaultApi.getAllUsers().stream().map(u -> {
+			model.addAttribute("users", defaultApi.getAllUsers(skip, count).stream().map(u -> {
 				try {
 					return defaultApi.getUser(u.toString());
 				} catch (ApiException ignored) {
@@ -37,10 +55,23 @@ public class ManageList {
 	}
 
 	@GetMapping("/managetemplates")
-	public String managetemplates(Model model, HttpSession session) {
+	public String managetemplates(Model model, HttpSession session,
+	                              @RequestParam(name = "skip", required = false) Integer skip,
+	                              @RequestParam(name = "count", required = false) Integer count) {
 		CommonView.setModel(model, session);
+
+		if (skip == null) {
+			skip = DEFAULT_SKIP;
+		}
+		if (count == null) {
+			count = DEFAULT_COUNT;
+		}
+
+		model.addAttribute("skip", skip);
+		model.addAttribute("count", count);
+
 		try {
-			model.addAttribute("templates", defaultApi.getAllTemplates());
+			model.addAttribute("templates", defaultApi.getAllTemplates(skip, count));
 		} catch (ApiException e) {
 			throw new InternalErrorException(e.getMessage());
 		}
@@ -48,10 +79,23 @@ public class ManageList {
 	}
 
 	@GetMapping("/managecomponents")
-	public String managecomponents(Model model, HttpSession session) {
+	public String managecomponents(Model model, HttpSession session,
+	                              @RequestParam(name = "skip", required = false) Integer skip,
+	                               @RequestParam(name = "count", required = false) Integer count) {
 		CommonView.setModel(model, session);
+
+		if (skip == null) {
+			skip = DEFAULT_SKIP;
+		}
+		if (count == null) {
+			count = DEFAULT_COUNT;
+		}
+
+		model.addAttribute("skip", skip);
+		model.addAttribute("count", count);
+
 		try {
-			model.addAttribute("components", defaultApi.getAllComponents());
+			model.addAttribute("components", defaultApi.getAllComponents(skip, count));
 		} catch (ApiException e) {
 			throw new InternalErrorException(e.getMessage());
 		}

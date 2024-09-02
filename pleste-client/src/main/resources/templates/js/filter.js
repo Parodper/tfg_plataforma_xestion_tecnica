@@ -32,3 +32,18 @@ function change_results(from) {
 
     $("#search-form").submit();
 }
+
+const urlParams = new URLSearchParams(window.location.search);
+
+function move_list(next) {
+    skipField = $("#skip-field")
+    count = Number($("#count-field").val());
+    skip = Number(skipField.val()) + (next ? count : - count);
+
+    skipField.val(skip);
+
+    urlParams.set("skip", skip);
+    urlParams.set("count", count);
+
+    window.location.search = urlParams;
+}
