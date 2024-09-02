@@ -1,9 +1,6 @@
 package gal.udc.fic.prperez.pleste.service.search;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Predicate;
-
-public class Or extends BinaryNode {
+public class OrNode extends BinaryNode {
 	@Override
 	public String toString() {
 		return "(" + getChild().toString() + " OR " + getSecondChild().toString() + ")";

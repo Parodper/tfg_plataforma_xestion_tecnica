@@ -34,8 +34,8 @@ top: expresion EOF ; // EOF needed thanks to issue #118 on antlr/antlr4's GitHub
 
 expresion: test # ExpBase
 	| L_PAREN expresion R_PAREN # ExpComplex
-	| test AND expresion # ExpAnd
-	| test OR expresion # ExpOr ;
+	| expresion AND expresion # ExpAnd
+	| expresion OR expresion # ExpOr ;
 
 test: PROPERTY (STRING_NOT_MATCH | STRING_MATCH) STRING # TestString
 	| PROPERTY (NUMBER_GT_EQ | NUMBER_LT_EQ | NUMBER_NEQ | NUMBER_GT | NUMBER_LT | NUMBER_EQ) (NUMBER | DATETIME) # TestNum

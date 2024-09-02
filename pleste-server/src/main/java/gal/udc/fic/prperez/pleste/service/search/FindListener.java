@@ -1,7 +1,5 @@
 package gal.udc.fic.prperez.pleste.service.search;
 
-import gal.udc.fic.prperez.pleste.service.FindLexer;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.apache.commons.lang3.StringUtils;
 
 import gal.udc.fic.prperez.pleste.service.FindBaseListener;
@@ -81,7 +79,7 @@ public class FindListener extends FindBaseListener {
 
 	@Override
 	public void enterExpOr(FindParser.ExpOrContext ctx) {
-		Node current = new Or();
+		Node current = new OrNode();
 		appendNode(current);
 		stack.push(current);
 	}
@@ -93,7 +91,7 @@ public class FindListener extends FindBaseListener {
 
 	@Override
 	public void enterExpAnd(FindParser.ExpAndContext ctx) {
-		Node current = new And();
+		Node current = new AndNode();
 		appendNode(current);
 		stack.push(current);
 	}
