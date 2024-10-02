@@ -1,0 +1,292 @@
+%% https://tex.stackexchange.com/a/587535
+\newcommand{\newthreadShift}[4][gray!30]{
+  \newinst[#4]{#2}{#3}
+  \stepcounter{threadnum}
+  \node[below of=inst\theinstnum,node distance=0.8cm] (thread\thethreadnum) {};
+  \tikzstyle{threadcolor\thethreadnum}=[fill=#1]
+  \tikzstyle{instcolor#2}=[fill=#1]
+}
+
+\chapter{Seguridade: Autenticación e autorización}
+\label{chap:seguridade}
+
+Dentro da aplicación existen dous ámbitos de seguridade: o presente na parte servidor, e o presente na parte do cliente.
+
+\section{Servidor}
+
+Dentro do servidor, xúntanse autenticación e autorización. No servidor úsase Jakarta para xestionar a autorización, dentro da clase propia \texttt{AuthenticationManager}, etiquetada axeitadamente para que se poida incluír na cadea de filtros sen precisar de configuración. Esta clase implanta a interface \texttt{ContainerRequestFilter}, de xeito que Jakarta inclúea coma filtro cando recibe unha petición.\cite{jakartafilter}
+
+É aquí onde se decide se se permite o acceso, e se se continúa cos filtros ate chegar aos controladores, que son os que procesan as peticións REST. O algoritmo aquí usa, para decidir, o rol do usuario, a ruta e o método a acceder. Máis abaixo explicarase con detalle o proceso.
+
+Sen unha identificación válida, só se permite o acceso á ruta \texttt{/users/login} por POST, por precisarse para iniciar sesión.
+
+Os usuarios con rol ADMINISTRATOR teñen acceso ilimitado ao sistema, mentres que os usuarios co rol NORMAL\_USER teñen vedada a modificación de todo excepto compoñentes, polo tanto só poden acceder a:
+
+\begin{description}
+    \item[POST]
+        \begin{itemize}
+            \item \texttt{/users/(id)/logout}: Esta ruta precísase para pechar a sesión.
+            \item \texttt{/components/*}
+        \end{itemize}
+    \item[GET]
+        \begin{itemize}
+            \item \texttt{/users/*}
+            \item \texttt{/templates/*}
+        \end{itemize}
+\end{description}
+
+Como a xestión de usuarios é dominio exclusivo dos administradores, tampouco se lle permite a un técnico modificar o seu propio usuario. Enténdese que a creación do usuario responde a políticas empresariais, e probablemente en versións futuras dependa de sistemas de usuarios.
+
+O fluxo de inicio de sesión é o amosado no diagrama da figura \ref{fig:loginsrv}\footnote{O que hai entre parénteses é o corpo da petición}:
+
+\begin{figure}[H]
+    \centering
+\begin{sequencediagram}
+    \newthread{A}{Cliente}{}
+    \newthreadShift{B}{Servidor}{5}
+    \newthreadShift{C}{Base de datos}{3}
+    \postlevel 
+    \begin{call}{A}{\shortstack{POST /users/login?user=usuario \\ (contrasinal)}}{B}{200 OK (token)}
+        \begin{call}{B}{getUserByName}{C}{User}
+        \end{call}
+    \end{call}
+\end{sequencediagram}
+    \caption{Fluxo de inicio de sesión no servidor}
+    \label{fig:loginsrv}
+\end{figure}
+
+Tras recibir o usuario, se o contrasinal (enviado en texto plano e cifrado no servidor) coincide co gardado na base de datos, o servidor xera unha \Gls{testemuna} aleatoria\footnote{Xerada a partir da clase \texttt{Random} de Java} que devolve ao cliente. Se o contrasinal non coincide, ou non se atopou o usuario indicado, devólvese un código 404 e a mensaxe «\textit{User not found}».
+
+Despois diso todas as peticións enviarán a testemuña nunha cabeceira, chamada \texttt{X-API-KEY}. Esta cabeceira será comprobada, tal como se indicou arriba, polo filtro \texttt{AuthenticationManager}, que comprobará a súa validez e os permisos asignados ao usuario que a creou. Isto pode verse no diagrama da figura \ref{fig:authsrv}
+
+\begin{figure}[H]
+    \centering
+    \begin{sequencediagram}
+    \newthread{A}{Cliente}{}
+    \newthreadShift{B}{Servidor}{5}
+    \newthreadShift{C}{Base de datos}{3}
+    \postlevel 
+    \begin{call}{A}{
+        \shortstack{
+            Petición \\
+            X-API-HEADER: token}
+    }{B}{Resposta}
+        \begin{call}{B}{getUserByToken}{C}{User}
+        \end{call}
+    \end{call}
+\end{sequencediagram}
+    \caption{Fluxo de acceso á API}
+    \label{fig:authsrv}
+\end{figure}
+
+Se o filtro non atopa a testemuña na base de datos, devolverá unha mensaxe \texttt{404 Not Found}, mentres que se atopa a testemuña, pero o usuario asociado non ten o rol axeitado, devolverá unha mensaxe \texttt{403 Forbidden}.\footnote{Tal coma se indica na sección 6.5.3 do RFC 7321\cite{rfc7231}}
+
+Por último, só queda explicar a ruta \texttt{/users/(id)/logout}. Esta ruta, que precisa dunha testemuña válida para acceder, o único que fai é eliminar a testemuña que se lle pase polo corpo da mensaxe. Se non existe a testemuña baixo este usuario, devolve unha mensaxe \texttt{404 Not Found}. Polo tanto, o fluxo completo quedaría tal coma se indica no diagrama da figura \ref{fig:totalsrv}
+
+\begin{figure}[H]
+    \centering
+\begin{sequencediagram}
+    \newthread{A}{Cliente}{}
+    \newthreadShift{B}{Servidor}{5}
+    \postlevel
+    \begin{call}{A}{Iniciar sesión (Ver figura \ref{fig:loginsrv})
+    }{B}{Testemuña}
+    \setthreadbias{center}
+    \end{call}
+    \postlevel
+    \begin{sdblock}{Bucle}{}
+        \begin{call}{A}{Petición figura (Ver \ref{fig:authsrv})
+        }{B}{Resposta}
+        \end{call}
+    \end{sdblock}
+    \postlevel
+    \postlevel
+    \begin{call}{A}{
+        \shortstack{
+            POST  /users/(id)/logout \\
+            X-API-HEADER: token \\
+            (token)}
+    }{B}{204 No Content}
+    \end{call}
+\end{sequencediagram}
+    \caption{Proceso completo de acceso á API}
+    \label{fig:totalsrv}
+\end{figure}
+
+\section{Cliente}
+
+Na parte do cliente ambas, tanto a autenticación como a autorización, están xestiónaas Spring Security. Isto funciona mediante a implementación local de varias clases, que Spring encárgase de integrar no sistema.
+
+\newpage
+
+De xeito semellante ao servidor, o sistema baséase nunha serie de filtros\cite{springsecarch} que deciden se permiten ou non o acceso. Para un usuario externo, o proceso sería o seguinte:
+
+\begin{enumerate}
+    \item O usuario intenta acceder á ruta /
+    \item Spring invoca unha instancia da interface \texttt{Authorization\allowbreak{}Manager}, pasándolle coma obxecto un \texttt{Anonymous\allowbreak{}Authentication\allowbreak{}Token}
+    \item Se o \texttt{Authorization\allowbreak{}Manager} denega acceso, Spring redirixe ao usuario a unha ruta indicada para que inicie sesión, neste caso \texttt{/login}
+    \item Tras introducir as credenciais, Spring invoca unha instancia da clase \texttt{Authentication\allowbreak{}Provider}, pasándolle unha clase \texttt{Username\allowbreak{}Password\allowbreak{}Authentication\allowbreak{}Token}. Esta clase decide se as credenciais son correctas, e nese caso devolve unha autenticación.
+    \item O usuario rediríxese á páxina de inicio
+\end{enumerate}
+
+Tras isto, gárdase a testemuña dentro do almacenamento da sesión, e recupérase para facer peticións. Cada vez que o usuario acceda a unha nova ruta, Spring chamará a \texttt{Authorization\allowbreak{}Manager} antes de permitilo.
+
+No caso desta aplicación, todo isto configúrase na clase \texttt{pleste.\allowbreak{}client.\allowbreak{}Security\allowbreak{}Config}. Nesta clase defínese un método
+
+\begin{lstlisting}[language=Java]
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http,
+    AuthorizationManager<RequestAuthorizationContext> authorizationManager)
+    throws Exception {
+\end{lstlisting}
+
+que, usando unha DSL formada mediante métodos da clase \texttt{HttpSecurity} e usando o patrón construtor, permiten segregar os métodos de autorización segundo a ruta á que se acceda:
+
+\begin{lstlisting}[language=Java]
+return http.csrf(AbstractHttpConfigurer::disable)
+    .authorizeHttpRequests(
+        authorizationManagerRequestMatcherRegistry ->
+            authorizationManagerRequestMatcherRegistry
+                .requestMatchers("/login*").anonymous())
+\end{lstlisting}
+
+Todos os métodos de autorizar peticións seguen o mesmo formato: a ruta a comprobar dentro do lambda, seguido do tipo de acceso permitido. Neste caso, o acceso anónimo permite que só os usuarios que inda non iniciaron sesión poidan acceder ao formulario de inicio de sesión.
+
+\begin{lstlisting}[language=Java]
+    .authorizeHttpRequests(
+        authorizationManagerRequestMatcherRegistry ->
+            authorizationManagerRequestMatcherRegistry
+                .requestMatchers("/favicon*", "/logout*", "/css/*",
+                    "/js/*", "/error*").permitAll())
+\end{lstlisting}
+
+Aquí contrólanse certas rutas relacionadas con recursos (\textit{favicon}, CSS e JS) e cousas técnicas (\texttt{/logout} e \texttt{/error}). En todos estes casos permítese acceso indiscriminado, sen importar se se iniciou sesión ou non.
+
+\begin{lstlisting}[language=Java]
+    .authorizeHttpRequests(
+        authorizationManagerRequestMatcherRegistry ->
+            authorizationManagerRequestMatcherRegistry
+                .requestMatchers("/**").access(authorizationManager))
+\end{lstlisting}
+
+Esta é a regra por omisión. Para o resto de rutas, precísase iniciar sesión, usando a clase authorizationManager (inxectada por Spring mediante parámetro).
+
+\begin{lstlisting}[language=Java]
+    .formLogin(httpSecurityFormLoginConfigurer ->
+        httpSecurityFormLoginConfigurer
+            .loginPage("/login")
+            .successForwardUrl("/")
+            .failureForwardUrl("/login?error=true"))
+\end{lstlisting}
+
+Nesta parte indícaselle a Spring Security como funciona o formulario de inicio de sesión personalizado. Indícase a ruta a acceder en caso de non iniciar sesión (\texttt{/login}), a onde redirixir en caso de que o inicio de sesión funcione (\texttt{/}) e en caso de que non (\texttt{/login?error=true}).
+
+\begin{lstlisting}[language=Java]
+    .logout(
+        httpSecurityLogoutConfigurer -> httpSecurityLogoutConfigurer
+            .addLogoutHandler(new LocalLogoutHandler(defaultApi))).build();
+\end{lstlisting}
+
+Para rematar, tamén configúrase o peche de sesión. Neste caso engádese a clase que Spring chamará en caso de intentar acceder a \texttt{/logout}.
+
+Unha vez configurado todo, queda implementar as clases precisas para que a autenticación e autorización fágase mediante peticións REST ao servidor. Amósase de exemplo como sería o fluxo típico dun usuario accedendo á aplicación.
+
+\newpage
+
+Para iniciar sesión o fluxo sería o amosado no diagrama da figura \ref{fig:logincliente}:
+
+\begin{figure}[H]
+    \centering
+\begin{sequencediagram}
+    \newthread{U}{Usuario}{}
+    \newthreadShift{C}{Cliente}{5}
+    \newthreadShift{S}{Servidor}{5}
+    \begin{call}{U}{Acceder a /}{C}{Redirixe a /login}
+        \begin{call}{C}{Póde acceder a /?}{C}{Non}
+        \end{call}
+    \end{call}
+    \begin{call}{U}{Envía formulario de /login}{C}{Redirixe a /}
+        \begin{call}{C}{POST /users/login (ver figura \ref{fig:loginsrv})}{S}{200 OK (token)}            
+        \end{call}
+    \end{call}
+\end{sequencediagram}
+    \caption{Acceso á aplicación por parte dun usuario anónimo}
+    \label{fig:logincliente}
+\end{figure}
+
+Aquí encárgase de iniciar sesión a clase \texttt{Local\allowbreak{}Authentication\allowbreak{}Provider}, que implementa a interface \texttt{Authentication\allowbreak{}Provider}. Esta clase é a encargada de, tras recibir o usuario e contrasinal dende o formulario de inicio de sesión, comunicarse co servidor e validar os datos do usuario. Tras facer isto, garda no almacenamento da sesión o nome de usuario, id e testemuña para uso futuro. Para gardar o resultado da autenticación creouse unha clase \texttt{Local\allowbreak{}Authentication}, que implementa a interface \texttt{Authentication} esta clase só é un almacén de datos compatible cos subsistemas do módulo de \textit{Spring Security}.
+
+Unha vez iniciada sesión, calquera ruta na que intente acceder o cliente seguirá o proceso amosado no diagrama da figura \ref{fig:normalcliente}:
+
+\begin{figure}[H]
+    \centering
+\begin{sequencediagram}
+    \newthread{U}{Usuario}{}
+    \newthreadShift{C}{Cliente}{5}
+    \newthreadShift{S}{Servidor}{5}
+    \begin{call}{U}{Acceso a unha ruta}{C}{Devolve  vista}
+        \begin{call}{C}{LocalAuthorizationManager}{C}{AuthorizationDecision(true)}
+            \begin{call}{C}{GET /users/(id)/role}{S}{200 OK (TypeRole)}
+            \end{call}
+        \end{call}
+    \end{call}
+\end{sequencediagram}
+    \caption{Uso típico no cliente}
+    \label{fig:normalcliente}
+\end{figure}
+
+\newpage
+
+Neste proceso, Spring Security chama á clase \texttt{Local\allowbreak{}Authorization\allowbreak{}Manager}, que implementa a interface \texttt{Authorization\allowbreak{}Manager}. Esta clase encárgase de buscar o rol do usuario actual, usando para iso o usuario que Spring lle pasa mediante un parámetro \texttt{Local\allowbreak{}Authentication}, e comprobando que o dito rol pode acceder á ruta indicada. Unha vez confirmado isto, devolve unha instancia da clase \texttt{Authorization\allowbreak{}Decision(true)} afirmando que o usuario pode acceder ao recurso. Feito isto, Spring continúa procesando a petición e devolve a vista axeitada (para máis información, consulte o capítulo \ref{chap:gui}).
+
+Para rematar, amósase o fluxo de peche de sesión no diagrama da figura \ref{fig:logoutcliente}:
+
+\begin{figure}[H]
+    \centering
+\begin{sequencediagram}
+    \newthread{U}{Usuario}{}
+    \newthreadShift{C}{Cliente}{5}
+    \newthreadShift{S}{Servidor}{5}
+    \begin{call}{U}{Preme en «Pechar Sesión»}{C}{Redirixe a /login}
+        \begin{call}{C}{POST /users/(id)/logout (token)}{S}{204 No Content)}            
+        \end{call}
+    \end{call}
+\end{sequencediagram}
+    \caption{Pechar sesión}
+    \label{fig:logoutcliente}
+\end{figure}
+
+Neste caso tamén intervén unha clase propia, \texttt{Local\allowbreak{}Logout\allowbreak{}Handler}, que implementa a interface \texttt{Logout\allowbreak{}Handler}. Esta clase o único que fai é facer unha petición ao servidor para que elimine a testemuña (véxase o final da figura \ref{fig:totalsrv}), e limpa o almacenamento da sesión. Sexa como for, Spring Security da por rematada a sesión e volve tratar o usuario coma anónimo.
+
+Todo isto xunto da, coma fluxo final, o amosado no diagrama da figura \ref{fig:totalcliente}:
+
+\begin{figure}[htbp]
+    \centering
+\begin{sequencediagram}
+    \newthread{U}{Usuario}{}
+    \newthreadShift{C}{Cliente}{5}
+    \newthreadShift{S}{Servidor}{5}
+    \begin{call}{U}{Acceder a /}{C}{Redirixe a /login}
+        \begin{call}{C}{Póde acceder a /?}{C}{Non}
+        \end{call}
+    \end{call}
+    \begin{call}{U}{Envía formulario de /login}{C}{Redirixe a /}
+        \begin{call}{C}{POST /users/login}{S}{200 OK (token)}            
+        \end{call}
+    \end{call}
+    \begin{sdblock}{Bucle}{Todos os accesos seguen este proceso}
+        \begin{call}{U}{Acceso a unha ruta}{C}{Devolve  vista}
+            \begin{call}{C}{LocalAuthorizationManager}{C}{AuthorizationDecision(true)}
+                \begin{call}{C}{GET /users/(id)/role}{S}{200 OK (TypeRole)}
+                \end{call}
+            \end{call}
+        \end{call}
+    \end{sdblock}
+    \begin{call}{U}{Preme en «Pechar Sesión»}{C}{Redirixe a /login}
+        \begin{call}{C}{POST /users/(id)/logout (token)}{S}{204 No Content)}            
+        \end{call}
+    \end{call}
+\end{sequencediagram}
+    \caption{Uso típico no cliente}
+    \label{fig:totalcliente}
+\end{figure}

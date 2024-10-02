@@ -1,0 +1,21 @@
+digraph "Diagrama de clases" {
+
+splines = ortho;
+
+node [colorscheme = ylgnbu4, shape = none, margin = 0];
+edge [colorscheme = dark28, dir = both];
+
+Component [label = <<TABLE><TR><TD>Component</TD></TR><TR><TD>id : Long<BR />description : String<BR />name : String</TD></TR></TABLE>>];
+Field [label = <<TABLE><TR><TD>Field</TD></TR><TR><TD>id : Long<BR />content : String<BR />name : String</TD></TR></TABLE>>];
+Template [label = <<TABLE><TR><TD>Template</TD></TR><TR><TD>id : Long<BR />description : String<BR />name : String</TD></TR></TABLE>>];
+TemplateField [label = <<TABLE><TR><TD>TemplateField</TD></TR><TR><TD>id : Long<BR />mandatory : boolean<BR />name : String<BR />type : FieldTypes</TD></TR></TABLE>>];
+Token [label = <<TABLE><TR><TD>Token</TD></TR><TR><TD>id : Long<BR />token : String</TD></TR></TABLE>>];
+User [label = <<TABLE><TR><TD>User</TD></TR><TR><TD>id : Long<BR />email : String<BR />password : String<BR />role : Roles<BR />username : String</TD></TR></TABLE>>];
+
+Component -> Field [color = "##595959", style = solid , arrowtail = none , arrowhead = tee , taillabel = "0..1", label = "", headlabel = "0..*"];
+Component -> Template [color = "##595959", style = solid , arrowtail = none , arrowhead = tee , taillabel = "0..*", label = "", headlabel = "1"];
+Field -> TemplateField [color = "##595959", style = solid , arrowtail = none , arrowhead = tee , taillabel = "0..1", label = "", headlabel = "1"];
+Template -> TemplateField [color = "##595959", style = solid , arrowtail = none , arrowhead = tee , taillabel = "0..1", label = "", headlabel = "0..*"];
+Token -> User [color = "##595959", style = solid , arrowtail = none , arrowhead = tee , taillabel = "0..*", label = "", headlabel = "0..1"];
+
+}

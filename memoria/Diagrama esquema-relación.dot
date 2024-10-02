@@ -1,0 +1,63 @@
+digraph "Diagrama esquema-relación" {
+layout=neato;
+
+node [colorscheme = ylgnbu4, shape = none, margin = 0];
+edge [colorscheme = dark28, dir = both];
+
+node [shape=box];
+Usuarios;
+Modelos;
+Compoñentes;
+Campos[peripheries=2];
+Datos[peripheries=2];
+node [shape=ellipse];
+{node [label="nome"] nome0[label=<<U>nome</U>>]; nome1; nome2[label=<<U>nome</U>>]; nome3[label=<<U>nome</U>>];};
+{node [label="descripción"] descripcion0; descripcion1;};
+contrasinal; rol;
+tipo; contido;
+id[label=<<U>id</U>>];
+node [shape=diamond,style=filled,color=lightgrey];
+CD[label="Contén",peripheries=2,color=""];
+MCa[label="Contén",peripheries=2,color=""];
+MC[label="Baseados en"];
+DC[label="Ligazón a"];
+UM[label="Crea e modifica"];
+UC[label="Crea e modifica"];
+CaD[label="Deriva de",peripheries=2,color=""];
+
+Modelos -> MCa [label="1",len=1.25,arrowhead=none,arrowtail=none];
+MCa -> Campos [label="n",len=1.50,arrowhead=none,arrowtail=none,color="black:black"];
+
+Modelos -> MC [label="n",len=1.50,arrowhead=none,arrowtail=none];
+MC -> Compoñentes [label="1 ",len=1.50,arrowhead=none,arrowtail=none,color="black:black"];
+
+Compoñentes -> CD [label="1 ",len=1.50,arrowhead=none,arrowtail=none];
+CD -> Datos [label="n",len=1.50,arrowhead=none,arrowtail=none,color="black:black"];
+
+Datos -> DC [label="n",len=2.00,arrowhead=none,arrowtail=none];
+DC -> Compoñentes [label="m",len=2.00,arrowhead=none,arrowtail=none];
+
+Campos -> CaD [label="1 ",arrowhead=none,arrowtail=none];
+CaD -> Datos [label="n",arrowhead=none,arrowtail=none,color="black:black"];
+
+Usuarios -> UM [label="n",len=1.50,arrowhead=none,arrowtail=none];
+UM -> Modelos [label="m",len=1.50,arrowhead=none,arrowtail=none,color="black:black"];
+Usuarios -> UC [label="n",len=1.50,arrowhead=none,arrowtail=none];
+UC -> Compoñentes [label="m",len=1.50,arrowhead=none,arrowtail=none,color="black:black"];
+
+nome0 -> Usuarios[arrowhead=none,arrowtail=none];
+nome1 -> Compoñentes[arrowhead=none,arrowtail=none];
+nome2 -> Modelos[arrowhead=none,arrowtail=none];
+nome3 -> Campos[arrowhead=none,arrowtail=none];
+
+descripcion0 -> Modelos[arrowhead=none,arrowtail=none];
+descripcion1 -> Compoñentes[arrowhead=none,arrowtail=none];
+
+id -> Compoñentes[arrowhead=none,arrowtail=none];
+
+contrasinal -> Usuarios[arrowhead=none,arrowtail=none];
+rol -> Usuarios[arrowhead=none,arrowtail=none];
+
+tipo -> Campos[arrowhead=none,arrowtail=none];
+contido -> Datos[arrowhead=none,arrowtail=none];
+}

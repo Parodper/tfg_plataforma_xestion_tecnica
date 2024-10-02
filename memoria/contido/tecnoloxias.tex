@@ -1,0 +1,121 @@
+\chapter{Tecnoloxías empregadas}
+\label{chap:tecnoloxias}
+
+As tecnoloxías empregadas foron:
+
+\begin{itemize}
+    \item Para ambas partes:
+        \begin{itemize}
+            \item Java
+            \item Spring Boot
+            \item Maven
+            \item OpenAPI
+            \item Docker
+        \end{itemize}
+    \item Só na parte de servidor:
+        \begin{itemize}
+            \item Hibernate/JPA
+            \item Tomcat
+            \item Jakarta RESTFull Web Services (JAX-RS)
+            \item Swagger Codegen, para xerar a definición \Gls{openapi} a partir da interface JAX-RS
+            \item JUnit5
+            \item ANTLR4
+        \end{itemize}
+    \item Só na parte de cliente:
+        \begin{itemize}
+            \item Spring MVC
+            \item Spring Security
+            \item Swagger Codegen, para xerar un cliente REST a partir dunha definición \Gls{openapi}
+            \item Thymeleaf
+            \item Bootstrap
+        \end{itemize}
+    \item Ferramentas:
+    	\begin{itemize}
+    		\item IntelliJ
+    		\item Git
+    		\item Overleaf/TeXstudio e \LaTeX
+    	\end{itemize}
+\end{itemize}
+
+A principal métrica á hora de buscar ferramentas foi a simplicidade na integración, buscando sempre a máxima automatización e evitando a repetición de código.
+
+A linguaxe de programación Java foi escollida pola súa familiaridade, froito do seu uso continuado durante a carreira, especialmente durante as prácticas en empresa, onde tiven a oportunidade de empregar algunhas das tecnoloxías usadas neste proxecto: Spring e OpenAPI\cite{openapi}. Spring é un conxunto de bibliotecas que expanden Java de moitos xeitos distintos, aforrando traballo e automatizando moitas tarefas, por exemplo mediante a inxección de dependencias, que crea instancias de clases automaticamente con só definilas como parámetros dunha función ou construtor. Neste proxecto úsanse os módulos Spring Boot, que xestiona o ciclo de vida dunha aplicación; Spring MVC, que permite a creación de aplicacións usando a arquitectura Modelo-Vista-Controlador; e Spring Security, que xestiona a autenticación e autorización da aplicación mediante unha API adaptable.
+
+Ambos os módulos están empaquetados en contedores Docker. Para reducir o tamaño dos contedores, estruturáronse en dúas etapas. A primeira etapa, baseada nun contedor base con maven e o JDK 17, encárgase de compilar o código e xerar o JAR resultante usando a orde \texttt{mvn package spring-boot:repackage}. A segunda etapa, baseada nun contedor base só co JRE 17, encárgase de coller o JAR da primeira etapa, copialo ao cartafol correcto e definir o punto de entrada do programa.
+
+Un \texttt{compose.yml} na raíz do proxecto encárgase de xuntar e conectar os contedores de cada módulo. Xunto cun contedor de PostgreSQL, defínense 3 servizos divididos en dúas redes: unha para o «\textit{backend}», coa base de datos de PostgreSQL e o servizo \textit{pleste-server}, e outra para o «\textit{frontend}» cos servizos de \textit{pleste-server} e \textit{pleste-client}. Tamén se define un contedor para a base de datos de PostgreSQL. A creación dos dous contedores precisa facerse por separado, por mor de que \textit{pleste-client} precisa de conectarse a \textit{pleste-server} para descargar a definición de OpenAPI, pero o módulo de compilación usado por Docker non permite o acceso á rede, nin a definición de dependencias en tempo de compilación. Por isto, o primeiro que se fai é compilar e activar o contedor de \textit{pleste-server}:
+
+\begin{lstlisting}[language=bash]
+docker compose up -d pleste-server 
+\end{lstlisting}
+
+\newpage
+
+Porén, inda que o servidor estea activo, precisa accederse dende o compilador en tempo de execución. Como o novo módulo de compilación de Docker non permite acceder a redes de Docker\cite{dockernetwork}, hai que forzar o uso do módulo de compilación antigo:
+
+\begin{lstlisting}[language=bash]
+DOCKER_BUILDKIT=0 docker compose build pleste-client
+\end{lstlisting}
+
+Outra solución sería modificar o \texttt{pom.xml} de \textit{pleste-client} para que faga conexión co servidor mediante a rede externa de Docker. Decidiuse deste outro xeito para depender o mínimo do entorno anfitrión.
+
+\section{Servidor}
+\label{sec:tec_servidor}
+
+Para a parte do servidor úsase a plataforma de \textit{Jakarta RESTful Web Services} para implementar unha interface REST a partir dunha interface Java (referida neste caso ao conxunto de métodos públicos dunha clase) normal, aproveitándoa para xerar automaticamente o código para escoitar peticións HTTP, e chamar ás funcións axeitadas segundo o método e ruta da petición. Para automatizar a xeración de clientes, engadiuse tamén o xerador de OpenAPI, que permite xerar un documento JSON.
+
+Para a API escolleuse HTTP con JSON pola súa simplicidade de funcionamento e integración con Jakarta, popularidade e transparencia. Isto permite, entre outras, comprobar o correcto funcionamento cun inspector de paquetes. HTTP é un protocolo cliente/servidor de nivel de aplicación que permite o intercambio de documentos  mediante o envío de mensaxes\cite{rfc9112}. Estas mensaxes conteñen cabeceiras en texto que definen os metadatos do corpo da mensaxe, se os houber. Para o cliente existen varios tipos de mensaxes, pero neste proxecto úsanse as mensaxes GET, POST, PUT e DELETE; cada mensaxe ten unha semántica distinta e unha serie de posibles respostas do servidor\cite{rfc7231}. Inda que orixinalmente orientado ao envío de documentos de texto, é posible usar eses mesmos verbos para crear interfaces remotas, usando JSON para o envío de datos estruturados dentro dos corpos das mensaxes.\cite{rest} A documentación da semántica de cada mensaxe e a súa resposta forma a especificación OpenAPI.\cite{jpaquery}
+
+Para o almacenamento e xestión da información, úsase como base de datos relacional PostgreSQL. Para acceder á base de datos incluíuse o «\textit{framework}» \textit{Hibernate}, unha implementación da interface \acrshort{JPA} que permite xerar peticións SQL a partir de etiquetas en obxectos Java, xestionando tamén as sesións, creación e actualización das táboas, mediante unha interface \acrshort{CRUD}. Estas interfaces fan peticións sen precisar escribir código SQL, usando os nomes dos métodos nas interfaces para identificar que teñen que facer. Tampouco precisan unha clase que as implemente, abonda con usar Spring para inxectar as dependencias precisas. Para que sexa inda máis sinxelo, úsase unha clase \texttt{SQLDaoFactoryUtil} que, tamén mediante Spring, inicializase a si mesma e da acceso a todas as interfaces.
+
+PostgreSQL é unha base de datos relacional, de código aberto e orientada aos ámbitos empresariais e para pequenos usuarios.\cite{postgres} Esta é unha base de datos axeitada para a carga de traballo pensada, e ademais permite unha escalabilidade que evitará que sexa un posible colo de botella no futuro. Pensouse en usar unha base de datos non relacional, especialmente á hora de modelar o polimorfismo nos campo dos compoñentes, pero rexeitouse por mor da súa complexidade e dificultade de integración co sistema xa montado en Hibernate.
+
+Para xuntar \textit{Hibernate}, Jakarta e correr o servidor web que esta última precisa, incluíuse o «\textit{framework}» \textit{Spring Boot} con Tomcat, o servidor predeterminado en Spring. Ademais, \textit{Spring Boot} serve para realizar a inxección de dependencias.
+
+Porén, o xeito de integrar Hibernate e os puntos REST nas mesmas clases de Java causa certas incompatibilidades e engadiu complexidade aos métodos responsables das peticións.
+
+Os dous principais problemas relaciónanse por como Hibernate xestiona as claves foráneas. O primeiro é que Hibernate intenta reducir as peticións ás bases de datos e só inxectar os atributos cando se usen; ao serializar a JSON estas clases teñen os atributos como nulos e aparecen métodos «pantasma», que son os que inxectan os atributos pero que Jakarta non sabe serializar. O segundo é que, por omisión, serialízanse os atributos non primitivos como clases completas, o que é ineficiente se só se precisan algúns poucos atributos, ou mesmo só o ID.
+
+Tamén engadíronse probas unitarias que comproban o funcionamento da parte servidor da aplicación, usando JUnit e integrando Spring para a inxección de dependencias. E realizáronse probas de integración de xeito manual, probando todas as funcionalidades da aplicación mediante un navegador web e CURL.
+
+Para a parte de busca valoráronse 3 tecnoloxías: desenvolver un módulo de análise léxico e sintáctico propio, usar ANTLR\cite{antlr} ou JavaCC\cite{javacc}. Desenvolver un módulo propio descartouse pola súa complexidade e problemas que pode dar ante casos de uso pouco probables, pero que poderían amosar fallos en partes do código difíciles de probar pola gran cantidade de posibles entradas. Entre JavaCC e ANTLR, valorouse que ambas teñen integración con Maven. Porén, decidiuse usar ANTLR pola súa sintaxe para definir gramáticas, que é máis sinxela e seméllase máis á forma Backus-Naur, mentres que a sintaxe de JavaCC aseméllase máis á de Java.
+
+Con ANTLR, tras xerar as clases axeitadas a partir da definición, existen dous xeitos de recorrer a árbore de sintaxe que crea\cite{visitor}: un \texttt{Listener}, e un \texttt{Visitor}. Ambos recorren a árbore en profundidade, pero de xeito distinto. Un \texttt{Listener} presenta unha interface con dous métodos por cada regra sintáctica, un que executa ao entrar na regra, e outro ao saír dela. Pola outra banda, un \texttt{Visitor} só ten un método por regra, que executa ao entrar na regra e que sae da regra ao devolver o método. Isto fai que o programador poida decidir se entrar ou non nos nodos fillo, e de que xeito.
+
+\section{Cliente}
+
+No cliente usáronse os «\textit{framework}» \textit{Spring Boot} e \textit{Spring MVC}. \textit{Spring Boot} forma a base da aplicación, que despois \textit{Spring MVC} aproveita para construír unha interface de usuario usando o patrón «\textit{\acrlong{MVC}}». No caso desta aplicación, a «Vista» corresponde coas páxinas web, que están ligadas a unhas clases «Controladoras» que son as que reciben as peticións HTTP e as procesan, chamando ao modelo segundo precisen.
+
+Para facer a parte de «Modelo» usouse a mesma ferramenta de xeración de OpenAPI que a usada no servidor. Esta ferramenta permite que, unha vez configurado o enderezo do que obter o ficheiro \texttt{openapi.json}, recrear a interface Java do servidor coma se for unha dependencia máis de Maven, xestionando o xerador toda a parte de abrir a conexión HTTP, acceder ás rutas axeitadas e serializar e deserializar os obxectos de JSON a Java. Grazas a isto, o uso da API faise de xeito practicamente nativo, tendo algunhas dificultades á hora de traballar coas excepcións, que o xerador colapsa nunha clase \texttt{ApiException} da que despois hai que extraer os códigos de fallo correspondentes.
+
+Para facer a interface con HTML usouse o motor de modelado Thymeleaf, que intégrase ben con Spring Boot. Para o deseño das páxinas incluíuse o «\textit{framework}» Bootstrap, principalmente a súa parte de CSS, para mellorar o deseño e adaptabilidade das páxinas.
+
+\section{Autenticación e seguridade}
+\label{sec:seguridade}
+
+O sistema de seguridade baséase en dúas tecnoloxías distintas, unha no servidor e outra no cliente:
+
+No caso do servidor, a seguridade proporciónaa Jakarta. Poderíase usar Spring Security tamén aquí, pero ao usar as etiquetas de Jakarta, Spring da problemas á hora de interceptar as peticións.
+
+No lado do cliente, a seguridade é traballo de Spring Security. Este módulo encárgase de todo, dende interceptar as peticións, redirixir á páxina de inicio de sesión e, se se aproveitan as clases incluídas no módulo, almacenar credenciais, autenticalas e autorizalas sen ter que escribir código propio.
+
+Isto explícase máis detallado no capítulo \ref{chap:seguridade}.
+
+\newpage
+
+\section{Ferramentas}
+\label{sec:ferramentas}
+
+Neste traballo usáronse varias ferramentas non mencionadas anteriormente:
+
+\subsection{IntellIJ}
+
+Escolleuse o IDE de IntelliJ pola sua completitude e integración, non só coa linguaxe Java, se non tamén coas bibliotecas de Spring, Hibernate, JUnit, Jakarta e Thymeleaf.\cite{intellij}ç
+
+\subsection{Git}
+
+Como sistema de control de versións escolleuse Git, e especialmente a plataforma de GitHub para gardar o proxecto. Git é practicamente o único sistema de control de versións, polo que a súa elección foi sinxela. Escolleuse a plataforma de GitHub por estar xa integrada co correo corporativo doutras materias previas.
+
+\subsection{Overleaf/TeXstudio e \LaTeX}
+
+O deseño da memoria baseouse no modelo en \LaTeX da Facultade. Usouse tanto a plataforma de Overleaf como, cando esta non funcionaba, o programa TeXstudio.

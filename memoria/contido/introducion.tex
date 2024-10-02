@@ -1,0 +1,26 @@
+\chapter{Introdución}
+\label{chap:introducion}
+
+\section{Contexto e motivación}
+
+Unha parte importante do labor dun técnico de sistemas é o control e seguimento das distintas e misceláneas plataformas que poden atoparse no seno dunha organización típica.
+
+Porén, a falta dun sistema de seguimento axeitado, o persoal técnico vese na obriga de usar outros métodos para gardar e controlar esta información, normalmente en sistemas \textit{ad hoc} e non estruturados, o que dificulta a súa adaptación a circunstancias cambiantes, e cunha pobre documentación que limita e dificulta o paso deste sistema entre persoal. Todo isto representa un importante custo e risco a calquera organización,\cite{nyt} inda máis a unha orientada a ofrecer un servizo público. Esta plataforma nace co obxectivo de axudar nesta labor, e axilizar a xestión da infraestrutura dunha empresa.
+
+\section{Obxectivos do traballo}
+
+O obxectivo deste traballo é desenvolver unha plataforma que permita realizar o traballo previamente descrito dun xeito sinxelo, adaptable ás circunstancias de cada aplicación posible, evitando todo o posible restrinxir e obstaculizar o labor do persoal técnico. Por mor disto, a plataforma deberá ser sinxela de usar e fácil de acceder. A plataforma céntrase na xestión de activos, pero tamén lle dedica parte á xestión dos usuarios que a van usar. Todo isto desenvólvese máis amplamente no capítulo \ref{chap:deseno}.
+
+\section{Estrutura da memoria}
+
+Esta memoria estrutúrase dun xeito relativamente temático, pasando de capítulos máis teóricos e organizativos, dedicados á organización do traballo (capítulo \ref{chap:metodoloxia}) e o deseño acadado nel (capítulos \ref{chap:deseno} e \ref{chap:gui}), seguindo con capítulos máis prácticos, nos cales explícanse os detalles técnicos do proxecto (capítulo \ref{chap:arquitectura}) e o funcionamento do sistema de seguridade (capítulo \ref{chap:seguridade}).
+
+Remátase cunha conclusión do traballo e unha serie de melloras posibles para desenvolvementos posteriores (capítulo \ref{chap:conclusions}).
+
+\section{Proxectos previos}
+
+Existen moitas \Gls{ITAMg} (\acrlong{ITAM}) dispoñibles, a meirande parte aplicacións web, tanto de código aberto coma pechado. De código aberto consultáronse as plataformas \textbf{Snipe-IT}\footnote{\url{https://demo.snipeitapp.com/}} e \textbf{PartKeepr}\footnote{\url{https://demo.partkeepr.org/}}.
+ 
+Snipe-IT presenta unha plataforma cunha serie de categorías, como poden ser «Consumibles», «Activos» ou «Licenzas». Cada unha destas categorías ten unha serie de campos, como pode ser custo nos activos ou cantidade restante nos consumibles. A pantalla principal da aplicación presenta unha serie de gráficas que resumen o estado dos dispositivos, cantos hai de cada categoría, etc. PartKeepr presenta unha interface máis típica dunha aplicación de escritorio. Ten unha estrutura de categorías en árbore modificables, dentro das cales pódense crear dous tipos de obxectos. As partes son compoñentes normais, con moitos campos (existencias, condición, prezo, distribuidoras, etc.), mentres que unha «metaparte» só inclúe o nome, a categoría, as unidades de medida das existencias e unha serie de filtros que agrupa as partes que cumpren esas condicións.
+
+Os sistemas de ITAM existentes tamén integran diferentes funcionalidades non directamente relacionadas coa xestión de activos\cite{forbes}, como pode ser a xestión de incidencias e control remoto. Outras, como pode ser GoCodes\footnote{\url{https://gocodes.com/}}, inclúen códigos QR que permiten consultar a información referente a un compoñente. Estas ferramentas non están especialmente orientadas ao ámbito tecnolóxico, senón que tamén permiten xestionar compoñentes misceláneas, como poden ser recursos das oficinas ou ferramentas.\footnote{Como exemplo dunha plataforma que fai todo isto, véxase \href{https://www.assetpanda.com/solutions/education/}{Assetpanda}}

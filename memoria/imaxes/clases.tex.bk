@@ -1,0 +1,66 @@
+\begin{tikzpicture}
+	\begin{umlpackage}{dto}
+		\begin{umlpackage}{template}
+			\umlclass{Template}{
+				id : long \\
+				name : String \\
+				description : String \\
+				fields : TemplateField[0..*]
+			}
+			\umlclass{TemplateField}{
+				id : long \\
+				name : String \\
+				mandatory : boolean \\
+				type : FieldTypes
+			}
+			\umlenum{FieldTypes}{
+				TEXT \\
+				DATETIME \\
+				LINK \\
+				NUMBER
+			}
+		\end{umlpackage}
+		\begin{umlpackage}
+			\umlclass{Compoñente}{
+				id : long \\
+				name : String \\
+				description : String \\
+				fields : Field[0..*] \\
+				template : Template
+			}
+			\umlabstract{Field}[template=T]{
+				id : long \\
+				type : FieldTypes \\
+				templateField : TemplateFields \\
+				content : T
+			}{
+				getContent() : T \\
+				setContent(content : T) : void
+			}
+			\umlclass{NumberField}{
+				number\_content : BigDecimal
+			}{
+				getContent() : BigDecimal \\
+				setContent(content : BigDecimal) : void
+			}
+			\umlclass{DatetimeField}{
+				datetime\_content : JSONDatetime
+			}{
+				getContent() : JSONDatetime \\
+				setContent(content : JSONDatetime) : void
+			}
+			\umlclass{LinkField}{
+				link_content : Component
+			}{
+				getContent() : Component \\
+				setContent(content : Component) : void
+			}
+			\umlclass{TextField}{
+				text_content : String
+			}{
+				getContent() : String \\
+				setContent(content : String) : void
+			}
+		\end{umlpackage}
+	\end{umlpackage}
+\end{tikzpicture}

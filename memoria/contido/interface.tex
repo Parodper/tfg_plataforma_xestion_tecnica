@@ -1,0 +1,137 @@
+\chapter{Interface gráfica}
+\label{chap:gui}
+
+A interface gráfica está estruturada coma unha páxina web. Cada ruta representa unha funcionalidade diferente, primando a simplicidade e lixeireza das páxinas web fronte a unha interactividade excesiva, típica dunha \acrshort{SPA}.
+
+Aparte da páxina de inicio (ver figura \ref{fig:inicio2}), existen 12 páxinas principais: 4 por cada tipo de compoñente. Estas son:\footnote{Non se intentou seguir ningunha arquitectura ao deseñar as rutas das páxinas, ao considerarse un detalle interno de implementación}
+
+\begin{itemize}
+	\item Para os modelos:
+	\begin{itemize}
+		\item /newtemplate (figura \ref{fig:creart})
+		\item /edittemplate?id=(id do modelo) (mesmo deseño ca \texttt{/newtemplate}, pero cos campos xa con texto)
+		\item /managetemplates (figura \ref{fig:mt})
+		\item /displaytemplate?id=(id do modelo)
+	\end{itemize}
+	\item Para os compoñentes:
+	\begin{itemize}
+		\item /newcomponent?template=(id do modelo base) (figura \ref{fig:crearc})
+		\item /editcomponent?id=(id do compoñente) (mesmo deseño ca \texttt{/newcomponent}, pero cos campos xa con texto)
+		\item /managecomponents (figura \ref{fig:mc})
+		\item /displaycomponent?id=(id do compoñente) (figura \ref{fig:creadoc2})
+	\end{itemize}
+	\item Para os usuarios:
+	\begin{itemize}
+		\item /newuser (figura \ref{fig:crearu})
+		\item /edituser?id=(id do usuario) (mesmo deseño ca \texttt{/newuser}, pero cos campos xa con texto)
+		\item /manageusers (figura \ref{fig:mu})
+		\item /displayuser?id=(id do usuario) (figura \ref{fig:creadou})
+	\end{itemize}
+\end{itemize}
+
+Pódese acceder a calquera desas rutas mediante os botóns que se atopan en todas as páxinas. Ademais, a cabeceira da páxina contén un menú despregable que permite saltar rapidamente ás seccións importantes.
+
+Por suposto, antes de poder acceder á aplicación en si é preciso iniciar sesión. Pódese ver na figura \ref{fig:login} como é a pantalla de inicio de sesión.
+
+\section{Funcionamento de \textit{Spring MVC}}
+
+No contexto de Spring MVC, os tres compoñentes implantase de xeito totalmente distinto:
+
+\subsection{Modelo}
+
+A parte de modelo é completamente interna a Spring. Este módulo encárgase de crear os obxectos asociados ao modelo, pasándoos aos compoñentes que precisen automaticamente.
+
+\subsection{Vista}
+
+Nesta parte é onde se aplica o sistema de modelado Thymeleaf. Para usalo, engádese o espazo de nomes de Thymeleaf á páxina que se vai usar. As páxinas HTML créanse no cartafol \texttt{resources/templates}. Thymeleaf permite incluír a información do modelo dentro da páxina, accedendo á información dentro duns atributos especiais, ademais de permitir usar construcións típicas de linguaxes de programación, como poden ser as condicións e os bucles. Amósase coma exemplo a páxina de inicio da aplicación:
+
+\begin{lstlisting}[language=HTML]
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="gl">
+\end{lstlisting}
+
+Thymeleaf precisa de incluír este espazo de nomes para poder usar os seus atributos propios
+
+\newpage
+
+\begin{lstlisting}[language=HTML]
+<head>
+<title>pleste: PLataforma de xEstión de configuraciónS TÉcnicas</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<th:block th:insert="~{includes}" />
+</head>
+<body>
+<header th:insert="~{header}"></header>
+\end{lstlisting}
+
+Thymeleaf permite incluír outras páxinas, e deste xeito reutilizar elementos comúns usando o atributo \texttt{insert}.
+
+\begin{lstlisting}[language=HTML]
+<main class="container mt-5">
+<a class="btn btn-info" role="button" href="/newtemplate">Crear un novo modelo</a>
+<h2>Modelos xa creados</h2>
+<ul>
+<li th:each="template: ${templates}"><a th:href="|/template?id=${template.id}|" th:text="|Modelo ${template.name} (nº ${template.id})|"></a></li>
+</ul>
+</main>
+</body>
+</html>
+\end{lstlisting}
+
+Nesta sección inclúese un bucle. O bucle defínese usando o atributo \texttt{each}, que inclúe o nome do elemento iterado e, usando a sintaxe para acceder ao modelo (\texttt{\$\{atributo\}}), a lista. Con isto, Thymeleaf repetirá ese elemento HTML tantas veces coma elementos conteña a lista, asignando o valor á variable \texttt{template}. Para que a etiqueta \texttt{<a>} poida usar os valores da variable, precísanse engadir os campos propios de Thymeleaf, co prefixo \texttt{th:}, para que poida substituír o contido entre corchetes polo valor da propiedade dentro do obxecto.
+
+\subsection{Controlador}
+
+O controlador é onde está toda a lóxica da interface, e é o encargado de engadir os datos precisos ao Modelo. Dentro de Spring, para crear un controlador só se precisa crear unha clase, etiquetala con \texttt{@Controller}, e engadir os métodos que procesarán as peticións. Cada método deberá etiquetarse co tipo de petición e ruta que procesa, usando a etiqueta \texttt{@GetMapping("/")} (para procesar \texttt{GET}) ou \texttt{@PostMapping("/")} (para procesar \texttt{POST}). No cliente, todas as clases no cartafol \texttt{view} son controladores. Son estas clases as que realizan as chamadas á API REST, procesan os resultados e lanzan as excepcións.
+
+Despois, a definición de cada método indicará de que xeito vai procesar a petición. Devolver unha cadea de texto indica que a cadea conterá o nome do ficheiro HTML a usar na vista, pero tamén se pode devolver unha clase \texttt{Model} ou \texttt{ModelView}, que permiten devolver directamente o modelo, pasando o ficheiro no construtor da clase, ou incluso calquera outra resposta, devolvendo un \texttt{ResponseEntity} creado co código, corpo e cabeceiras que se precisen. Dependendo dos parámetros da función, Spring pasaralle os obxectos que se precisen, dende o modelo (pasando unha clase \texttt{Model} ou \texttt{ModelView}) ou a sesión (clase \texttt{HttpSession}) ate os parámetros GET e POST da petición. Neste último caso, precisa que os parámetros sexan de tipo \texttt{String}, e que estean etiquetados con \texttt{@RequestParam}.
+
+De xeito especial, pódese poñer un parámetro de tipo \texttt{Map<String, String>}, que conterá todos os parámetros da petición.
+
+Para amosar o funcionamento da interface, vaise amosar exemplo de uso típico:
+
+\section{Caso de uso: Creación dun novo compoñente}
+
+Para este caso de uso de exemplo, vaise crear un novo compoñente rato, vinculado a un ordenador.
+
+O primeiro paso é crear o ordenador. Para isto aprovéitase o modelo xa creado «Ordenador». A partir deste modelo créase o compoñente «PC-02», tal coma se pode ver nas figuras \ref{fig:crearc} e \ref{fig:creadoc}.
+
+Despois vaise engadir un rato e vinculalo ao ordenador. Para isto créase o modelo «Rato» (figura \ref{fig:creart}), a partir do cal créase un compoñente rato (figura \ref{fig:crearc2}), e engádese nun campo unha ligazón ao compoñente «PC-02», como se pode ver no campo PC da figura \ref{fig:creadoc2}.
+
+\newpage
+
+\section{Galería de imaxes}
+
+\newcommand*{\crearimaxe}[3][width=\textwidth]{
+	\begin{figure}[htbp]
+		%\hspace*{-3cm}
+		\centering
+		\frame{\includegraphics[#1]{imaxes/#2.png}}
+		\caption{#3}
+		\label{fig:#2}
+		\centering
+	\end{figure}
+}
+
+\vspace*{5em}
+\crearimaxe[width=30em]{crearc}{Creando o compoñente «PC-02»}
+\crearimaxe[width=0.9\textwidth]{creadoc}{Compoñente «PC-02» creado}
+\crearimaxe[width=0.9\textwidth]{creart}{Creando o modelo «Rato»}
+
+\crearimaxe[width=27em]{crearc2}{Creando o compoñente «Rato»}
+\crearimaxe[width=27em]{creadoc2}{Compoñente «Rato» creado}
+
+\crearimaxe[width=0.9\textwidth]{inicio}{Menú de inicio, antes de crear o modelo «Rato»}
+\crearimaxe[width=0.9\textwidth]{inicio2}{Menú de inicio, co submenú aberto}
+
+\crearimaxe{login}{Formulario de inicio de sesión}
+\crearimaxe{mc}{Páxina de xestión de compoñentes}
+
+\crearimaxe{mt}{Páxina de xestión de modelos}
+\crearimaxe{mu}{Páxina de xestión de usuarios}
+
+\crearimaxe[width=0.9\textwidth]{creadou}{Modificar un usuario}
+\crearimaxe[width=0.9\textwidth]{crearu}{Engadir un novo usuario}
+
+\crearimaxe{buscar}{Buscando un modelo}
+\crearimaxe{buscarh}{Fragmento da páxina de axuda á busca}

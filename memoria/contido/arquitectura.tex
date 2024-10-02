@@ -1,0 +1,371 @@
+\chapter{Arquitectura}
+\label{chap:arquitectura}
+
+A plataforma está formada por dous compoñentes: unha parte servidor, implementada en Java e que realiza as labores de conexión coa base de datos, e que presenta unha \acrshort{API} \acrshort{REST} ao exterior; e unha parte cliente, un servidor Web en Java que conecta á parte servidor mediante peticións á \acrshort{API} \acrshort{REST}. Decidiuse engadir unha API REST, e non só integrar todo no mesmo sistema, para permitir futuras extensións e aplicacións alternativas, que permita un acceso máis cómodo e adaptado ao persoal técnico. O esquema de deseño fundamental foi «\textit{API first}», pensando en presentar un mesmo método de interacción mediante peticións HTTP con JSON, no canto de integrar o cliente dentro da aplicación e que chamar directamente aos métodos dende Java.
+
+\section{Obxectos}
+
+Existen cinco obxectos principais. A figura \ref{fig:diagrama_clases} representa as relacións entre as clases:
+
+\subsection{Template}
+\label{obx:template}
+
+Representa un modelo a partir do cal sacar \Gls{Component}.
+
+\textbf{Campos:}
+
+\begin{description}
+    \item[id] Valor numérico que representa o ID do modelo
+    \item[name] Cadea que contén o nome do modelo
+    \item[description] Cadea que conten unha pequena descrición do modelo
+    \item[fields] Lista de clases \Gls{TemplateField}, que son os campos do modelo
+\end{description}
+
+\subsection{Component}
+\label{obx:component}
+
+Representa un compoñente creado a partir dun \Gls{Template}.
+
+\textbf{Campos:}
+
+\begin{description}
+    \item[id] Valor numérico que representa o ID do compoñente
+    \item[name] Cadea que contén o nome do compoñente
+    \item[description] Cadea que conten unha pequena descrición do compoñente
+    \item[template] Clave foránea/punteiro que apunta ao \Gls{Template} do que se creou este Component
+    \item[fields] Lista de clases \Gls{Field}, que son os campos do compoñente
+\end{description}
+
+\subsection{TemplateField}
+\label{obx:tfield}
+
+Representa os campos do modelo, que son a base para crear os campos do \Gls{Component}.
+
+\textbf{Campos:}
+
+\begin{description}
+    \item[id] Valor numérico que representa o ID do campo
+    \item[name] Cadea que contén o nome do campo. Non se poden repetir no mesmo \Gls{Template}
+    \item[mandatory] Valor binario que indica se o campo é obrigatorio
+    \item[type] Indica o tipo do campo con un enumerado.
+\end{description}
+
+Os tipos de campos son:
+
+\begin{description}
+    \item[\texttt{TEXT}] Permite gardar texto plano e sen formato
+    \item[\texttt{LINK}] Representa unha ligazón a outro compoñente
+    \item[\texttt{DATETIME}] Representa unha data
+\end{description}
+
+\subsection{Field}
+\label{obx:field}
+
+Representa un campo dun \Gls{Component}.
+
+\textbf{Campos:}
+
+\begin{description}
+    \item[id] Valor numérico que representa o ID do campo
+    \item[type] Tipo do campo, copiado do \Gls{TemplateField} e usado para diferenciar durante a serialización
+    \item[content] Atributo «virtual», que serve para indicarlle a OpenAPI que clases poden conterse dentro do campo.
+    \item[templateField] Ligazón/clave foránea no modelo relacional ao campo do \Gls{Template} no que se basea este campo o \Gls{Component} 
+\end{description}
+
+O obxecto \texttt{Field} é unha clase abstracta, e parametrizada cunha clase xenérica que serve para devolver distintos tipos de obxectos. Para poder usar herdanza na base de datos hai tres tipos de estratexias:\cite{herdanza}
+
+\begin{itemize}
+	\item \texttt{MappedSuperclass}, que crea unha táboa por cada subclase (pero non para a superclase) replicando todas as columnas herdadas e propias. O problema que ten isto é que non se pode referenciar á superclase dende outras táboas da base de datos, o que neste caso impediría que \texttt{Component} tivera unha foránea a \texttt{Field}, e tería que ter foráneas a todos os campos individuais.
+	\item Reunir nunha soa táboa todas as subclases. Isto permite engadir foráneas, pero o número de subclases e o rendemento están limitados polo número de columnas que acepte a base de datos.
+	\item Unha táboa por subclase, de xeito que para acceder a unha entidade precísase facer unha operación de \texttt{JOIN} entre a táboa da subclase e da superclase. Non ocupa tanto espazo coma a seguinte opción, pero é máis lenta ca a anterior opción por mor de precisar acceder a varias táboas.
+	\item Unha táboa completa por subclase, tendo cada táboa da subclase os seus atributos máis os da superclase. Non se precisan facer \texttt{JOIN}, pero ocupa máis espazo ao ter que duplicar todos os atributos.
+\end{itemize}
+
+Escolleuse a 2ª opción por ser a máis sinxela, eficiente e ser a opción predeterminada en Jakarta. Ademais, non se considera que o número de tipos de campos vaia medrar dabondo coma para ser un problema. E, en calquera caso, poderíase migrar a calquera das outras opcións só cambiando unha anotación.
+
+As subclases existentes son:
+
+\begin{description}
+    \item[\texttt{TextField}] Representa un campo de texto. Substitúe a clase xenérica por unha clase \texttt{String}
+    \item[\texttt{DatetimeField}] Representa un campo de texto. Substitúe a clase xenérica por unha clase \texttt{JSONDatetime}
+    \item[\texttt{LinkField}] Representa unha ligazón a outro compoñente.  Substitúe a clase xenérica por unha clave foránea a unha clase \texttt{Component}
+    \item[\texttt{NumberField}] Representa un valor numérico decimal. Substitúe a clase xenérica por \texttt{BigDecimal}
+\end{description}
+
+Inda que cada subclase ten unha propiedade \texttt{content} distinta para evitar colisións na base de datos, o contido é o mesmo.
+
+\subsection{User}
+\label{obx:user}
+
+Representa un usuario no sistema.
+
+\textbf{Campos:}
+
+\begin{description}
+    \item[id] Valor numérico que representa o ID do usuario
+    \item[username] Cadea que contén o alcume do usuario
+    \item[email] Cadea que contén o enderezo electrónico do usuario
+    \item[password] Cadea que contén o contrasinal do usuario, cifrado con \Gls{BCrypt}
+    \item[role] Enumerado que contén o tipo de rol do usuario
+\end{description}
+
+Os posibles valores para o campo role son \texttt{ADMINISTRATOR} e \texttt{NORMAL\_USER}. Para máis información, consulte a sección \ref{sec:usuarios}.
+
+Para os usuarios tamén existe a clase Token, que, aparte do usuario ao que referencia e un ID, garda unha \Gls{testemuna} nunha cadea.
+
+\begin{figure}\hspace*{-3cm}
+    \centering
+    \resizebox{.9\textwidth}{!}{\input{imaxes/clases}}
+    \caption{Diagrama de clases do servidor}
+    \label{fig:diagrama_clases}
+\end{figure}
+
+\section{API REST do servidor}
+
+Todas as rutas que inclúen algún id ou nome, devolven un «\textit{HTTP 404 Not Found}» se non existe algún dos identificadores ou nomes. A API acepta tanto JSON coma XML, pero o cliente só usa JSON.
+
+A meirande parte das peticións precisan dunha testemuña válida pasa na cabeceira «\texttt{X-API-KEY}». Para máis información sobre permisos consultar a sección 
+\ref{sec:seguridade}
+
+Todas as rutas descritas son relativas á ruta \texttt{\$SERVIDOR/api/v0/\$SUBSECCIÓN}.
+
+\newpage
+
+\subsection{\texttt{/templates}}
+
+Nesta sección xestiónanse os modelos os seus campos.
+
+\texttt{/}
+
+\begin{description}
+    \item[GET] Devolve unha listaxe de todos os modelos dispoñibles. Permite devolver só un rango engadindo os parámetros \texttt{skip} e \texttt{count}
+    \item[POST] Crea un novo modelo incluído no corpo da petición. Devolve un «\textit{HTTP 409 CONFLICT}» se xa existe outro modelo co mesmo nome
+\end{description}
+
+\texttt{/find?name=(nome)}
+
+\begin{description}
+    \item[GET] Devolve unha listaxe de todos os modelos dispoñibles cuxo nome coincide con «nome»
+\end{description}
+
+\texttt{/(id)}
+
+\begin{description}
+    \item[GET] Devolve o modelo con id \texttt{id}
+    \item[POST] Actualiza o modelo co contido do corpo da petición
+    \item[DELETE] Elimina o modelo. Devolve un HTTP 409 Bad Request se inda quedan \Gls{Component}s vinculados a este modelo
+\end{description}
+
+\texttt{/(id)/components}
+
+\begin{description}
+    \item[GET] Devolve unha listaxe de todos os compoñentes derivados deste modelo
+\end{description}
+
+\texttt{/(id)/fields}
+
+\begin{description}
+    \item[GET] Devolve unha listaxe de todos os campos deste modelo
+    \item[POST] Engade un novo campo ao compoñente. Falla se o modelo está en uso
+\end{description}
+
+\texttt{/(id)/fields/(id)}
+
+\begin{description}
+    \item[GET] Devolve o campo indicado
+    \item[POST] Modifica o campo indicado, co contido do corpo da petición
+    \item[DELETE] Elimina o campo indicado.
+\end{description}
+
+Tanto a modificación coma o borrado fallan se o modelo está en uso.
+
+\subsection{\texttt{/components}}
+
+Nesta sección xestiónanse os compoñentes e os seus campos.
+
+\texttt{/}
+
+\begin{description}
+    \item[GET] Devolve unha listaxe de todos os compoñentes dispoñibles. Permite devolver só un rango engadindo os parámetros \texttt{skip} e \texttt{count}
+    \item[POST] Crea un novo compoñente incluído no corpo da petición
+\end{description}
+
+\texttt{/find?name=(nome)}
+
+\begin{description}
+    \item[GET] Devolve unha listaxe de todos os compoñentes dispoñibles cuxo nome coincide con «nome»
+\end{description}
+
+\texttt{/(id)}
+
+\begin{description}
+    \item[GET] Devolve o compoñente con id \texttt{id}
+    \item[POST] Actualiza o compoñente co contido do corpo da petición
+    \item[DELETE] Elimina o compoñente
+\end{description}
+
+\newpage
+
+\texttt{/(id)/fields}
+
+\begin{description}
+    \item[GET] Devolve unha listaxe de todos os campos deste modelo
+    \item[POST] Engade un novo campo ao compoñente. Falla se o modelo está en uso
+\end{description}
+
+\texttt{/(id)/fields/(nome)}
+
+\begin{description}
+    \item[GET] Devolve o campo chamado «nome»
+    \item[PUT] Modifica o valor campo indicado, co contido do corpo da petición. A columna modificada na base de datos depende do tipo do dato
+    \item[DELETE] Elimina o campo indicado
+\end{description}
+
+Se se intenta cambiar un campo obrigatorio a unha cadea baleira ou nula, ou eliminalo, devólvese unha mensaxe «\textit{HTTP 400 Bad Request}».
+
+\subsection{\texttt{/users}}
+
+Nesta sección xestiónanse os usuarios. Os usuarios só os poden modificar e crear usuarios administradores.
+
+\texttt{/}
+
+\begin{description}
+    \item[GET] Devolve unha listaxe de todos os usuarios: só se inclúe o ID por seguridade. Permite devolver só un rango engadindo os parámetros \texttt{skip} e \texttt{count}.
+    \item[POST] Crea un novo usuario.
+\end{description}
+
+\texttt{/login?user=(nome)}
+
+\begin{description}
+    \item[POST] Inicia sesión para o usuario «nome». O método precisa que se pase o contrasinal sen cifrar no corpo da mensaxe, e devolve unha \Gls{testemuna}
+\end{description}
+
+\texttt{/find?name=(nome)}
+
+\begin{description}
+    \item[GET] Devolve o ID do usuario co nome indicado
+\end{description}
+
+\texttt{/(id)}
+
+\begin{description}
+    \item[GET] Devolve o usuario con id \texttt{id}
+    \item[POST] Actualiza o usuario co contido do corpo da petición
+    \item[DELETE] Elimina o usuario.
+\end{description}
+
+\texttt{/(id)/role}
+
+\begin{description}
+    \item[GET] Devolve o rol do usuario
+    \item[PUT] Cambia o rol do usuario ao contido do corpo da petición
+\end{description}
+
+\texttt{/(id)/logout}
+
+\begin{description}
+    \item[POST] Pecha a sesión do usuario, eliminando a \Gls{testemuna} indicado no corpo da petición. Devolve un código «\textit{HTTP 404 Not Found}» se o usuario non ten rexistrada esa testemuña
+\end{description}
+
+Se se intenta cambiar un campo obrigatorio a unha cadea baleira ou nula, ou eliminalo, devólvese unha mensaxe «\textit{HTTP 400 Bad Request}».
+
+\subsection{\texttt{/search}}
+
+Baixo esta ruta existen 3 subrutas (\texttt{components}, \texttt{templates} e \texttt{users}). Todas elas funcionan do mesmo xeito: Envíaselle unha petición GET, e devolve unha listaxe dos obxectos axeitados. Coa petición GET pódense incluír os seguintes atributos:
+
+\begin{description}
+    \item[query] Cadea que contén a petición a buscar. Véxase a sección \ref{sec:busca}
+    \item[skip] Número de elementos que saltar ao inicio da listaxe
+    \item[count] Número de elementos a devolver
+\end{description}
+
+Cada subruta ten, ademáis, unha subruta \texttt{/clear} que permite borrar a caché facéndolle un POST, opcionalmente engadindo a petición a borrar.
+
+\section{Organización do código}
+
+\subsection{Servidor}
+
+A definición das API atópase dividida en tres clases: UsersResource para \texttt{/users}, TemplateResource para \texttt{/templates} e ComponentResource para \texttt{/components}. Dentro desas clases defínese un método por ruta. A clase OpenApiResource indica baixo que ruta pode accederse á definición OpenAPI.
+
+\newpage
+
+No paquete raíz atópanse tamén unha serie de clases auxiliares ou de configuración:
+
+\begin{itemize}
+	\item O punto de entrada da aplicación en Application
+	\item Unha serie de valores predeterminados na base de datos, en DataLoader
+	\item A configuración de seguridade, en AuthenticationManager. Véxase o capítulo \ref{chap:seguridade}
+	\item A definición dunha cadea de texto serializable por JSON. Usando a clase String directamente Jakarta entende que o método devolve JSON xa serializado, e causa problemas ao enviar e recibir cadeas.
+\end{itemize}
+
+O paquete \texttt{exceptions} recolle todas as excepcións, separadas en subpaquetes. Tamén inclúe unha excepción xenérica, \texttt{RESTException}, que é superclase de todas as excepcións. O serializador \texttt{RESTExceptionMapper} encárgase de serializar os \texttt{RESTException}, transformando a un \texttt{RESTExceptionSerializable} só cos atributos que se queren enviar. Doutro xeito, se se enviase directamente o \texttt{RESTException} este incluiría tamén atributos da clase \texttt{Exception}, que non interesan; e a clase \texttt{RESTExceptionSerializable} non se pode lanzar coma excepción ao non ser subclase de \texttt{Exception}.
+
+O paquete \texttt{dao} recolle as definicións dos datos, e tamén as interfaces que definen as posibles peticións ás bases de datos. Hibernate encárgase de xerar peticións usando os nomes dos métodos definidos nas interfaces.\cite{jpaquery}
+
+Por mor dun fallo de OpenAPI\cite{jsondate} non se usan directamente as clases de tempo de Java, polo que no seu lugar úsase unha versión propia \texttt{JSONDatetime}, que inclúe métodos \textit{getter}, \textit{setter} e \texttt{parse} (ademais do construtor); e encapsula un \texttt{OffsetDatetime}, que é a clase que usa OpenAPI para datos de tipo temporal.
+
+\subsection{Cliente}
+
+O cliente organízase de xeito semellante ao servidor. No paquete raíz atópanse o punto de entrada (Main), a configuración de SecurityConfig (véxase o capítulo \ref{chap:seguridade}). Tamén ten paquetes para as excepcións, para a seguridade e un chisco de configuración en \texttt{service} e para as vistas. A clase CSSandJSResources encárgase de procesar as peticións ás rutas \texttt{/css/} e \texttt{/js/} e devolver os recursos axeitados.
+
+\section{Busca}
+\label{sec:busca}
+
+O sistema de busca está composto de dúas fases. Na primeira, convértese a cadea da petición nunha árbore de nodos usando ANTLR. Despois, e de xeito recursivo, compróbase obxecto a obxecto se se cumplen as condicións.
+
+A definición usada por ANTLR para xerar o código axeitado atópase no ficheiro Find.g4, na ruta \texttt{pleste-server\allowbreak{}/src\allowbreak{}/main\allowbreak{}/antrl4\allowbreak{}/gal\allowbreak{}/udc\allowbreak{}/fic\allowbreak{}/prperez\allowbreak{}/pleste\allowbreak{}/service}. As diferenzas máis importantes entre a gramática Backus–Naur indicada no capítulo \ref{chap:deseno} e o implementado no ficheiro son engadir a regra «top», que contén só unha \texttt{<expresión>} e o carácter EOF por mor dun fallo en ANTLR que non se vai arranxar\cite{antlr118}; e unha definición un chisco distinta de cadeas, para que o analizador léxico non consuma o carácter previo ás comiñas de inicio.
+
+Tras executar a definición sobre unha cadea de entrada (véxase a sección \ref{sec:tec_servidor}, no parágrafo referente a ANTLR) xérase unha árbore propia, formada por unha serie de nodos, cada ún dos cales implementa un método \texttt{matches(Object)}, que comproba se o obxecto indicado cumpre coa condición indicada (no caso da regra \texttt{<proba>}) ou devolve o resultado de chamar, recursivamente, este método nos seus nodos fillos (no caso das regras \texttt{<expresión>}).
+
+A estrutura destes nodos é a seguinte:
+
+\begin{itemize}
+	\item Node: Clase abstracta contén un atributo \texttt{child} que conten o único fillo deste nodo
+	
+	\begin{itemize}
+		\item RootNode: Versión concreta da clase Node, usada só para o nodo raíz da árbore.
+		\item TestIn: Comproba sobre cadeas
+		\item TestNumber: Comproba sobre comparacións numéricas
+		\item TestString: Comproba sobre unha cadea
+		\item BinaryNode: Esta clase abstracta introduce un segundo nodo fillo, para poder implementar unha árbore binaria.
+		
+		\begin{itemize}
+			\item AndNode: Implementa a operación de conxunción sobre os dous nodos fillos
+			\item OrNode: Implementa a operación de disxunción sobre os dous nodos fillos
+		\end{itemize}
+	\end{itemize}
+\end{itemize}
+
+\newpage
+
+Deste xeito, a árbore da figura \ref{fig:arboresintaxe} quedaría tal como se amosa na figura \ref{fig:arborenodos}:
+
+\begin{figure}[H]
+	\centering
+	\resizebox{.8\linewidth}{!}{\input{imaxes/arbore_nodos}}
+	\caption{Árbore de sintaxe de exemplo}
+	\label{fig:arborenodos}
+\end{figure}
+
+Decidiuse usar un método recursivo, e non iterativo, por que resultaba máis sinxelo implementalo e non se considera que as posibles peticións que se fixeran poidan sobrepasar o límite da pila de chamadas. De todos xeitos, o uso dos operadores lóxicos de Java (\texttt{\&\&} e \texttt{||}) con cortocircuíto reducen tamén o número de operacións a realizar.
+
+Para implementar a paxinación úsase unha caché LRU, que usando coma índice do mapa a petición devolve unha listaxe de obxectos comprobados para esa petición. Existe unha caché para cada tipo de obxecto.
+
+As propiedades dispoñibles son:
+
+\begin{itemize}
+	\item template.name
+	\item template.description
+	\item template.field.name
+	\item template.field.type
+	\item component.name
+	\item component.description
+	\item component.field.name
+	\item component.field.type
+	\item component.field.value
+	\item user.name
+	\item user.email
+	\item user.role
+\end{itemize}
+
+Comparar un valor dun campo só devolverá os compoñentes con campos do tipo axeitado (\texttt{TEXT}, \texttt{DATETIME} para as cadeas; \texttt{NUMBER}, \texttt{LINK} e \texttt{DATETIME} para os números). Para comparar con propiedades que conteñan enumeracións, deberá usarse o nome orixinal da enumeración, non o que poida amosar a interface web.

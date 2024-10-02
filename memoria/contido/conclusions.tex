@@ -1,0 +1,22 @@
+\chapter{Conclusións}
+\label{chap:conclusions}
+
+Como conclusión do proxecto, o traballo acadado preséntase cun balance positivo, non só polo programa creado e xa descrito nesta memoria, senón que tamén por todo o proceso de aprendizaxe realizado ante tantas ferramentas e tecnoloxías practicamente novas. Inda que a base bebe moito do aprendido durante a carreira, especialmente da materia de \textit{Integración de Aplicacións}, a experiencia de montar o proxecto dende cero e engadindo novas tecnoloxías resultou didáctica, tanto nos acertos coma nos fallos no deseño da aplicación.
+
+Por desgraza, e a pesar da axuda prestada polos directores do proxecto, esta plataforma inda precisa probarse nun ambiente real, tras o cal seguramente se precisen facer máis melloras para adaptalo a unha carga de traballo real. Entre outras, seguramente se precisará dunha integración cun sistema de identificación e autenticación externo. Porén, por mor da falta de tempo decidiuse reducir o alcance do proxecto ao actual.
+
+Por sorte, o deseño empregado na construción da plataforma permite unha adaptación sinxela a calquera engadido que se lle queira realizar en datas futuras.
+
+\section{Futuras melloras}
+
+Sexa como for, existen varias melloras posibles á aplicación, que por falta de tempo e dificultade, ou outros motivos, non se puideron engadir.
+
+A posibilidade máis útil é a integración con outras ferramentas xa existentes. A API actual presenta unha interface completa dabondo para que outras aplicacións poidan xestionar o contido da base de datos, pero esta integración só e unidireccional. Actualmente non existe ningún xeito de executar accións automáticas, nin realizar interaccións activas con outras aplicacións. Probablemente isto precisará engadir un novo tipo de entidade á aplicación, que usando algunha linguaxe dinámica (Lisp ou Lua, por exemplo) permita definir condicións de activación e accións a executar.
+
+\newpage
+
+Unha característica que quedou fora da aplicación é un rexistro. Facer un sistema de rexistro útil precisaría de rexistrar todas as actividades que realiza a aplicación, vinculándoas a un usuario e obxecto precisos.
+
+Xunto cunha futura integración cun sistema de autenticación externo, poderíase engadir un sistema de permisos máis detallado e configurable.
+
+Unha característica menor, pero que precisaríase para unha futura expansión da aplicación, é a localización. Actualmente a aplicación inserta directamente cadeas de texto dentro das páxinas da aplicación e das mensaxes dos fallos. Centralizar todo isto axudaría á tradución e arranxar erratas.

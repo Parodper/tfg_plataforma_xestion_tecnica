@@ -1,0 +1,91 @@
+\begin{tikzpicture}
+\begin{class}{Template}{20,0}
+	\attribute{id : long}
+	\attribute{name : String}
+	\attribute{description : String}
+	\attribute{fields : TemplateField[0..*]}
+\end{class}
+\begin{class}{TemplateField}{10,0}
+	\attribute{id : long}
+	\attribute{name : String}
+	\attribute{mandatory : boolean}
+	\attribute{type : FieldTypes}
+\end{class}
+\begin{class}{FieldTypes}{0,0}
+	\attribute{TEXT}
+	\attribute{DATETIME}
+	\attribute{LINK}
+	\attribute{NUMBER}
+\end{class}
+
+\composition{Template}{0..*}{fields}{TemplateField}
+\aggregation{TemplateField}{1}{type}{FieldTypes}
+
+\begin{class}{Component}{17,5}
+	\attribute{id : long}
+	\attribute{name : String}
+	\attribute{description : String}
+	\attribute{fields : Field[0..*]}
+	\attribute{template : Template}
+\end{class}
+\begin{abstractclass}[template=T]{Field}{8,7}
+	\attribute{id : long}
+	\attribute{type : FieldTypes}
+	\attribute{templateField : TemplateFields}
+	\attribute{content : T}
+	\operation{getContent() : T}
+	\operation{setContent(content : T) }
+\end{abstractclass}
+\begin{class}{NumberField}{0,10}
+	\inherit{Field}
+	\attribute{number\_content : BigDecimal}
+	\operation{getContent() : BigDecimal}
+	\operation{setContent(content : BigDecimal)}
+\end{class}
+\begin{class}{TextField}{8,10}
+	\inherit{Field}
+	\attribute{text\_content : String}
+	\operation{getContent() : String}
+	\operation{setContent(content : String)}
+\end{class}
+\begin{class}{DatetimeField}{0,6}
+	\inherit{Field}
+	\attribute{datetime\_content : JSONDatetime}
+	\operation{getContent() : JSONDatetime}
+	\operation{setContent(content : JSONDatetime)}
+\end{class}
+\begin{class}{LinkField}{15,10}
+	\inherit{Field}
+	\attribute{link\_content : Component}
+	\operation{getContent() : Component}
+	\operation{setContent(content : Component)}
+\end{class}
+
+\composition{Component}{0..*}{fields}{Field}
+\unidirectionalAssociation{LinkField}{1}{link\_content}{Component}
+\aggregation{Field}{1}{type}{FieldTypes}
+\aggregation{Component}{1}{template}{Template}
+\aggregation{Field}{1}{templateField}{TemplateField}
+
+\begin{class}{User}{7,15}
+	\attribute{id : long}
+	\attribute{username : String}
+	\attribute{email : String}
+	\attribute{password : String}
+	\attribute{role : Roles}
+\end{class}
+\begin{class}{Token}{0,15}
+	\attribute{id : long}
+	\attribute{user : User}
+	\attribute{token : String}
+\end{class}
+\begin{class}{Roles}{15,15}
+	\attribute{NORMAL\_USER}
+	\attribute{ADMINISTRATOR}
+\end{class}
+
+
+\aggregation{User}{1}{role}{Roles}
+\aggregation{Token}{1}{user}{User}
+
+\end{tikzpicture}
