@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+    <!-- Ignorar caracteres de tabulación y desajustes de sangrado derivados de tabuladores -->
+    <suppress checks="FileTabCharacter" files=".*"/>
+    <suppress checks="Indentation" files=".*"/>
+</suppressions>

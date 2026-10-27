@@ -12,8 +12,8 @@ services:
     networks:
       - pleste-backend
     healthcheck: # https://github.com/peter-evans/docker-compose-healthcheck
-      test: [ "CMD-SHELL", "pg_isready", "-d", "pleste" ]
-      interval: 30s
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d pleste" ]
+      interval: 5s
       timeout: 60s
       retries: 5
       start_period: 80s
@@ -38,12 +38,14 @@ services:
       context: .
       dockerfile: pleste-server/Dockerfile
     ports:
+      - "8080:80"
       - "5006:5005"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://pleste-server/api/v0/openapi.json"]
       interval: 15s
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - pleste-backend
       - pleste-frontend
